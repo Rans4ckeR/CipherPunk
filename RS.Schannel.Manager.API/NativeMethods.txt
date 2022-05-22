@@ -1,0 +1,10 @@
+﻿BCryptAddContextFunction
+BCryptEnumContextFunctions
+BCryptEnumContexts
+BCryptFreeBuffer
+BCryptRemoveContextFunction
+BCryptResolveProviders
+NCryptOpenStorageProvider
+NCryptEnumAlgorithms
+NCRYPT_FLAGS
+NCRYPT_KEY_HANDLE
