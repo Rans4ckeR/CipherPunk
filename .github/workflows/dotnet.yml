@@ -1,0 +1,56 @@
+name: .NET
+on:
+  push:
+    branches: [ develop ]
+  workflow_dispatch:
+permissions:
+  contents: write
+  packages: write
+jobs:
+  build:
+    if: github.repository == 'Rans4ckeR/RS.Schannel.Manager'
+    runs-on: windows-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+      with:
+        fetch-depth: 0
+    - name: Setup .NET Core SDK
+      uses: actions/setup-dotnet@main
+      with:
+        dotnet-version: '7.x.x'
+        include-prerelease: true
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@main
+      with:
+        versionSpec: '5.x'
+    - name: Determine Version
+      uses: gittools/actions/gitversion/execute@main
+    - name: Publish
+      run: |
+        dotnet publish RS.Schannel.Manager.UI/RS.Schannel.Manager.UI.csproj --configuration Release --no-self-contained --framework net6.0-windows10.0.22000.0 --runtime win-x64 -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+        dotnet publish RS.Schannel.Manager.UI/RS.Schannel.Manager.UI.csproj --configuration Release --no-self-contained --framework net7.0-windows10.0.22000.0 --runtime win-x64 -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+        dotnet publish RS.Schannel.Manager.UI/RS.Schannel.Manager.UI.csproj --configuration Release --no-self-contained --framework net6.0-windows10.0.22000.0 --runtime win-arm64 -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+        dotnet publish RS.Schannel.Manager.UI/RS.Schannel.Manager.UI.csproj --configuration Release --no-self-contained --framework net7.0-windows10.0.22000.0 --runtime win-arm64 -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+    - name: Zip
+      run: |
+        7z a -r ${{ format('RS.Schannel.Manager-v{0}-net6.0-windows-x64.zip', env.GitVersion_SemVer) }} ./RS.Schannel.Manager.UI/bin/Release/net6.0-windows10.0.22000.0/win-x64/publish/*.*
+        7z a -r ${{ format('RS.Schannel.Manager-v{0}-net7.0-windows-x64.zip', env.GitVersion_SemVer) }} ./RS.Schannel.Manager.UI/bin/Release/net7.0-windows10.0.22000.0/win-x64/publish/*.*
+        7z a -r ${{ format('RS.Schannel.Manager-v{0}-net6.0-windows-ARM64.zip', env.GitVersion_SemVer) }} ./RS.Schannel.Manager.UI/bin/Release/net6.0-windows10.0.22000.0/win-arm64/publish/*.*
+        7z a -r ${{ format('RS.Schannel.Manager-v{0}-net7.0-windows-ARM64.zip', env.GitVersion_SemVer) }} ./RS.Schannel.Manager.UI/bin/Release/net7.0-windows10.0.22000.0/win-arm64/publish/*.*
+    - name: Prerelease
+      if: ${{ env.GitVersion_PreReleaseTag != '' }}
+      run: gh release create ${{ format('v{0}', env.GitVersion_SemVer) }} (get-item *.zip) --generate-notes --target ${{ github.sha }} --prerelease
+      env:
+        GH_TOKEN: ${{ github.token }}
+    - name: Release
+      if: ${{ env.GitVersion_PreReleaseTag == '' }}
+      run: gh release create ${{ format('v{0}', env.GitVersion_SemVer) }} (get-item *.zip) --generate-notes --target ${{ github.sha }}
+      env:
+        GH_TOKEN: ${{ github.token }}
+    - name: Package
+      run: dotnet pack RS.Schannel.Manager.API/RS.Schannel.Manager.API.csproj --no-restore --no-build --configuration Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
+    - name: NuGet Push
+      run: dotnet nuget push ${{ format('RS.Schannel.Manager.API/bin/Release/RS.Schannel.Manager.API.{0}.nupkg', env.GitVersion_NuGetVersionV2) }} --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+    - name: GitHub Push
+      run: dotnet nuget push ${{ format('RS.Schannel.Manager.API/bin/Release/RS.Schannel.Manager.API.{0}.nupkg', env.GitVersion_NuGetVersionV2) }} --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/Rans4ckeR/index.json
