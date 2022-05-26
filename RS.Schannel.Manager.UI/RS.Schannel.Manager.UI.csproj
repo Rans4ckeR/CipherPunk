@@ -71,5 +71,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RS.Schannel.Manager.API\RS.Schannel.Manager.API.csproj" />
+    <ProjectReference Include="..\RS.Schannel.Manager.CipherSuiteInfoApi\RS.Schannel.Manager.CipherSuiteInfoApi.csproj" />
   </ItemGroup>
 </Project>

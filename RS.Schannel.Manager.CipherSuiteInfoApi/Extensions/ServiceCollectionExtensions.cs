@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCipherSuiteInfoApiHttpClient(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddCipherSuiteInfoApi(this IServiceCollection serviceCollection)
     {
         _ = serviceCollection
             .AddSingleton<ICipherSuiteInfoApiService, CipherSuiteInfoApiService>()

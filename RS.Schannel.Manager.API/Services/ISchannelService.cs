@@ -4,9 +4,9 @@ public interface ISchannelService
 {
     string[] GetLocalCngConfigurationContextIdentifiers();
 
-    List<WindowsCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+    List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
 
-    Task<List<CipherSuiteConfiguration>> GetOperatingSystemActiveCipherSuiteListAsync(bool includeOnlineInfo = true, CancellationToken cancellationToken = default);
+    Task<List<WindowsApiCipherSuiteConfiguration>> GetOperatingSystemActiveCipherSuiteListAsync(CancellationToken cancellationToken = default);
 
     void ResetList();
 

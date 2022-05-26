@@ -2,9 +2,9 @@
 
 using Windows.Win32;
 
-public readonly record struct WindowsCipherSuiteConfiguration(
+public readonly record struct WindowsDocumentationCipherSuiteConfiguration(
     SslProviderCipherSuiteId CipherSuite,
-    bool AllowedBySCH_USE_STRONG_CRYPTO,
+    bool AllowedByUseStrongCryptographyFlag,
     bool EnabledByDefault,
     SslProviderProtocolId[] Protocols,
     bool ExplicitApplicationRequestOnly = false,
