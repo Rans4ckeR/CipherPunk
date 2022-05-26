@@ -63,7 +63,21 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        groupPolicyService.UpdateSslCipherSuiteOrderPolicy(new[] { "", "" });
+        //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        //var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
+
+        //List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations1 = await schannelService.GetOperatingSystemActiveCipherSuiteListAsync(cancellationToken);
+
+        //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(new[]
+        //{
+        //    "TLS_AES_256_GCM_SHA384",
+        //    "TLS_AES_128_GCM_SHA256",
+        //    "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+        //    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+        //    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+        //    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+        //    "TLS_RSA_WITH_AES_256_CBC_SHA"
+        //});
 
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDefaultCipherSuiteList();
         List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations = await schannelService.GetOperatingSystemActiveCipherSuiteListAsync(cancellationToken);
@@ -111,8 +125,6 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     private async Task FetchOnlineCipherSuiteInfo(List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
     {
-        //Ciphersuite[] onlineCipherSuiteInfo = await cipherSuiteInfoApiService.GetAllCipherSuites(cancellationToken);
-
         var newOnlineCipherSuiteInfos = new List<Ciphersuite?>();
 
         foreach (WindowsDocumentationCipherSuiteConfiguration windowsDocumentationCipherSuiteConfiguration in windowsDocumentationCipherSuiteConfigurations)
@@ -124,7 +136,6 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         }
 
         onlineCipherSuiteInfos.Clear();
-        //onlineCipherSuiteInfos.AddRange(onlineCipherSuiteInfo.Cast<Ciphersuite?>());
         onlineCipherSuiteInfos.AddRange(newOnlineCipherSuiteInfos);
     }
 }
