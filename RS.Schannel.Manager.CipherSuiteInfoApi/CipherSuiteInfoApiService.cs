@@ -64,7 +64,7 @@ internal sealed class CipherSuiteInfoApiService : ICipherSuiteInfoApiService
         JsonArray cipherSuiteObjectsArray = cipherSuitesResponseNode!["ciphersuites"]!.AsArray();
         var resultArray = new JsonArray();
 
-        foreach (KeyValuePair<string, JsonNode?> cipherSuiteObject in cipherSuiteObjectsArray.SelectMany(q => q.AsObject()))
+        foreach (KeyValuePair<string, JsonNode?> cipherSuiteObject in cipherSuiteObjectsArray.SelectMany(q => q!.AsObject()))
         {
             JsonArray tlsVersions = cipherSuiteObject.Value!["tls_version"]!.AsArray();
             var newTlsVersions = new JsonArray();

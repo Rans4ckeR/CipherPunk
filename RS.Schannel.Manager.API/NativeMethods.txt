@@ -8,3 +8,9 @@ NCryptOpenStorageProvider
 NCryptEnumAlgorithms
 NCRYPT_FLAGS
 NCRYPT_KEY_HANDLE
+IGroupPolicyObject
+CoInitializeEx
+CoCreateInstance
+CoUninitialize
+RegCreateKeyEx
+RegSetKeyValue

@@ -9,7 +9,7 @@
 
 namespace Windows.Win32;
 
-using System.Runtime.InteropServices;
+using global::System.Runtime.InteropServices;
 
 internal struct NCRYPT_SSL_CIPHER_SUITE
 {
