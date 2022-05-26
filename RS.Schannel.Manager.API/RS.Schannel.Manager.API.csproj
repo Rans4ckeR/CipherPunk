@@ -72,7 +72,4 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RS.Schannel.Manager.CipherSuiteInfoApi\RS.Schannel.Manager.CipherSuiteInfoApi.csproj" />
-  </ItemGroup>
 </Project>

@@ -2,15 +2,16 @@
 
 using Windows.Win32;
 
-internal static class Constants
+internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSuiteDocumentationService
 {
-    private static Dictionary<WindowsCipherSuiteListVersion, List<WindowsCipherSuiteConfiguration>>? windowsCipherSuiteConfigurations;
+    private Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
 
-    public static Dictionary<WindowsCipherSuiteListVersion, List<WindowsCipherSuiteConfiguration>> WindowsCipherSuiteConfigurations => windowsCipherSuiteConfigurations ??= BuildWindowsCipherSuiteConfigurations();
+    public Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
+        => windowsDocumentationCipherSuiteConfigurations ??= BuildWindowsDocumentationCipherSuiteConfigurations();
 
-    private static Dictionary<WindowsCipherSuiteListVersion, List<WindowsCipherSuiteConfiguration>> BuildWindowsCipherSuiteConfigurations()
+    private static Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations()
     {
-        var windows11OrServer2022 = new List<WindowsCipherSuiteConfiguration>
+        var windows11OrServer2022 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_AES_256_GCM_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.TLS_AES_128_GCM_SHA256, true, true, new[] { SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION }),
@@ -61,7 +62,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true)
         };
-        var windows10v1903 = new List<WindowsCipherSuiteConfiguration>
+        var windows10v1903 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
@@ -109,7 +110,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true)
         };
-        var windows10v1709 = new List<WindowsCipherSuiteConfiguration>
+        var windows10v1709 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
@@ -157,7 +158,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true)
         };
-        var windows10v1703 = new List<WindowsCipherSuiteConfiguration>
+        var windows10v1703 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
@@ -205,7 +206,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true)
         };
-        var windows10v1607OrServer2016 = new List<WindowsCipherSuiteConfiguration>
+        var windows10v1607OrServer2016 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
@@ -253,7 +254,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, true)
         };
-        var windows10v1511 = new List<WindowsCipherSuiteConfiguration>
+        var windows10v1511 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }),
@@ -299,7 +300,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.SSL_CK_DES_64_CBC_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION })
         };
-        var windows81OrServer2012R2 = new List<WindowsCipherSuiteConfiguration>
+        var windows81OrServer2012R2 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, false, SslProviderKeyTypeId.TLS_ECC_P256_CURVE_KEY_TYPE),
             new(SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, false, SslProviderKeyTypeId.TLS_ECC_P384_CURVE_KEY_TYPE),
@@ -360,7 +361,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.SSL_CK_DES_64_CBC_WITH_MD5, true, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION })
         };
-        var windows8OrServer2012 = new List<WindowsCipherSuiteConfiguration>
+        var windows8OrServer2012 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, false, SslProviderKeyTypeId.TLS_ECC_P256_CURVE_KEY_TYPE),
             new(SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, false, SslProviderKeyTypeId.TLS_ECC_P384_CURVE_KEY_TYPE),
@@ -419,7 +420,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.SSL_CK_DES_64_CBC_WITH_MD5, true, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION }),
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION })
         };
-        var windows7OrServer2008R2 = new List<WindowsCipherSuiteConfiguration>
+        var windows7OrServer2008R2 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
             new(SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, false, SslProviderKeyTypeId.TLS_ECC_P256_CURVE_KEY_TYPE),
             new(SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, new[] { SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION }, false, SslProviderKeyTypeId.TLS_ECC_P384_CURVE_KEY_TYPE),
@@ -481,7 +482,7 @@ internal static class Constants
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION })
         };
 
-        return new Dictionary<WindowsCipherSuiteListVersion, List<WindowsCipherSuiteConfiguration>>
+        return new Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>>
         {
             { WindowsCipherSuiteListVersion.Windows11OrServer2022, windows11OrServer2022 },
             { WindowsCipherSuiteListVersion.Windows10v1903, windows10v1903 },

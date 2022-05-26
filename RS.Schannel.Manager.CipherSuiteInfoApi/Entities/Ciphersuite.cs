@@ -3,7 +3,8 @@
 using System.Text.Json.Serialization;
 
 public readonly record struct Ciphersuite(
-    [property: JsonPropertyName("gnutls_name")] string IanaName,
+    [property: JsonPropertyName("iana_name")] string IanaName,
+    [property: JsonPropertyName("gnutls_name")] string GnuTlsName,
     [property: JsonPropertyName("openssl_name")] string OpenSslName,
     [property: JsonPropertyName("hex_byte_1")] string HexCodeByte1,
     [property: JsonPropertyName("hex_byte_2")] string HexCodeByte2,
