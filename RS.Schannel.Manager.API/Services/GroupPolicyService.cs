@@ -1,7 +1,10 @@
 ﻿namespace RS.Schannel.Manager.API;
 
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Xml;
+using System.Xml.Linq;
 using Windows.Win32;
 using Microsoft.Win32.SafeHandles;
 using winmdroot = global::Windows.Win32;
@@ -38,6 +41,54 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                                     //#define REG_QWORD                   ( 11ul ) // 64-bit number
                                     //#define REG_QWORD_LITTLE_ENDIAN     ( 11ul ) // 64-bit number (same as REG_QWORD)
 
+    private const string MicrosoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = "{0}\\PolicyDefinitions\\en-US\\CipherSuiteOrder.adml";
+    private const string MicrosoftPoliciesCypherStrengthPolicyDefinitionResourcesFileXmlNamespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
+    private const string SSLConfigurationPolicyKey = "SOFTWARE\\Policies\\Microsoft\\Cryptography\\Configuration\\SSL\\00010002";
+    private const string SSLCipherSuiteOrderValueName = "Functions";
+    private const string SSLCurveOrderValueName = "EccCurves";
+
+    private const uint CipherSuitesListMaximumCharacters = 1023U;
+
+    public async Task<string> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
+    {
+        string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        string microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCypherStrengthPolicyDefinitionResourcesFile, windowsFolder);
+        await using FileStream stream = new FileInfo(microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
+        using var xmlReader = XmlReader.Create(stream, new XmlReaderSettings { Async = true });
+        XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
+        XNamespace ns = MicrosoftPoliciesCypherStrengthPolicyDefinitionResourcesFileXmlNamespace;
+        string sslCipherSuiteOrderPolicyWindowsDefaults = xDocument
+            .Elements(ns + "policyDefinitionResources").Single()
+            .Elements(ns + "resources").Single()
+            .Elements(ns + "presentationTable").Single()
+            .Elements(ns + "presentation").Single(q => "SSLCipherSuiteOrder".Equals(q.Attribute("id")!.Value, StringComparison.OrdinalIgnoreCase))
+            .Elements(ns + "textBox").Single(q => "Pol_SSLCipherSuiteOrder".Equals(q.Attribute("refId")!.Value, StringComparison.OrdinalIgnoreCase))
+            .Elements(ns + "defaultValue").Single().Value;
+
+        return sslCipherSuiteOrderPolicyWindowsDefaults;
+    }
+
+    public async Task<string> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
+    {
+        string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+        string microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCypherStrengthPolicyDefinitionResourcesFile, windowsFolder);
+        await using FileStream stream = new FileInfo(microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
+        using var xmlReader = XmlReader.Create(stream, new XmlReaderSettings { Async = true });
+        XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
+        XNamespace ns = MicrosoftPoliciesCypherStrengthPolicyDefinitionResourcesFileXmlNamespace;
+        string sslCurveOrderPolicyHelpText = xDocument
+            .Elements(ns + "policyDefinitionResources").Single()
+            .Elements(ns + "resources").Single()
+            .Elements(ns + "stringTable").Single()
+            .Elements(ns + "string").Single(q => "SSLCurveOrder_Help".Equals(q.Attribute("id")!.Value, StringComparison.OrdinalIgnoreCase)).Value;
+        int sslCurveOrderStartIndex = sslCurveOrderPolicyHelpText.IndexOf("============\n", StringComparison.OrdinalIgnoreCase) + "============\n".Length;
+        string sslCurveOrderData = sslCurveOrderPolicyHelpText[sslCurveOrderStartIndex..];
+
+        sslCurveOrderData = sslCurveOrderData[..sslCurveOrderData.IndexOf("\n\n", StringComparison.OrdinalIgnoreCase)].Replace('\n', ',');
+
+        return sslCurveOrderData;
+    }
+
     public void UpdateSslCipherSuiteOrderPolicy(string[] cipherSuites)
     {
         string cipherSuitesString = string.Join(",", cipherSuites);
@@ -64,14 +115,14 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
                 var hkey = new SafeRegistryHandle(machineKey, true);
 
-                winmdroot.Foundation.WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hkey, "Software\\Policies\\Microsoft\\Windows\\Cryptography\\Configuration\\SSL\\00010002", 0U, null, winmdroot.System.Registry.REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, winmdroot.System.Registry.REG_SAM_FLAGS.KEY_SET_VALUE | winmdroot.System.Registry.REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
+                winmdroot.Foundation.WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hkey, SSLConfigurationPolicyKey, 0U, null, winmdroot.System.Registry.REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, winmdroot.System.Registry.REG_SAM_FLAGS.KEY_SET_VALUE | winmdroot.System.Registry.REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
                 if (regCreateKeyExResult is not winmdroot.Foundation.WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regCreateKeyExResult);
 
                 fixed (char* lpData = cipherSuitesString)
                 {
-                    winmdroot.Foundation.WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, "Functions", REG_SZ, lpData, (uint)(sizeof(char) * cipherSuitesString.Length));
+                    winmdroot.Foundation.WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, SSLCipherSuiteOrderValueName, REG_SZ, lpData, (uint)(sizeof(char) * cipherSuitesString.Length));
 
                     if (regSetKeyValueResult is not winmdroot.Foundation.WIN32_ERROR.ERROR_SUCCESS)
                         throw new Win32Exception((int)regSetKeyValueResult);
