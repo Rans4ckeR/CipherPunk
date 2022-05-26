@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
     {
         return serviceCollection
             .AddSingleton<ISchannelService, SchannelService>()
-            .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>();
+            .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>()
+            .AddSingleton<IGroupPolicyService, GroupPolicyService>();
     }
 }
