@@ -9,8 +9,8 @@
 
 namespace Windows.Win32;
 
-using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
+using global::System.Runtime.InteropServices;
+using global::System.Runtime.Versioning;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 

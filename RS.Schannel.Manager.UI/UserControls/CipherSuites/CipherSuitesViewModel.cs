@@ -13,6 +13,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private readonly ISchannelService schannelService;
     private readonly IUacIconService uacIconService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
+    private readonly IGroupPolicyService groupPolicyService;
     private readonly List<Ciphersuite?> onlineCipherSuiteInfos = new();
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? osDefaultCipherSuiteConfigurations;
@@ -20,12 +21,13 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private BitmapSource? uacIcon;
     private bool fetchOnlineInfo = true;
 
-    public CipherSuitesViewModel(ILogger logger, ISchannelService schannelService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    public CipherSuitesViewModel(ILogger logger, ISchannelService schannelService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
         : base(logger)
     {
         this.schannelService = schannelService;
         this.uacIconService = uacIconService;
         this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
+        this.groupPolicyService = groupPolicyService;
 
         UpdateCanExecuteDefaultCommand();
     }
@@ -61,7 +63,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        //new GroupPolicyService().X();
+        groupPolicyService.UpdateSslCipherSuiteOrderPolicy(new[] { "", "" });
 
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDefaultCipherSuiteList();
         List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations = await schannelService.GetOperatingSystemActiveCipherSuiteListAsync(cancellationToken);
