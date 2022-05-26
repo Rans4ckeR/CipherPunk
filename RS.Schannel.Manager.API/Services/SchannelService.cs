@@ -5,15 +5,16 @@ using System.Runtime.InteropServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
-using RS.Schannel.Manager.CipherSuiteInfoApi;
 
 internal sealed class SchannelService : ISchannelService
 {
-    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
+    private const string LocalCngSslContextName = "SSL";
 
-    public SchannelService(ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    private readonly IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService;
+
+    public SchannelService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService)
     {
-        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
+        this.windowsCipherSuiteDocumentationService = windowsCipherSuiteDocumentationService;
     }
 
     public string[] GetLocalCngConfigurationContextIdentifiers()
@@ -44,21 +45,21 @@ internal sealed class SchannelService : ISchannelService
         return contexts;
     }
 
-    public List<WindowsCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
+    public List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
     {
         WindowsCipherSuiteListVersion windowsCipherSuiteListVersion = GetWindowsCipherSuiteListVersion();
 
-        return Constants.WindowsCipherSuiteConfigurations[windowsCipherSuiteListVersion];
+        return windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations()[windowsCipherSuiteListVersion];
     }
 
-    public async Task<List<CipherSuiteConfiguration>> GetOperatingSystemActiveCipherSuiteListAsync(bool includeOnlineInfo = true, CancellationToken cancellationToken = default)
+    public async Task<List<WindowsApiCipherSuiteConfiguration>> GetOperatingSystemActiveCipherSuiteListAsync(CancellationToken cancellationToken = default)
     {
         uint pcbBuffer = 0U;
-        var cipherSuiteConfigurations = new List<CipherSuiteConfiguration>();
+        var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
         string[] contexts = GetLocalCngConfigurationContextIdentifiers();
 
-        if (!contexts.Contains("SSL"))
-            throw new Exception();
+        if (!contexts.Contains(LocalCngSslContextName, StringComparer.OrdinalIgnoreCase))
+            throw new SchannelServiceException(FormattableString.Invariant($"{LocalCngSslContextName} context not found."));
 
         unsafe
         {
@@ -68,7 +69,7 @@ internal sealed class SchannelService : ISchannelService
 
             try
             {
-                NTSTATUS bCryptEnumContextFunctionsStatus = PInvoke.BCryptEnumContextFunctions(BCRYPT_TABLE.CRYPT_LOCAL, "SSL", BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, ref pcbBuffer, ref ppBuffer);
+                NTSTATUS bCryptEnumContextFunctionsStatus = PInvoke.BCryptEnumContextFunctions(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, ref pcbBuffer, ref ppBuffer);
 
                 if (bCryptEnumContextFunctionsStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptEnumContextFunctionsStatus);
@@ -76,19 +77,22 @@ internal sealed class SchannelService : ISchannelService
                 for (int i = 0; i < ppBuffer->cFunctions; i++)
                 {
                     string rgpszFunction = ppBuffer->rgpszFunctions[i].ToString();
-                    var cipherSuiteConfiguration = new CipherSuiteConfiguration();
+                    var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
+                    {
+                        Protocols = new List<SslProviderProtocolId>()
+                    };
 
                     cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
 
                     uint pcbBuffer1 = 0U;
                     CRYPT_PROVIDER_REFS* ppBuffer1 = null;
-                    NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders("SSL", (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, rgpszFunction, null, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, BCRYPT_RESOLVE_PROVIDERS_FLAGS.CRYPT_ALL_PROVIDERS, ref pcbBuffer1, ref ppBuffer1);
+                    NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(LocalCngSslContextName, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, rgpszFunction, null, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, BCRYPT_RESOLVE_PROVIDERS_FLAGS.CRYPT_ALL_PROVIDERS, ref pcbBuffer1, ref ppBuffer1);
 
                     if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                         throw new Win32Exception(bCryptResolveProvidersStatus);
 
                     if (ppBuffer1->cProviders != 1U)
-                        throw new Exception();
+                        throw new SchannelServiceException(FormattableString.Invariant($"Found {ppBuffer1->cProviders} providers, expected 1."));
 
                     CRYPT_PROVIDER_REF* cryptProviderRef = ppBuffer1->rgpProviders[0];
                     string pszProvider = cryptProviderRef->pszProvider.ToString();
@@ -113,7 +117,7 @@ internal sealed class SchannelService : ISchannelService
                             {
                                 if (ppCipherSuite->szCipherSuite.ToString().Equals(rgpszFunction, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    cipherSuiteConfiguration.Protocols.Add(*(uint*)ppCipherSuite);
+                                    cipherSuiteConfiguration.Protocols.Add(*(SslProviderProtocolId*)ppCipherSuite);
 
                                     if (string.IsNullOrEmpty(cipherSuiteConfiguration.Cipher))
                                     {
@@ -154,7 +158,6 @@ internal sealed class SchannelService : ISchannelService
                                     if (sslFreeBufferResult.Failed)
                                         throw Marshal.GetExceptionForHR(sslFreeBufferResult)!;
                                 }
-
                             }
                             else if (sslEnumCipherSuitesResult.Value != unchecked((int)PInvoke.NTE_NO_MORE_ITEMS))
                             {
@@ -194,14 +197,6 @@ internal sealed class SchannelService : ISchannelService
             }
         }
 
-        if (includeOnlineInfo)
-        {
-            foreach (CipherSuiteConfiguration cipherSuiteConfiguration in cipherSuiteConfigurations)
-            {
-                cipherSuiteConfiguration.OnlineInfo = await cipherSuiteInfoApiService.GetCipherSuite(cipherSuiteConfiguration.Function, cancellationToken);
-            }
-        }
-
         return cipherSuiteConfigurations;
     }
 
@@ -217,7 +212,7 @@ internal sealed class SchannelService : ISchannelService
 
     public void RemoveCipher(string cipher)
     {
-        NTSTATUS status = PInvoke.BCryptRemoveContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, "SSL", BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipher);
+        NTSTATUS status = PInvoke.BCryptRemoveContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipher);
 
         if (status.SeverityCode is not NTSTATUS.Severity.Success)
             throw new Win32Exception(status);
@@ -225,7 +220,7 @@ internal sealed class SchannelService : ISchannelService
 
     public void AddCipher(string cipher, bool top = true)
     {
-        NTSTATUS status = PInvoke.BCryptAddContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, "SSL", BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipher, (uint)(top ? PriorityListPosition.CRYPT_PRIORITY_TOP : PriorityListPosition.CRYPT_PRIORITY_BOTTOM));
+        NTSTATUS status = PInvoke.BCryptAddContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipher, (uint)(top ? PriorityListPosition.CRYPT_PRIORITY_TOP : PriorityListPosition.CRYPT_PRIORITY_BOTTOM));
 
         if (status.SeverityCode is not NTSTATUS.Severity.Success)
             throw new Win32Exception(status);
@@ -234,7 +229,7 @@ internal sealed class SchannelService : ISchannelService
     private static WindowsCipherSuiteListVersion GetWindowsCipherSuiteListVersion()
     {
         if (Environment.OSVersion.Platform is not PlatformID.Win32NT)
-            throw new Exception();
+            throw new SchannelServiceException(FormattableString.Invariant($"Platform is {Environment.OSVersion.Platform}, expected {nameof(PlatformID.Win32NT)}."));
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) // Windows11
             return WindowsCipherSuiteListVersion.Windows11OrServer2022;
@@ -293,6 +288,6 @@ internal sealed class SchannelService : ISchannelService
         if (OperatingSystem.IsWindowsVersionAtLeast(6))
             return WindowsCipherSuiteListVersion.WindowsVistaOrServer2008;
 
-        throw new Exception();
+        throw new SchannelServiceException(FormattableString.Invariant($"Unknown Windows version {Environment.OSVersion.Version}."));
     }
 }

@@ -9,6 +9,7 @@ using RS.Schannel.Manager.API;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using RS.Schannel.Manager.CipherSuiteInfoApi;
 
 internal sealed partial class App
 {
@@ -30,7 +31,8 @@ internal sealed partial class App
                     .AddSingleton<MainWindow>()
                     .AddSingleton<MainWindowViewModel>()
                     .AddSingleton<CipherSuitesViewModel>()
-                    .AddSchannelApi();
+                    .AddSchannelApi()
+                    .AddCipherSuiteInfoApi();
             }).Build();
     }
 

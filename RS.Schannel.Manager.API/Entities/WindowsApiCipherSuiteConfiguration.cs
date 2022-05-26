@@ -1,11 +1,10 @@
 ﻿namespace RS.Schannel.Manager.API;
 
-using RS.Schannel.Manager.CipherSuiteInfoApi;
 using Windows.Win32;
 
-public sealed class CipherSuiteConfiguration
+public sealed class WindowsApiCipherSuiteConfiguration
 {
-    public List<uint> Protocols { get => new(); }
+    public List<SslProviderProtocolId> Protocols { get; set; }
 
     public SslProviderKeyTypeId KeyType { get; set; }
 
@@ -36,6 +35,4 @@ public sealed class CipherSuiteConfiguration
     public string Function { get; set; }
 
     public string Image { get; set; }
-
-    public Ciphersuite OnlineInfo { get; set; }
 }

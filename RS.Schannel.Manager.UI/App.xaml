@@ -69,7 +69,7 @@
             <Setter Property="AlternatingRowBackground" Value="{StaticResource NavigationBackgroundSolidColorBrush}"/>
             <Setter Property="RowBackground" Value="{StaticResource TitleBackgroundSolidColorBrush}"/>
         </Style>
-        <DataTemplate DataType="{x:Type api:CipherSuiteConfiguration}">
+        <DataTemplate DataType="{x:Type api:WindowsApiCipherSuiteConfiguration}">
             <Border Style="{StaticResource BorderStyle}">
                 <Expander Header="CipherSuiteConfiguration">
                     <Grid>
