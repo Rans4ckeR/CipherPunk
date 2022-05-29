@@ -21,7 +21,6 @@
     <Version>0.0.0.1</Version>
     <FileVersion>0.0.0.1</FileVersion>
     <InformationalVersion>0.0.0.1</InformationalVersion>
-    <Platform>AnyCPU</Platform>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">

@@ -2,5 +2,7 @@
 
 public interface IWindowsCipherSuiteDocumentationService
 {
-    Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations();
+    Dictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations();
+
+    List<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsSchannelVersion windowsSchannelVersion);
 }
