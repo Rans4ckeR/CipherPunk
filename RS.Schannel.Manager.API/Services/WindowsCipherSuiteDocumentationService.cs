@@ -4,12 +4,17 @@ using Windows.Win32;
 
 internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSuiteDocumentationService
 {
-    private Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
+    private Dictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
 
-    public Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
+    public Dictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
         => windowsDocumentationCipherSuiteConfigurations ??= BuildWindowsDocumentationCipherSuiteConfigurations();
 
-    private static Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations()
+    public List<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsSchannelVersion windowsSchannelVersion)
+    {
+        return GetWindowsDocumentationCipherSuiteConfigurations().First(q => q.Key >= windowsSchannelVersion).Value;
+    }
+
+    private static Dictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations()
     {
         var windows11OrServer2022 = new List<WindowsDocumentationCipherSuiteConfiguration>
         {
@@ -482,17 +487,17 @@ internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSui
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION })
         };
 
-        return new Dictionary<WindowsCipherSuiteListVersion, List<WindowsDocumentationCipherSuiteConfiguration>>
+        return new Dictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>>
         {
-            { WindowsCipherSuiteListVersion.Windows11OrServer2022, windows11OrServer2022 },
-            { WindowsCipherSuiteListVersion.Windows10v1903, windows10v1903 },
-            { WindowsCipherSuiteListVersion.Windows10v1709, windows10v1709 },
-            { WindowsCipherSuiteListVersion.Windows10v1703, windows10v1703 },
-            { WindowsCipherSuiteListVersion.Windows10v1607OrServer2016, windows10v1607OrServer2016 },
-            { WindowsCipherSuiteListVersion.Windows10v1511, windows10v1511 },
-            { WindowsCipherSuiteListVersion.Windows81OrServer2012R2, windows81OrServer2012R2 },
-            { WindowsCipherSuiteListVersion.Windows8OrServer2012, windows8OrServer2012 },
-            { WindowsCipherSuiteListVersion.Windows7OrServer2008R2, windows7OrServer2008R2 },
+            { WindowsSchannelVersion.Windows11OrServer2022, windows11OrServer2022 },
+            { WindowsSchannelVersion.Windows10v1903, windows10v1903 },
+            { WindowsSchannelVersion.Windows10v1709, windows10v1709 },
+            { WindowsSchannelVersion.Windows10v1703, windows10v1703 },
+            { WindowsSchannelVersion.Windows10v1607OrServer2016, windows10v1607OrServer2016 },
+            { WindowsSchannelVersion.Windows10v1511, windows10v1511 },
+            { WindowsSchannelVersion.Windows81OrServer2012R2, windows81OrServer2012R2 },
+            { WindowsSchannelVersion.Windows8OrServer2012, windows8OrServer2012 },
+            { WindowsSchannelVersion.Windows7OrServer2008R2, windows7OrServer2008R2 }
         };
     }
 }

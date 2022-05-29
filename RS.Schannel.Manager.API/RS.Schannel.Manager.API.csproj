@@ -35,7 +35,6 @@
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <EnablePackageValidation>true</EnablePackageValidation>
-    <Platform>AnyCPU</Platform>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
