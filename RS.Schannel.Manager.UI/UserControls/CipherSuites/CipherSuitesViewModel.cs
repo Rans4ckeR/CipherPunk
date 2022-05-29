@@ -63,10 +63,15 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
+        //schannelService.ResetEllipticCurveListToOperatingSystemDefault();
+
+        //var x = schannelService.GetEllipticCurves();
         //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
         //var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
 
         //List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations1 = await schannelService.GetOperatingSystemActiveCipherSuiteListAsync(cancellationToken);
+
+        //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(new[]
         //{
@@ -79,8 +84,10 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         //    "TLS_RSA_WITH_AES_256_CBC_SHA"
         //});
 
+        var sdf = schannelService.GetOperatingSystemDefaultEllipticCurveList();
+
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDefaultCipherSuiteList();
-        List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations = await schannelService.GetOperatingSystemActiveCipherSuiteListAsync(cancellationToken);
+        List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations = schannelService.GetOperatingSystemActiveCipherSuiteList();
 
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfo(windowsDocumentationCipherSuiteConfigurations, cancellationToken);

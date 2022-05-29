@@ -1,6 +1,6 @@
 ﻿namespace RS.Schannel.Manager.API;
 
-public enum WindowsCipherSuiteListVersion
+public enum WindowsSchannelVersion
 {
     Windows11OrServer2022,
 

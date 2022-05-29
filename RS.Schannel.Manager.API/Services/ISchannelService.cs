@@ -6,11 +6,23 @@ public interface ISchannelService
 
     List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
 
-    Task<List<WindowsApiCipherSuiteConfiguration>> GetOperatingSystemActiveCipherSuiteListAsync(CancellationToken cancellationToken = default);
+    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
 
-    void ResetList();
+    void ResetCipherSuiteListToOperatingSystemDefault();
 
-    void RemoveCipher(string cipher);
+    void UpdateCipherSuiteOrder(string[] cipherSuites);
 
-    void AddCipher(string cipher, bool top = true);
+    void RemoveCipherSuite(string cipherSuite);
+
+    void AddCipherSuite(string cipherSuite, bool top = true);
+
+    List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList();
+
+    List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
+
+    List<string> GetOperatingSystemActiveEllipticCurveList();
+
+    void ResetEllipticCurveListToOperatingSystemDefault();
+
+    void UpdateEllipticCurveOrder(string[] ellipticCurves);
 }

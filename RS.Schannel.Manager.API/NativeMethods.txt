@@ -13,4 +13,9 @@ CoInitializeEx
 CoCreateInstance
 CoUninitialize
 RegCreateKeyEx
+RegDeleteValue
 RegSetKeyValue
+CryptEnumOIDInfo
+BCRYPT_ECCKEY_BLOB
+PCSTR
+CRYPTOAPI_BLOB

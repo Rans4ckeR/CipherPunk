@@ -8,5 +8,5 @@ public interface IGroupPolicyService
 
     void UpdateSslCipherSuiteOrderPolicy(string[] cipherSuites);
 
-    void UpdateEccCurveOrderPolicy(string[] eccCurves);
+    void UpdateEccCurveOrderPolicy(string[] ellipticCurves);
 }
