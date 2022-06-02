@@ -35,7 +35,7 @@
             internal CRYPTOAPI_BLOB ExtraInfo;
 
             [StructLayout(LayoutKind.Explicit)]
-            internal partial struct _Anonymous_e__Union
+            internal struct _Anonymous_e__Union
             {
                 [FieldOffset(0)]
                 internal uint dwValue;

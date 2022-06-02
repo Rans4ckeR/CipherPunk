@@ -25,8 +25,11 @@
     <FileVersion>0.0.0.1</FileVersion>
     <InformationalVersion>0.0.0.1</InformationalVersion>
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
-    <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
-    <Platforms>x64;x86</Platforms>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
+    <Platforms>x64;x86;ARM64</Platforms>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(_PlatformWithoutConfigurationInference)' == 'ARM64'">
+    <PlatformTarget Condition="'$(PlatformTarget)' == '' ">ARM64</PlatformTarget>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0-windows10.0.22000.0'">
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0-preview.4.22229.4" />
@@ -64,7 +67,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-   <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
