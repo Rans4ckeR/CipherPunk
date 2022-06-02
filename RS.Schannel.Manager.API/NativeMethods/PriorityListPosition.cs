@@ -7,11 +7,11 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
 namespace Windows.Win32;
 
 public enum PriorityListPosition : uint
 {
     CRYPT_PRIORITY_TOP = 0U, // to add a function to the top of the prioritized list.
-
     CRYPT_PRIORITY_BOTTOM = 0xFFFFFFFF // to add a function to the bottom of the prioritized list.
 }

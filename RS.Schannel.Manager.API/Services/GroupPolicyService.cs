@@ -100,7 +100,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
                 ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
 
-                HKEY machineKey = default;
+                Windows.Win32.System.Registry.HKEY machineKey = default;
 
                 ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
 
