@@ -65,11 +65,11 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     {
         //schannelService.ResetEllipticCurveListToOperatingSystemDefault();
 
-        //var x = schannelService.GetEllipticCurves();
-        //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        //var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
-
-        //List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations1 = await schannelService.GetOperatingSystemActiveCipherSuiteListAsync(cancellationToken);
+        var x = schannelService.GetOperatingSystemActiveEllipticCurveList();
+        var y = schannelService.GetOperatingSystemAvailableEllipticCurveList();
+        var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
+        var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
@@ -83,8 +83,6 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         //    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
         //    "TLS_RSA_WITH_AES_256_CBC_SHA"
         //});
-
-        var sdf = schannelService.GetOperatingSystemDefaultEllipticCurveList();
 
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDefaultCipherSuiteList();
         List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations = schannelService.GetOperatingSystemActiveCipherSuiteList();

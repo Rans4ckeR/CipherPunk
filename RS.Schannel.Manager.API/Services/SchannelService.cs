@@ -117,7 +117,7 @@ internal sealed class SchannelService : ISchannelService
                     {
                         var sslEnumCipherSuitesResult = new HRESULT(0);
 
-                        while (sslEnumCipherSuitesResult.Value is not unchecked((int)PInvoke.NTE_NO_MORE_ITEMS))
+                        while (sslEnumCipherSuitesResult.Value != HRESULT.NTE_NO_MORE_ITEMS)
                         {
                             sslEnumCipherSuitesResult = PInvoke.SslEnumCipherSuites(phSslProvider, null, out ppCipherSuite, ref ppEnumState);
 
@@ -167,7 +167,7 @@ internal sealed class SchannelService : ISchannelService
                                         throw Marshal.GetExceptionForHR(sslFreeBufferResult)!;
                                 }
                             }
-                            else if (sslEnumCipherSuitesResult.Value != unchecked((int)PInvoke.NTE_NO_MORE_ITEMS))
+                            else if (sslEnumCipherSuitesResult.Value != HRESULT.NTE_NO_MORE_ITEMS)
                             {
                                 throw Marshal.GetExceptionForHR(sslEnumCipherSuitesResult)!;
                             }
@@ -318,9 +318,10 @@ internal sealed class SchannelService : ISchannelService
 
     public List<string> GetOperatingSystemActiveEllipticCurveList()
     {
-        string activeEllipticCurves = (string)Registry.LocalMachine.OpenSubKey(SSLConfigurationKey).GetValue(SSLCurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+        using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(SSLConfigurationKey);
+        string[]? activeEllipticCurves = (string[]?)registryKey?.GetValue(SSLCurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
 
-        return activeEllipticCurves.Split('\n').ToList();
+        return (activeEllipticCurves ?? Array.Empty<string>()).ToList();
     }
 
     public void ResetEllipticCurveListToOperatingSystemDefault()
@@ -339,7 +340,7 @@ internal sealed class SchannelService : ISchannelService
 
         unsafe
         {
-            var hKey = new SafeRegistryHandle((IntPtr)HLEY.HKEY_LOCAL_MACHINE, true);
+            var hKey = new SafeRegistryHandle((IntPtr)HKEY.HKEY_LOCAL_MACHINE, true);
             WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SSLConfigurationKey, 0U, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
             if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)

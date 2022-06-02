@@ -7,6 +7,7 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
 namespace Windows.Win32;
 
 using global::System.Runtime.InteropServices;
@@ -16,11 +17,6 @@ using Windows.Win32.Security.Cryptography;
 
 internal static partial class PInvoke
 {
-#pragma warning disable SA1310 // Field names should not contain underscore
-    public const uint STATUS_ACCESS_DENIED = 0xC0000022; // A process has requested access to an object, but has not been granted those access rights.
-    public const uint NTE_NO_MORE_ITEMS = 0x8009002A;
-#pragma warning restore SA1310 // Field names should not contain underscore
-
     [DllImport("NCrypt", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]

@@ -7,6 +7,7 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
 namespace Windows.Win32;
 
 public enum SslProviderKeyTypeId : uint
@@ -14,8 +15,6 @@ public enum SslProviderKeyTypeId : uint
     // Key Types
     // ECC curve types
     TLS_ECC_P256_CURVE_KEY_TYPE = 23, // secp256r1 _P256
-
     TLS_ECC_P384_CURVE_KEY_TYPE = 24, // secp384r1 _P384
-
     TLS_ECC_P521_CURVE_KEY_TYPE = 25 // secp521r1 _P521
 }
