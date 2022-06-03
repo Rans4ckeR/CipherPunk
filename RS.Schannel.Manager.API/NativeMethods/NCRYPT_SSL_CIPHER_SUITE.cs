@@ -26,7 +26,7 @@ internal struct NCRYPT_SSL_CIPHER_SUITE
 
     internal uint dwCipherLen;
 
-    internal uint dwCipherBlockLen; // in bytes
+    internal uint dwCipherBlockLen;
 
     internal __char_64 szHash;
 
@@ -41,6 +41,8 @@ internal struct NCRYPT_SSL_CIPHER_SUITE
     internal __char_64 szCertificate;
 
     internal SslProviderKeyTypeId dwKeyType;
+
+    //internal __char_64 szCipherMode;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct __char_64
