@@ -85,13 +85,6 @@ internal sealed class SchannelService : ISchannelService
                 for (int i = 0; i < ppBuffer->cFunctions; i++)
                 {
                     string rgpszFunction = ppBuffer->rgpszFunctions[i].ToString();
-                    var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
-                    {
-                        Protocols = new List<SslProviderProtocolId>()
-                    };
-
-                    cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
-
                     uint pcbBuffer1 = 0U;
                     CRYPT_PROVIDER_REFS* ppBuffer1 = null;
                     NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(LocalCngSslContextName, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, rgpszFunction, null, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, BCRYPT_RESOLVE_PROVIDERS_FLAGS.CRYPT_ALL_PROVIDERS, ref pcbBuffer1, ref ppBuffer1);
@@ -106,10 +99,20 @@ internal sealed class SchannelService : ISchannelService
                     string pszProvider = cryptProviderRef->pszProvider.ToString();
                     string pszFunction = cryptProviderRef->pszFunction.ToString();
                     string pszImage = cryptProviderRef->pUM->pszImage.ToString();
-
-                    cipherSuiteConfiguration.Provider = pszProvider;
-                    cipherSuiteConfiguration.Function = pszFunction;
-                    cipherSuiteConfiguration.Image = pszImage;
+                    var providerProtocolIds = new List<SslProviderProtocolId>();
+                    string? cipher = null;
+                    SslProviderCipherSuiteId? cipherSuite = null;
+                    SslProviderCipherSuiteId? baseCipherSuite = null;
+                    string? keyExchangeAlgorithm = null;
+                    uint? minimumKeyExchangeKeyLengthBits = null;
+                    uint? maximumKeyExchangeKeyLengthBits = null;
+                    string? hash = null;
+                    uint? hashLengthBytes = null;
+                    uint? cipherBlockLengthBytes = null;
+                    uint? cipherLengthBits = null;
+                    string? serverCertificateKeyType = null;
+                    SslProviderKeyTypeId? keyType = null;
+                    //string? cipherMode = null;
 
                     HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle? phSslProvider, pszProvider);
 
@@ -125,36 +128,51 @@ internal sealed class SchannelService : ISchannelService
                             {
                                 if (ppCipherSuite->szCipherSuite.ToString().Equals(rgpszFunction, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    cipherSuiteConfiguration.Protocols.Add(*(SslProviderProtocolId*)ppCipherSuite);
+                                    providerProtocolIds.Add(*(SslProviderProtocolId*)ppCipherSuite);
 
-                                    if (string.IsNullOrEmpty(cipherSuiteConfiguration.Cipher))
+                                    string szCipher = ppCipherSuite->szCipher.ToString();
+
+                                    if (cipher is null && !string.IsNullOrWhiteSpace(szCipher))
                                     {
-                                        cipherSuiteConfiguration.Cipher = ppCipherSuite->szCipher.ToString();
-                                        cipherSuiteConfiguration.CipherSuite = ppCipherSuite->dwCipherSuite;
-                                        cipherSuiteConfiguration.BaseCipherSuite = ppCipherSuite->dwBaseCipherSuite;
+                                        cipher = szCipher;
+                                        cipherSuite = ppCipherSuite->dwCipherSuite;
+                                        baseCipherSuite = ppCipherSuite->dwBaseCipherSuite;
                                     }
 
-                                    if (string.IsNullOrEmpty(cipherSuiteConfiguration.Exchange))
+                                    string szExchange = ppCipherSuite->szExchange.ToString();
+
+                                    if (keyExchangeAlgorithm is null && !string.IsNullOrWhiteSpace(szExchange))
                                     {
-                                        cipherSuiteConfiguration.Exchange = ppCipherSuite->szExchange.ToString();
-                                        cipherSuiteConfiguration.MinimumExchangeLength = ppCipherSuite->dwMinExchangeLen;
-                                        cipherSuiteConfiguration.MaximumExchangeLength = ppCipherSuite->dwMaxExchangeLen;
+                                        keyExchangeAlgorithm = szExchange;
+                                        minimumKeyExchangeKeyLengthBits = ppCipherSuite->dwMinExchangeLen;
+                                        maximumKeyExchangeKeyLengthBits = ppCipherSuite->dwMaxExchangeLen;
                                     }
 
-                                    if (string.IsNullOrEmpty(cipherSuiteConfiguration.Hash))
+                                    string szHash = ppCipherSuite->szHash.ToString();
+
+                                    if (hash is null && !string.IsNullOrWhiteSpace(szHash))
                                     {
-                                        cipherSuiteConfiguration.HashLength = ppCipherSuite->dwHashLen;
-                                        cipherSuiteConfiguration.Hash = ppCipherSuite->szHash.ToString();
+                                        hash = szHash;
+                                        hashLengthBytes = ppCipherSuite->dwHashLen;
                                     }
 
-                                    cipherSuiteConfiguration.CipherBlockLength = ppCipherSuite->dwCipherBlockLen;
-                                    cipherSuiteConfiguration.CipherLength = ppCipherSuite->dwCipherLen;
+                                    cipherBlockLengthBytes = ppCipherSuite->dwCipherBlockLen;
+                                    cipherLengthBits = ppCipherSuite->dwCipherLen;
 
-                                    if (string.IsNullOrEmpty(cipherSuiteConfiguration.Certificate))
-                                    {
-                                        cipherSuiteConfiguration.Certificate = ppCipherSuite->szCertificate.ToString();
-                                        cipherSuiteConfiguration.KeyType = ppCipherSuite->dwKeyType;
-                                    }
+                                    string szCertificate = ppCipherSuite->szCertificate.ToString();
+
+                                    if (serverCertificateKeyType is null && !string.IsNullOrWhiteSpace(szCertificate))
+                                        serverCertificateKeyType = szCertificate;
+
+                                    SslProviderKeyTypeId dwKeyType = ppCipherSuite->dwKeyType;
+
+                                    if (keyType is null && dwKeyType is not 0)
+                                        keyType = dwKeyType;
+
+                                    //string szCipherMode = ppCipherSuite->szCipherMode.ToString();
+
+                                    //if (cipherMode is null && !string.IsNullOrWhiteSpace(szCipherMode))
+                                    //    cipherMode = szCipherMode;
                                 }
 
                                 if (ppCipherSuite is not null)
@@ -190,6 +208,29 @@ internal sealed class SchannelService : ISchannelService
                     {
                         throw Marshal.GetExceptionForHR(sslOpenProviderResult)!;
                     }
+
+                    var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
+                    {
+                        Protocols = providerProtocolIds,
+                        BaseCipherSuite = baseCipherSuite.Value,
+                        Certificate = serverCertificateKeyType,
+                        Cipher = cipher,
+                        CipherBlockLength = cipherBlockLengthBytes.Value,
+                        CipherLength = cipherLengthBits.Value,
+                        CipherSuite = cipherSuite.Value,
+                        Exchange = keyExchangeAlgorithm,
+                        Function = pszFunction,
+                        Hash = hash,
+                        HashLength = hashLengthBytes,
+                        Image = pszImage,
+                        KeyType = keyType,
+                        MaximumExchangeLength = maximumKeyExchangeKeyLengthBits,
+                        MinimumExchangeLength = minimumKeyExchangeKeyLengthBits,
+                        Provider = pszProvider
+                        //CipherMode = cipherMode
+                    };
+
+                    cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
                 }
             }
             finally
