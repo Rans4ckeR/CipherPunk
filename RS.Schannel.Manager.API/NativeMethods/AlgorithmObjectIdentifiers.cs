@@ -10,7 +10,7 @@
 #pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
 namespace RS.Schannel.Manager.API;
 
-internal class AlgorithmObjectIdentifiers
+internal sealed class AlgorithmObjectIdentifiers
 {
     // Following are the definitions of various algorithm object identifiers
     // RSA
