@@ -70,6 +70,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
         var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
         var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
@@ -84,15 +85,15 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         //    "TLS_RSA_WITH_AES_256_CBC_SHA"
         //});
 
-        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDefaultCipherSuiteList();
-        List<WindowsApiCipherSuiteConfiguration> windowsApiCipherSuiteConfigurations = schannelService.GetOperatingSystemActiveCipherSuiteList();
+        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
+        List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = schannelService.GetOperatingSystemActiveCipherSuiteList();
 
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfo(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
         ushort priority = 0;
 
-        var uiWindowsApiCipherSuiteConfigurations = windowsApiCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
+        var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             ++priority,
             q.Protocols,
             q.KeyType,
@@ -108,8 +109,8 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             q.CipherSuite,
             q.Cipher,
             q.Provider,
-            q.Function,
             q.Image,
+            q.CipherSuiteName,
             onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
 
         priority = 0;
