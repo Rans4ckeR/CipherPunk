@@ -14,7 +14,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private readonly IUacIconService uacIconService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
-    private readonly List<Ciphersuite?> onlineCipherSuiteInfos = new();
+    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? osDefaultCipherSuiteConfigurations;
     private ObservableCollection<CipherSuiteConfiguration>? cipherSuiteConfigurations;
@@ -65,12 +65,12 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     {
         //schannelService.ResetEllipticCurveListToOperatingSystemDefault();
 
-        var x = schannelService.GetOperatingSystemActiveEllipticCurveList();
-        var y = schannelService.GetOperatingSystemAvailableEllipticCurveList();
-        var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
-        var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
+        //var x = schannelService.GetOperatingSystemActiveEllipticCurveList();
+        //var y = schannelService.GetOperatingSystemAvailableEllipticCurveList();
+        //var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
+        //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        //var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        //var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
@@ -92,7 +92,6 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             await FetchOnlineCipherSuiteInfo(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
         ushort priority = 0;
-
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             ++priority,
             q.Protocols,
@@ -131,11 +130,11 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     private async Task FetchOnlineCipherSuiteInfo(List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
     {
-        var newOnlineCipherSuiteInfos = new List<Ciphersuite?>();
+        var newOnlineCipherSuiteInfos = new List<CipherSuite?>();
 
         foreach (WindowsDocumentationCipherSuiteConfiguration windowsDocumentationCipherSuiteConfiguration in windowsDocumentationCipherSuiteConfigurations)
         {
-            Ciphersuite? onlineCipherSuiteInfo1 = await cipherSuiteInfoApiService.GetCipherSuite(windowsDocumentationCipherSuiteConfiguration.CipherSuite.ToString(), cancellationToken);
+            CipherSuite? onlineCipherSuiteInfo1 = await cipherSuiteInfoApiService.GetCipherSuite(windowsDocumentationCipherSuiteConfiguration.CipherSuite.ToString(), cancellationToken);
 
             if (onlineCipherSuiteInfo1 is not null)
                 newOnlineCipherSuiteInfos.Add(onlineCipherSuiteInfo1);

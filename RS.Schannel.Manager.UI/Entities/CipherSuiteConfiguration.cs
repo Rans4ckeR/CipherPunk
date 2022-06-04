@@ -23,6 +23,6 @@ public readonly record struct CipherSuiteConfiguration(
     string Provider,
     string Function,
     string Image,
-    Ciphersuite OnlineInfo,
+    CipherSuite OnlineInfo,
     bool ExplicitApplicationRequestOnly = false,
     SslProviderKeyTypeId? PreWindows10EllipticCurve = null);

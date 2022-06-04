@@ -10,7 +10,7 @@
 #pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
 namespace RS.Schannel.Manager.API;
 
-internal class EllipticCurveNames
+internal sealed class EllipticCurveNames
 {
     public const string BCRYPT_ECC_CURVE_BRAINPOOLP160R1 = "brainpoolP160r1";
     public const string BCRYPT_ECC_CURVE_BRAINPOOLP160T1 = "brainpoolP160t1";
