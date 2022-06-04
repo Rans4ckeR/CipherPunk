@@ -1,30 +1,40 @@
 ﻿namespace RS.Schannel.Manager.API;
 
+using Windows.Win32;
+
 public interface ISchannelService
 {
-    string[] GetLocalCngConfigurationContextIdentifiers();
+    public string[] GetLocalCngConfigurationContextIdentifiers();
 
-    List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
+    public List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
 
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+    public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
 
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
+    public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
 
-    void ResetCipherSuiteListToOperatingSystemDefault();
+    public void ResetCipherSuiteListToOperatingSystemDefault();
 
-    void UpdateCipherSuiteOrder(string[] cipherSuites);
+    public void RemoveCipherSuite(string cipherSuite);
 
-    void RemoveCipherSuite(string cipherSuite);
+    public void RemoveCipherSuite(SslProviderCipherSuiteId cipherSuite);
 
-    void AddCipherSuite(string cipherSuite, bool top = true);
+    public void AddCipherSuite(string cipherSuite, bool top = true);
 
-    List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList();
+    public void AddCipherSuite(SslProviderCipherSuiteId cipherSuite);
 
-    List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
+    public void UpdateCipherSuiteOrder(string[] cipherSuites);
 
-    List<string> GetOperatingSystemActiveEllipticCurveList();
+    public void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites);
 
-    void ResetEllipticCurveListToOperatingSystemDefault();
+    public List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList();
 
-    void UpdateEllipticCurveOrder(string[] ellipticCurves);
+    public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
+
+    public List<string> GetOperatingSystemActiveEllipticCurveList();
+
+    public void ResetEllipticCurveListToOperatingSystemDefault();
+
+    public void UpdateEllipticCurveOrder(string[] ellipticCurves);
+
+    public void UpdateEllipticCurveOrder(BCRYPT_ECC_CURVE[] ellipticCurves);
 }

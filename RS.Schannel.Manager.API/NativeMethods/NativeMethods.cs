@@ -18,6 +18,10 @@ using Windows.Win32.Security.Cryptography;
 
 internal static partial class PInvoke
 {
+    internal const string szOID_ECC_CURVE_25519 = "1.3.101.110";
+
+    internal static readonly global::System.Guid REGISTRY_EXTENSION_GUID = new Guid(0x35378EAC, 0x683F, 0x11D2, 0xA8, 0x9A, 0x00, 0xC0, 0x4F, 0xBB, 0xCF, 0xA2);
+
     [DllImport("NCrypt", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]

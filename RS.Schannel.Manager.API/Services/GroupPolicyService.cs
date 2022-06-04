@@ -16,14 +16,12 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 {
     private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = "{0}\\PolicyDefinitions\\en-US\\CipherSuiteOrder.adml";
     private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
-    private const string SSLConfigurationPolicyKey = "SOFTWARE\\Policies\\Microsoft\\Cryptography\\Configuration\\SSL\\00010002";
-    private const string SSLCipherSuiteOrderValueName = "Functions";
-    private const string SSLCurveOrderValueName = "EccCurves";
+    private const string SslConfigurationPolicyKey = "SOFTWARE\\Policies\\Microsoft\\Cryptography\\Configuration\\SSL\\00010002";
+    private const string SslCipherSuiteOrderValueName = "Functions";
+    private const string SslCurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
 
-    private readonly Guid CLSID_GroupPolicyObject = new(0xea502722, 0xa23d, 0x11d1, 0xa7, 0xd3, 0x0, 0x0, 0xf8, 0x75, 0x71, 0xe3);
-    private readonly Guid REGISTRY_EXTENSION_GUID = new(0x35378EAC, 0x683F, 0x11D2, 0xA8, 0x9A, 0x00, 0xC0, 0x4F, 0xBB, 0xCF, 0xA2);
-    private readonly Guid Rs_Schannel_Manager_Guid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
+    private readonly Guid rsSchannelManagerGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
 
     public async Task<string> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
@@ -69,14 +67,14 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     {
         string cipherSuitesString = string.Join(',', cipherSuites);
 
-        UpdateOrderPolicy(cipherSuitesString, SSLCipherSuiteOrderValueName, REG.REG_SZ);
+        UpdateOrderPolicy(cipherSuitesString, SslCipherSuiteOrderValueName, REG.REG_SZ);
     }
 
     public void UpdateEccCurveOrderPolicy(string[] ellipticCurves)
     {
         string ellipticCurvesString = string.Join('\n', ellipticCurves);
 
-        UpdateOrderPolicy(ellipticCurvesString, SSLCurveOrderValueName, REG.REG_MULTI_SZ);
+        UpdateOrderPolicy(ellipticCurvesString, SslCurveOrderValueName, REG.REG_MULTI_SZ);
     }
 
     private void UpdateOrderPolicy(string valueData, string valueName, REG valueType)
@@ -93,7 +91,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 if (coInitializeExResult.Failed)
                     throw Marshal.GetExceptionForHR(coInitializeExResult)!;
 
-                HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
+                HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
 
                 if (coCreateInstanceResult.Failed)
                     throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
@@ -105,7 +103,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
 
                 var hKey = new SafeRegistryHandle(machineKey, true);
-                WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SSLConfigurationPolicyKey, 0U, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
+                WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SslConfigurationPolicyKey, 0U, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
                 if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regCreateKeyExResult);
@@ -131,7 +129,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 const bool isComputerPolicySettings = true;
                 const bool isAddOperation = true;
 
-                ppv.Save(isComputerPolicySettings, isAddOperation, REGISTRY_EXTENSION_GUID, Rs_Schannel_Manager_Guid);
+                ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, rsSchannelManagerGuid);
             }
             finally
             {

@@ -137,7 +137,7 @@ internal sealed class SchannelService : ISchannelService
                         {
                             SslProviderCipherSuiteId dwCipherSuite = ppCipherSuite->dwCipherSuite;
                             SslProviderProtocolId dwProtocol = ppCipherSuite->dwProtocol;
-                            WindowsApiCipherSuiteConfiguration? windowsApiCipherSuiteConfiguration = cipherSuiteConfigurations.SingleOrDefault(q => q.Value.CipherSuite == dwCipherSuite, null);
+                            WindowsApiCipherSuiteConfiguration? windowsApiCipherSuiteConfiguration = cipherSuiteConfigurations.SingleOrDefault(q => q!.Value.CipherSuite == dwCipherSuite, null);
 
                             if (windowsApiCipherSuiteConfiguration.HasValue)
                             {
@@ -249,7 +249,7 @@ internal sealed class SchannelService : ISchannelService
 
         cipherSuiteConfigurations.Reverse();
 
-        return cipherSuiteConfigurations.Select(q => q.Value).ToList();
+        return cipherSuiteConfigurations.Select(q => q!.Value).ToList();
     }
 
     public void ResetCipherSuiteListToOperatingSystemDefault()
@@ -276,12 +276,22 @@ internal sealed class SchannelService : ISchannelService
             throw new Win32Exception(status);
     }
 
+    public void RemoveCipherSuite(SslProviderCipherSuiteId cipherSuite)
+    {
+        RemoveCipherSuite(cipherSuite.ToString());
+    }
+
     public void AddCipherSuite(string cipherSuite, bool top = true)
     {
         NTSTATUS status = PInvoke.BCryptAddContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipherSuite, (uint)(top ? PriorityListPosition.CRYPT_PRIORITY_TOP : PriorityListPosition.CRYPT_PRIORITY_BOTTOM));
 
         if (status.SeverityCode is not NTSTATUS.Severity.Success)
             throw new Win32Exception(status);
+    }
+
+    public void AddCipherSuite(SslProviderCipherSuiteId cipherSuite)
+    {
+        AddCipherSuite(cipherSuite.ToString());
     }
 
     public void UpdateCipherSuiteOrder(string[] cipherSuites)
@@ -299,6 +309,11 @@ internal sealed class SchannelService : ISchannelService
         }
     }
 
+    public void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites)
+    {
+        UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()).ToArray());
+    }
+
     public List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList()
     {
         WindowsSchannelVersion windowsSchannelVersion = GetWindowsSchannelVersion();
@@ -308,7 +323,7 @@ internal sealed class SchannelService : ISchannelService
 
     public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
     {
-        var list = new List<WindowsApiEllipticCurveConfiguration>();
+        var list = new List<WindowsApiEllipticCurveConfiguration?>();
 
         unsafe
         {
@@ -322,14 +337,10 @@ internal sealed class SchannelService : ISchannelService
                 var dwGroupId = (CRYPT_OID_GROUP_ID)pInfo->dwGroupId;
                 CRYPT_OID_INFO._Anonymous_e__Union anonymous = pInfo->Anonymous;
                 CRYPTOAPI_BLOB extraInfo = pInfo->ExtraInfo;
-                var algId = (ALG_ID)anonymous.Algid;
-                ALG_CLASS algClass = GET_ALG_CLASS(anonymous.Algid);
-                ALG_TYPE algType = GET_ALG_TYPE(anonymous.Algid);
-                ALG_SID algSid = GET_ALG_SID(anonymous.Algid);
-                uint cbData = extraInfo.cbData;
-                var flags = (CRYPT_OID_FLAG)cbData;
+                var algId = (CALG)anonymous.Algid;
+                var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
                 uint? dwMagic = default;
-                uint? keyBytesLength = default;
+                BCRYPT_MAGIC? bcryptMagic = null;
                 uint? dwBitLength = default;
 
                 if (extraInfo.pbData is not null)
@@ -337,13 +348,28 @@ internal sealed class SchannelService : ISchannelService
                     BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((IntPtr)extraInfo.pbData);
 
                     dwMagic = eccKeyStruct.dwMagic;
-                    keyBytesLength = eccKeyStruct.cbKey;
+                    bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
                     dwBitLength = (uint)Marshal.ReadInt32((IntPtr)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
+
+                    bool check = eccKeyStruct.cbKey == (dwBitLength.Value / 8) + (dwBitLength.Value % 8 == 0 ? 0 : 1);
                 }
 
-                string? pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGAlgid);
+                string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGAlgid)!;
                 string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGExtraAlgid);
-                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(cbSize, pszOid, pwszName, dwGroupId, dwMagic, algId, algClass, algType, algSid, dwBitLength, keyBytesLength, flags, pwszCNGAlgid, pwszCNGExtraAlgid);
+
+                if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
+                    pwszCNGExtraAlgid = null;
+
+                //var x = list.SingleOrDefault(q => q.Value.pwszName.Equals(pwszName, StringComparison.OrdinalIgnoreCase));
+
+                //if (x is not null)
+                //{
+                //    x.Value.CngAlgorithms.Add(pwszCNGAlgid);
+
+                //    return true;
+                //}
+
+                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new List<string> { pwszCNGAlgid }, pwszCNGExtraAlgid);
 
                 list.Add(windowsEllipticCurveInfo);
 
@@ -351,12 +377,12 @@ internal sealed class SchannelService : ISchannelService
             }
 
             void* pvArg = default;
-            BOOL cryptEnumOIDInfoResult = PInvoke.CryptEnumOIDInfo((uint)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID, 0U, pvArg, callbackFunction);
 
-            if (!cryptEnumOIDInfoResult)
-                throw new SchannelServiceException(FormattableString.Invariant($"{nameof(GetOperatingSystemAvailableEllipticCurveList)} failed."));
+            _ = PInvoke.CryptEnumOIDInfo((uint)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID, 0U, pvArg, callbackFunction);
 
-            return list.Where(q => IS_SPECIAL_OID_INFO_ALGID(q.algId)).ToList();
+            return list.Where(q => q.Value.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDH_ALGORITHM, StringComparer.OrdinalIgnoreCase) || q.Value.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDSA_ALGORITHM, StringComparer.OrdinalIgnoreCase))
+                .Select(q => q!.Value)
+                .ToList();
         }
     }
 
@@ -372,7 +398,7 @@ internal sealed class SchannelService : ISchannelService
     {
         List<WindowsDocumentationEllipticCurveConfiguration> defaultEllipticCurves = GetOperatingSystemDefaultEllipticCurveList();
 
-        UpdateEllipticCurveOrder(defaultEllipticCurves.Select(q => q.EllipticCurveString).ToArray());
+        UpdateEllipticCurveOrder(defaultEllipticCurves.Select(q => q.Code).ToArray());
     }
 
     public void UpdateEllipticCurveOrder(string[] ellipticCurves)
@@ -398,6 +424,11 @@ internal sealed class SchannelService : ISchannelService
                     throw new Win32Exception((int)regSetKeyValueResult);
             }
         }
+    }
+
+    public void UpdateEllipticCurveOrder(BCRYPT_ECC_CURVE[] ellipticCurves)
+    {
+        UpdateEllipticCurveOrder(ellipticCurves.Select(q => q.ToString()).ToArray());
     }
 
     private static WindowsSchannelVersion GetWindowsSchannelVersion()
@@ -463,25 +494,5 @@ internal sealed class SchannelService : ISchannelService
             return WindowsSchannelVersion.WindowsVistaOrServer2008;
 
         throw new SchannelServiceException(FormattableString.Invariant($"Unknown Windows version {Environment.OSVersion.Version}."));
-    }
-
-    private static ALG_CLASS GET_ALG_CLASS(uint x)
-    {
-        return (ALG_CLASS)(x & (7 << 13));
-    }
-
-    private static ALG_TYPE GET_ALG_TYPE(uint x)
-    {
-        return (ALG_TYPE)(x & (15 << 9));
-    }
-
-    private static ALG_SID GET_ALG_SID(uint x)
-    {
-        return (ALG_SID)(x & 511);
-    }
-
-    private static bool IS_SPECIAL_OID_INFO_ALGID(ALG_ID algId)
-    {
-        return algId >= ALG_ID.CALG_OID_INFO_PARAMETERS;
     }
 }
