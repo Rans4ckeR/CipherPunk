@@ -4,7 +4,9 @@ public interface ISchannelService
 {
     string[] GetLocalCngConfigurationContextIdentifiers();
 
-    List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+    List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
+
+    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
 
     List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
 
