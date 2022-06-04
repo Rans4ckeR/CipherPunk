@@ -19,4 +19,3 @@ public readonly record struct WindowsApiCipherSuiteConfiguration(
     string Provider,
     string Image,
     string CipherSuiteName);
-    //string? CipherMode);

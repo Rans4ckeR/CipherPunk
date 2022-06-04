@@ -2,7 +2,7 @@
 
 using System.Text.Json.Serialization;
 
-public readonly record struct Ciphersuite(
+public readonly record struct CipherSuite(
     [property: JsonPropertyName("iana_name")] string IanaName,
     [property: JsonPropertyName("gnutls_name")] string GnuTlsName,
     [property: JsonPropertyName("openssl_name")] string OpenSslName,
