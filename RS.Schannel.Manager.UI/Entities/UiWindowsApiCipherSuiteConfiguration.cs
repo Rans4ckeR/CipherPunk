@@ -19,6 +19,6 @@ internal readonly record struct UiWindowsApiCipherSuiteConfiguration(
     SslProviderCipherSuiteId CipherSuite,
     string Cipher,
     string Provider,
-    string Function,
     string Image,
+    string CipherSuiteName,
     Security? Security = null);

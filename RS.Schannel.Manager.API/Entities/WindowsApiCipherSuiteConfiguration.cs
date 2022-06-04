@@ -17,6 +17,6 @@ public readonly record struct WindowsApiCipherSuiteConfiguration(
     SslProviderCipherSuiteId CipherSuite,
     string Cipher,
     string Provider,
-    string Function,
-    string Image);
+    string Image,
+    string CipherSuiteName);
     //string? CipherMode);
