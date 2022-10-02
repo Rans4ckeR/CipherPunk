@@ -7,14 +7,16 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace RS.Schannel.Manager.API;
+
+using Windows.Win32;
 
 public static class CryptographicPrimitiveProviders
 {
     //
     // Microsoft built-in providers.
     //
-    public const string MS_PRIMITIVE_PROVIDER = "Microsoft Primitive Provider";
-    public const string MS_PLATFORM_CRYPTO_PROVIDER = "Microsoft Platform Crypto Provider";
+    public const string MS_PRIMITIVE_PROVIDER = PInvoke.MS_PRIMITIVE_PROVIDER;
+    public const string MS_PLATFORM_CRYPTO_PROVIDER = PInvoke.MS_PLATFORM_CRYPTO_PROVIDER;
 }

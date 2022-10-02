@@ -7,10 +7,16 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace Windows.Win32;
 
+using global::System;
+using global::System.Diagnostics;
+using global::System.Diagnostics.CodeAnalysis;
+using global::System.Runtime.CompilerServices;
 using global::System.Runtime.InteropServices;
+using global::System.Runtime.Versioning;
+using winmdroot = global::Windows.Win32;
 
 internal struct NCRYPT_SSL_CIPHER_SUITE
 {
@@ -56,6 +62,7 @@ internal struct NCRYPT_SSL_CIPHER_SUITE
         /// Gets a ref to an individual element of the inline array.
         /// ⚠ Important ⚠: When this struct is on the stack, do not let the returned reference outlive the stack frame that defines it.
         /// </summary>
+        [UnscopedRef]
         internal ref char this[int index] => ref AsSpan()[index];
 
         /// <summary>
@@ -64,15 +71,19 @@ internal struct NCRYPT_SSL_CIPHER_SUITE
         /// <remarks>
         /// ⚠ Important ⚠: When this struct is on the stack, do not let the returned span outlive the stack frame that defines it.
         /// </remarks>
+        [UnscopedRef]
         internal Span<char> AsSpan() => MemoryMarshal.CreateSpan(ref _0, 64);
 
         internal unsafe readonly void CopyTo(Span<char> target, int length = 64)
         {
             if (length > 64) throw new ArgumentOutOfRangeException("length");
             fixed (char* p0 = &_0)
-                for (int i = 0;
-                i < length;
-                i++) target[i] = p0[i];
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    target[i] = p0[i];
+                }
+            }
         }
 
         internal readonly char[] ToArray(int length = 64)
@@ -88,12 +99,20 @@ internal struct NCRYPT_SSL_CIPHER_SUITE
             fixed (char* p0 = &_0)
             {
                 int commonLength = Math.Min(value.Length, 64);
-                for (int i = 0;
-                i < commonLength;
-                i++) if (p0[i] != value[i]) return false;
-                for (int i = commonLength;
-                i < 64;
-                i++) if (p0[i] != default(char)) return false;
+                for (int i = 0; i < commonLength; i++)
+                {
+                    if (p0[i] != value[i])
+                    {
+                        return false;
+                    }
+                }
+                for (int i = commonLength; i < 64; i++)
+                {
+                    if (p0[i] != default(char))
+                    {
+                        return false;
+                    }
+                }
             }
             return true;
         }
@@ -123,9 +142,7 @@ internal struct NCRYPT_SSL_CIPHER_SUITE
             {
                 char* pLastExclusive = p + Length;
                 char* pCh = p;
-                for (;
-                pCh < pLastExclusive && *pCh != '\0';
-                pCh++) ;
+                for (; pCh < pLastExclusive && *pCh != '\0'; pCh++) ;
                 length = checked((int)(pCh - p));
             }
             return ToString(length);

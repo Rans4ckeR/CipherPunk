@@ -7,12 +7,14 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace RS.Schannel.Manager.API;
+
+using Windows.Win32;
 
 // Group Policy Object open / creation flags
 internal enum GPO_OPEN : uint
 {
-    GPO_OPEN_LOAD_REGISTRY = 0x00000001U, // Load the registry files
-    GPO_OPEN_READ_ONLY = 0x00000002U // Open the GPO as read only
+    GPO_OPEN_LOAD_REGISTRY = PInvoke.GPO_OPEN_LOAD_REGISTRY, // Load the registry files
+    GPO_OPEN_READ_ONLY = PInvoke.GPO_OPEN_READ_ONLY // Open the GPO as read only
 }
