@@ -115,7 +115,7 @@ internal sealed class SchannelService : ISchannelService
 
                 for (int i = 0; i < pdwProviderCount; i++)
                 {
-                    NCryptProviderName nCryptProviderName = Marshal.PtrToStructure<NCryptProviderName>((IntPtr)ppProviderList + (i * sizeof(NCryptProviderName)));
+                    NCryptProviderName nCryptProviderName = Marshal.PtrToStructure<NCryptProviderName>((nint)ppProviderList + (i * sizeof(NCryptProviderName)));
 
                     string pszName = nCryptProviderName.pszName.ToString();
                     string pszComment = nCryptProviderName.pszComment.ToString();
@@ -158,7 +158,7 @@ internal sealed class SchannelService : ISchannelService
                         throw new Win32Exception(bCryptOpenAlgorithmProviderStatus);
 
                     using var bCryptCloseAlgorithmProviderSafeHandle = new BCryptCloseAlgorithmProviderSafeHandle(phAlgorithm);
-                    NTSTATUS bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, null, 0, out uint length, 0);
+                    NTSTATUS bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, null, 0, out uint length, 0);
 
                     if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                         throw new Win32Exception(bCryptGetPropertyStatus);
@@ -168,9 +168,9 @@ internal sealed class SchannelService : ISchannelService
 
                     fixed (byte* p = result)
                     {
-                        var ptr = (IntPtr)p;
+                        nint ptr = (nint)p;
 
-                        bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, (byte*)ptr, (uint)result.Length, out length, 0);
+                        bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, (byte*)ptr, (uint)result.Length, out length, 0);
 
                         if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                             throw new Win32Exception(bCryptGetPropertyStatus);
@@ -180,12 +180,12 @@ internal sealed class SchannelService : ISchannelService
 
                     for (int j = 0; j < bcryptEccCurveNames.dwEccCurveNames; j++)
                     {
-                        PWSTR eccCurveName = Marshal.PtrToStructure<PWSTR>((IntPtr)(bcryptEccCurveNames.pEccCurveNames + j));
+                        PWSTR eccCurveName = Marshal.PtrToStructure<PWSTR>((nint)(bcryptEccCurveNames.pEccCurveNames + j));
                         string eccCurveNameString = eccCurveName.ToString();
 
-                        var cryptOidInfoPointer = (IntPtr)PInvoke.CryptFindOIDInfo((uint)(CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_NAME_KEY | CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG), eccCurveName, (uint)(CRYPT_OID_GROUP_FLAG.CRYPT_OID_PREFER_CNG_ALGID_FLAG | (CRYPT_OID_GROUP_FLAG)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID));
+                        nint cryptOidInfoPointer = (nint)PInvoke.CryptFindOIDInfo((uint)(CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_NAME_KEY | CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG), eccCurveName, (uint)(CRYPT_OID_GROUP_FLAG.CRYPT_OID_PREFER_CNG_ALGID_FLAG | (CRYPT_OID_GROUP_FLAG)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID));
 
-                        if (cryptOidInfoPointer == IntPtr.Zero)
+                        if (cryptOidInfoPointer == nint.Zero)
                         {
                             NTSTATUS bCryptGenerateKeyPairResult = PInvoke.BCryptGenerateKeyPair(bCryptCloseAlgorithmProviderSafeHandle, out BCryptDestroyKeySafeHandle phKey, 0U, 0U);
 
@@ -194,11 +194,11 @@ internal sealed class SchannelService : ISchannelService
                                 if (bCryptGenerateKeyPairResult.SeverityCode is not NTSTATUS.Severity.Success)
                                     throw new Win32Exception(bCryptGenerateKeyPairResult);
 
-                                IntPtr stringPointer = Marshal.StringToHGlobalUni(eccCurveNameString);
+                                nint stringPointer = Marshal.StringToHGlobalUni(eccCurveNameString);
 
                                 fixed (char* pszPropertyLocal = CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME)
                                 {
-                                    NTSTATUS bCryptSetPropertyResult = PInvoke.BCryptSetProperty(phKey.DangerousGetHandle().ToPointer(), pszPropertyLocal, (byte*)stringPointer, (uint)(sizeof(char) * (eccCurveName.Length + "\n".Length)), 0U);
+                                    NTSTATUS bCryptSetPropertyResult = PInvoke.BCryptSetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), pszPropertyLocal, (byte*)stringPointer, (uint)(sizeof(char) * (eccCurveName.Length + "\n".Length)), 0U);
 
                                     if (bCryptSetPropertyResult.SeverityCode is not NTSTATUS.Severity.Success)
                                         throw new Win32Exception(bCryptSetPropertyResult);
@@ -206,7 +206,7 @@ internal sealed class SchannelService : ISchannelService
 
                                 BCRYPT_KEY_LENGTHS_STRUCT pbOutput = default;
 
-                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(phKey.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_PUBLIC_KEY_LENGTH, (byte*)&pbOutput, (uint)sizeof(BCRYPT_KEY_LENGTHS_STRUCT), out uint pcbResult, 0U);
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_PUBLIC_KEY_LENGTH, (byte*)&pbOutput, (uint)sizeof(BCRYPT_KEY_LENGTHS_STRUCT), out uint pcbResult, 0U);
 
                                 if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                                     throw new Win32Exception(bCryptGetPropertyStatus);
@@ -215,7 +215,7 @@ internal sealed class SchannelService : ISchannelService
                                 uint dwMaxLength = pbOutput.dwMaxLength;
                                 uint dwIncrement = pbOutput.dwIncrement;
 
-                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(phKey.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, null, 0U, out uint pcbResult1, 0U);
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, null, 0U, out uint pcbResult1, 0U);
 
                                 if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                                     throw new Win32Exception(bCryptGetPropertyStatus);
@@ -223,8 +223,8 @@ internal sealed class SchannelService : ISchannelService
                                 byte[] result1 = new byte[pcbResult1];
                                 fixed (byte* p = result1)
                                 {
-                                    var ptr = (IntPtr)p;
-                                    bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(phKey.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, (byte*)ptr, (uint)result1.Length, out uint pcbResult2, 0U);
+                                    nint ptr = (nint)p;
+                                    bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, (byte*)ptr, (uint)result1.Length, out uint pcbResult2, 0U);
 
                                     if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                                         throw new Win32Exception(bCryptGetPropertyStatus);
@@ -254,11 +254,11 @@ internal sealed class SchannelService : ISchannelService
 
                             //if (extraInfo.pbData is not null)
                             //{
-                                BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((IntPtr)extraInfo.pbData);
+                                BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((nint)extraInfo.pbData);
 
                                 dwMagic = eccKeyStruct.dwMagic;
                                 bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
-                                dwBitLength = (uint)Marshal.ReadInt32((IntPtr)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
+                                dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
                             //}
 
                             string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo.pwszCNGAlgid)!;
@@ -515,7 +515,7 @@ internal sealed class SchannelService : ISchannelService
 
     public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
     {
-        var list = new List<WindowsApiEllipticCurveConfiguration?>();
+        var list = new List<WindowsApiEllipticCurveConfiguration>();
 
         unsafe
         {
@@ -537,11 +537,11 @@ internal sealed class SchannelService : ISchannelService
 
                 if (extraInfo.pbData is not null)
                 {
-                    BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((IntPtr)extraInfo.pbData);
+                    BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((nint)extraInfo.pbData);
 
                     dwMagic = eccKeyStruct.dwMagic;
                     bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
-                    dwBitLength = (uint)Marshal.ReadInt32((IntPtr)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
+                    dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
                 }
 
                 string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGAlgid)!;
@@ -570,8 +570,7 @@ internal sealed class SchannelService : ISchannelService
 
             _ = PInvoke.CryptEnumOIDInfo((uint)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID, 0U, pvArg, callbackFunction);
 
-            return list.Where(q => q.Value.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDH_ALGORITHM, StringComparer.OrdinalIgnoreCase) || q.Value.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDSA_ALGORITHM, StringComparer.OrdinalIgnoreCase))
-                .Select(q => q!.Value)
+            return list.Where(q => q.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDH_ALGORITHM, StringComparer.OrdinalIgnoreCase) || q.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDSA_ALGORITHM, StringComparer.OrdinalIgnoreCase))
                 .ToList();
         }
     }
@@ -602,7 +601,7 @@ internal sealed class SchannelService : ISchannelService
 
         unsafe
         {
-            var hKey = new SafeRegistryHandle((IntPtr)HKEY.HKEY_LOCAL_MACHINE, true);
+            var hKey = new SafeRegistryHandle(HKEY.HKEY_LOCAL_MACHINE, true);
             WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SSLConfigurationKey, 0U, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
             if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
@@ -610,7 +609,7 @@ internal sealed class SchannelService : ISchannelService
 
             fixed (char* lpData = ellipticCurvesString)
             {
-                WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, SSLCurveOrderValueName, (uint)REG.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
+                WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, SSLCurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
 
                 if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regSetKeyValueResult);

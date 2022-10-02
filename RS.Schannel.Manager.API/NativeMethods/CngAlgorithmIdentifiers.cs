@@ -7,52 +7,54 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace RS.Schannel.Manager.API;
+
+using Windows.Win32;
 
 public static class CngAlgorithmIdentifiers
 {
     //
     // Common algorithm identifiers.
     //
-    public const string BCRYPT_RSA_ALGORITHM = "RSA";
-    public const string BCRYPT_RSA_SIGN_ALGORITHM = "RSA_SIGN";
-    public const string BCRYPT_DH_ALGORITHM = "DH";
-    public const string BCRYPT_DSA_ALGORITHM = "DSA";
-    public const string BCRYPT_RC2_ALGORITHM = "RC2";
-    public const string BCRYPT_RC4_ALGORITHM = "RC4";
-    public const string BCRYPT_AES_ALGORITHM = "AES";
-    public const string BCRYPT_DES_ALGORITHM = "DES";
-    public const string BCRYPT_DESX_ALGORITHM = "DESX";
-    public const string BCRYPT_3DES_ALGORITHM = "3DES";
-    public const string BCRYPT_3DES_112_ALGORITHM = "3DES_112";
-    public const string BCRYPT_MD2_ALGORITHM = "MD2";
-    public const string BCRYPT_MD4_ALGORITHM = "MD4";
-    public const string BCRYPT_MD5_ALGORITHM = "MD5";
-    public const string BCRYPT_SHA1_ALGORITHM = "SHA1";
-    public const string BCRYPT_SHA256_ALGORITHM = "SHA256";
-    public const string BCRYPT_SHA384_ALGORITHM = "SHA384";
-    public const string BCRYPT_SHA512_ALGORITHM = "SHA512";
-    public const string BCRYPT_AES_GMAC_ALGORITHM = "AES-GMAC";
-    public const string BCRYPT_AES_CMAC_ALGORITHM = "AES-CMAC";
-    public const string BCRYPT_ECDSA_P256_ALGORITHM = "ECDSA_P256";
-    public const string BCRYPT_ECDSA_P384_ALGORITHM = "ECDSA_P384";
-    public const string BCRYPT_ECDSA_P521_ALGORITHM = "ECDSA_P521";
-    public const string BCRYPT_ECDH_P256_ALGORITHM = "ECDH_P256";
-    public const string BCRYPT_ECDH_P384_ALGORITHM = "ECDH_P384";
-    public const string BCRYPT_ECDH_P521_ALGORITHM = "ECDH_P521";
-    public const string BCRYPT_RNG_ALGORITHM = "RNG";
-    public const string BCRYPT_RNG_FIPS186_DSA_ALGORITHM = "FIPS186DSARNG";
-    public const string BCRYPT_RNG_DUAL_EC_ALGORITHM = "DUALECRNG";
-    public const string BCRYPT_SP800108_CTR_HMAC_ALGORITHM = "SP800_108_CTR_HMAC";
-    public const string BCRYPT_SP80056A_CONCAT_ALGORITHM = "SP800_56A_CONCAT";
-    public const string BCRYPT_PBKDF2_ALGORITHM = "PBKDF2";
-    public const string BCRYPT_CAPI_KDF_ALGORITHM = "CAPI_KDF";
-    public const string BCRYPT_TLS1_1_KDF_ALGORITHM = "TLS1_1_KDF";
-    public const string BCRYPT_TLS1_2_KDF_ALGORITHM = "TLS1_2_KDF";
-    public const string BCRYPT_ECDSA_ALGORITHM = "ECDSA";
-    public const string BCRYPT_ECDH_ALGORITHM = "ECDH";
-    public const string BCRYPT_XTS_AES_ALGORITHM = "XTS-AES";
-    public const string BCRYPT_HKDF_ALGORITHM = "HKDF";
-    public const string BCRYPT_CHACHA20_POLY1305_ALGORITHM = "CHACHA20_POLY1305";
+    public const string BCRYPT_RSA_ALGORITHM = PInvoke.BCRYPT_RSA_ALGORITHM;
+    public const string BCRYPT_RSA_SIGN_ALGORITHM = PInvoke.BCRYPT_RSA_SIGN_ALGORITHM;
+    public const string BCRYPT_DH_ALGORITHM = PInvoke.BCRYPT_DH_ALGORITHM;
+    public const string BCRYPT_DSA_ALGORITHM = PInvoke.BCRYPT_DSA_ALGORITHM;
+    public const string BCRYPT_RC2_ALGORITHM = PInvoke.BCRYPT_RC2_ALGORITHM;
+    public const string BCRYPT_RC4_ALGORITHM = PInvoke.BCRYPT_RC4_ALGORITHM;
+    public const string BCRYPT_AES_ALGORITHM = PInvoke.BCRYPT_AES_ALGORITHM;
+    public const string BCRYPT_DES_ALGORITHM = PInvoke.BCRYPT_DES_ALGORITHM;
+    public const string BCRYPT_DESX_ALGORITHM = PInvoke.BCRYPT_DESX_ALGORITHM;
+    public const string BCRYPT_3DES_ALGORITHM = PInvoke.BCRYPT_3DES_ALGORITHM;
+    public const string BCRYPT_3DES_112_ALGORITHM = PInvoke.BCRYPT_3DES_112_ALGORITHM;
+    public const string BCRYPT_MD2_ALGORITHM = PInvoke.BCRYPT_MD2_ALGORITHM;
+    public const string BCRYPT_MD4_ALGORITHM = PInvoke.BCRYPT_MD4_ALGORITHM;
+    public const string BCRYPT_MD5_ALGORITHM = PInvoke.BCRYPT_MD5_ALGORITHM;
+    public const string BCRYPT_SHA1_ALGORITHM = PInvoke.BCRYPT_SHA1_ALGORITHM;
+    public const string BCRYPT_SHA256_ALGORITHM = PInvoke.BCRYPT_SHA256_ALGORITHM;
+    public const string BCRYPT_SHA384_ALGORITHM = PInvoke.BCRYPT_SHA384_ALGORITHM;
+    public const string BCRYPT_SHA512_ALGORITHM = PInvoke.BCRYPT_SHA512_ALGORITHM;
+    public const string BCRYPT_AES_GMAC_ALGORITHM = PInvoke.BCRYPT_AES_GMAC_ALGORITHM;
+    public const string BCRYPT_AES_CMAC_ALGORITHM = PInvoke.BCRYPT_AES_CMAC_ALGORITHM;
+    public const string BCRYPT_ECDSA_P256_ALGORITHM = PInvoke.BCRYPT_ECDSA_P256_ALGORITHM;
+    public const string BCRYPT_ECDSA_P384_ALGORITHM = PInvoke.BCRYPT_ECDSA_P384_ALGORITHM;
+    public const string BCRYPT_ECDSA_P521_ALGORITHM = PInvoke.BCRYPT_ECDSA_P521_ALGORITHM;
+    public const string BCRYPT_ECDH_P256_ALGORITHM = PInvoke.BCRYPT_ECDH_P256_ALGORITHM;
+    public const string BCRYPT_ECDH_P384_ALGORITHM = PInvoke.BCRYPT_ECDH_P384_ALGORITHM;
+    public const string BCRYPT_ECDH_P521_ALGORITHM = PInvoke.BCRYPT_ECDH_P521_ALGORITHM;
+    public const string BCRYPT_RNG_ALGORITHM = PInvoke.BCRYPT_RNG_ALGORITHM;
+    public const string BCRYPT_RNG_FIPS186_DSA_ALGORITHM = PInvoke.BCRYPT_RNG_FIPS186_DSA_ALGORITHM;
+    public const string BCRYPT_RNG_DUAL_EC_ALGORITHM = PInvoke.BCRYPT_RNG_DUAL_EC_ALGORITHM;
+    public const string BCRYPT_SP800108_CTR_HMAC_ALGORITHM = PInvoke.BCRYPT_SP800108_CTR_HMAC_ALGORITHM;
+    public const string BCRYPT_SP80056A_CONCAT_ALGORITHM = PInvoke.BCRYPT_SP80056A_CONCAT_ALGORITHM;
+    public const string BCRYPT_PBKDF2_ALGORITHM = PInvoke.BCRYPT_PBKDF2_ALGORITHM;
+    public const string BCRYPT_CAPI_KDF_ALGORITHM = PInvoke.BCRYPT_CAPI_KDF_ALGORITHM;
+    public const string BCRYPT_TLS1_1_KDF_ALGORITHM = PInvoke.BCRYPT_TLS1_1_KDF_ALGORITHM;
+    public const string BCRYPT_TLS1_2_KDF_ALGORITHM = PInvoke.BCRYPT_TLS1_2_KDF_ALGORITHM;
+    public const string BCRYPT_ECDSA_ALGORITHM = PInvoke.BCRYPT_ECDSA_ALGORITHM;
+    public const string BCRYPT_ECDH_ALGORITHM = PInvoke.BCRYPT_ECDH_ALGORITHM;
+    public const string BCRYPT_XTS_AES_ALGORITHM = PInvoke.BCRYPT_XTS_AES_ALGORITHM;
+    public const string BCRYPT_HKDF_ALGORITHM = PInvoke.BCRYPT_HKDF_ALGORITHM;
+    public const string BCRYPT_CHACHA20_POLY1305_ALGORITHM = PInvoke.BCRYPT_CHACHA20_POLY1305_ALGORITHM;
 }

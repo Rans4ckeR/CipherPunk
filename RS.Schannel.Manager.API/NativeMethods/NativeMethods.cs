@@ -8,7 +8,7 @@
 // ------------------------------------------------------------------------------
 
 #nullable enable
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace Windows.Win32;
 
 using global::System.Runtime.InteropServices;
@@ -58,7 +58,7 @@ internal static partial class PInvoke
         {
             NCRYPT_PROV_HANDLE phSslProviderLocal;
             HRESULT __result = PInvoke.SslOpenProvider(&phSslProviderLocal, pszProviderNameLocal, dwFlags);
-            phSslProvider = new NCryptFreeObjectSafeHandle(phSslProviderLocal, ownsHandle: true);
+            phSslProvider = new NCryptFreeObjectSafeHandle(checked((nint)(nuint)phSslProviderLocal), ownsHandle: true);
             return __result;
         }
     }
@@ -102,10 +102,10 @@ internal static partial class PInvoke
         finally
         {
             if (hSslProviderAddRef)
-                hSslProvider.DangerousRelease();
+                hSslProvider!.DangerousRelease();
 
             if (hPrivateKeyAddRef)
-                hPrivateKey.DangerousRelease();
+                hPrivateKey!.DangerousRelease();
         }
     }
 }

@@ -67,17 +67,17 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     {
         string cipherSuitesString = string.Join(',', cipherSuites);
 
-        UpdateOrderPolicy(cipherSuitesString, SslCipherSuiteOrderValueName, REG.REG_SZ);
+        UpdateOrderPolicy(cipherSuitesString, SslCipherSuiteOrderValueName, REG_VALUE_TYPE.REG_SZ);
     }
 
     public void UpdateEccCurveOrderPolicy(string[] ellipticCurves)
     {
         string ellipticCurvesString = string.Join('\n', ellipticCurves);
 
-        UpdateOrderPolicy(ellipticCurvesString, SslCurveOrderValueName, REG.REG_MULTI_SZ);
+        UpdateOrderPolicy(ellipticCurvesString, SslCurveOrderValueName, REG_VALUE_TYPE.REG_MULTI_SZ);
     }
 
-    private void UpdateOrderPolicy(string valueData, string valueName, REG valueType)
+    private void UpdateOrderPolicy(string valueData, string valueName, REG_VALUE_TYPE valueType)
     {
         if (valueData.Length > ListMaximumCharacters)
             throw new GroupPolicyServiceException(FormattableString.Invariant($"Maximum list length exceeded ({valueData.Length}), the maximum is {ListMaximumCharacters}."));

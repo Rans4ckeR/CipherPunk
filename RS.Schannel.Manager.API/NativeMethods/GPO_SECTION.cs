@@ -7,13 +7,15 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace RS.Schannel.Manager.API;
+
+using Windows.Win32;
 
 internal enum GPO_SECTION : uint
 {
     // Group Policy Object Section flags
-    GPO_SECTION_ROOT = 0U, // Root
-    GPO_SECTION_USER = 1U, // User
-    GPO_SECTION_MACHINE = 2U // Machine
+    GPO_SECTION_ROOT = PInvoke.GPO_SECTION_ROOT, // Root
+    GPO_SECTION_USER = PInvoke.GPO_SECTION_USER, // User
+    GPO_SECTION_MACHINE = PInvoke.GPO_SECTION_MACHINE // Machine
 }
