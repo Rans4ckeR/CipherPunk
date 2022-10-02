@@ -232,7 +232,7 @@ internal sealed class SchannelService : ISchannelService
                                     BCRYPT_ECC_PARAMETER_HEADER bcryptEccParametersBlob = Marshal.PtrToStructure<BCRYPT_ECC_PARAMETER_HEADER>(ptr);
                                 }
 
-                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwMinLength, null, null, new List<string>(), null);
+                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwMinLength, null, null, new(), null);
 
                                 curveConfigurations.Add(windowsEllipticCurveInfo);
                             }
@@ -267,7 +267,7 @@ internal sealed class SchannelService : ISchannelService
                             if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                 pwszCNGExtraAlgid = null;
 
-                            var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new List<string> { pwszCNGAlgid }, pwszCNGExtraAlgid);
+                            var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid }, pwszCNGExtraAlgid);
 
                             curveConfigurations.Add(windowsEllipticCurveInfo);
                         }
@@ -559,7 +559,7 @@ internal sealed class SchannelService : ISchannelService
                 //    return true;
                 //}
 
-                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new List<string> { pwszCNGAlgid }, pwszCNGExtraAlgid);
+                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid }, pwszCNGExtraAlgid);
 
                 list.Add(windowsEllipticCurveInfo);
 

@@ -18,7 +18,7 @@ internal sealed class WindowsEllipticCurveDocumentationService : IWindowsEllipti
 
     public List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsSchannelVersion windowsSchannelVersion)
     {
-        return GetWindowsDocumentationEllipticCurveConfigurations().Any(q => q.Key >= windowsSchannelVersion) ? GetWindowsDocumentationEllipticCurveConfigurations().FirstOrDefault(q => q.Key >= windowsSchannelVersion).Value : new List<WindowsDocumentationEllipticCurveConfiguration>();
+        return GetWindowsDocumentationEllipticCurveConfigurations().Any(q => q.Key >= windowsSchannelVersion) ? GetWindowsDocumentationEllipticCurveConfigurations().FirstOrDefault(q => q.Key >= windowsSchannelVersion).Value : new();
     }
 
     private Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
@@ -67,7 +67,7 @@ internal sealed class WindowsEllipticCurveDocumentationService : IWindowsEllipti
             new(PInvoke.BCRYPT_ECC_CURVE_SECP521R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP521R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP521R1, false, false)
         };
 
-        return new Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>>
+        return new()
         {
             { WindowsSchannelVersion.Windows10v1607OrServer2016, windows10v1607OrServer2016 },
             { WindowsSchannelVersion.Windows10v1507, windows10v1507 }

@@ -4,7 +4,7 @@ public interface IEllipticCurveIdentifierService
 {
     Dictionary<BCRYPT_ECC_CURVE, string?> GetEllipticCurveIdentifiers();
 
-    public string? GetIdentifier(string code);
+    string? GetIdentifier(string code);
 
-    public string? GetIdentifier(BCRYPT_ECC_CURVE code);
+    string? GetIdentifier(BCRYPT_ECC_CURVE code);
 }

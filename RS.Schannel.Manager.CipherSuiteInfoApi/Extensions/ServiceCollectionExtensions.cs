@@ -12,7 +12,7 @@ public static class ServiceCollectionExtensions
             .AddHttpClient(ICipherSuiteInfoApiService.HttpClientName)
             .ConfigureHttpClient((_, httpClient) =>
             {
-                httpClient.BaseAddress = new Uri("https://ciphersuite.info/api/");
+                httpClient.BaseAddress = new("https://ciphersuite.info/api/");
                 httpClient.Timeout = TimeSpan.FromSeconds(10);
                 httpClient.DefaultRequestVersion = Version.Parse("2.0");
             })
