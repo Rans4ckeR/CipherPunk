@@ -2,7 +2,7 @@
 
 public readonly record struct WindowsDocumentationEllipticCurveConfiguration(
     string Name,
-    string Identifier,
+    string? Identifier,
     BCRYPT_ECC_CURVE Code,
     bool AllowedByUseStrongCryptographyFlag,
     bool EnabledByDefault);

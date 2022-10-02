@@ -25,3 +25,15 @@ szOID_ECC_CURVE_*
 BCRYPT_ECDSA_ALGORITHM
 BCRYPT_ECDH_ALGORITHM
 CLSID_GroupPolicyObject
+NCryptProviderName
+BCryptGetProperty
+BCryptOpenAlgorithmProvider
+BCryptCloseAlgorithmProvider
+BCRYPT_ECC_CURVE_NAMES
+CryptFindOIDInfo
+BCryptGenerateKeyPair
+BCryptSetProperty
+BCryptDestroyKey
+BCRYPT_KEY_LENGTHS_STRUCT
+ECC_CURVE_TYPE_ENUM
+ECC_CURVE_ALG_ID_ENUM

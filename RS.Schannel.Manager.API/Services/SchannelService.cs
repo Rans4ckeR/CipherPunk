@@ -97,6 +97,194 @@ internal sealed class SchannelService : ISchannelService
         }
     }
 
+    public void Test()
+    {
+        var curveConfigurations = new List<WindowsApiEllipticCurveConfiguration>();
+
+        unsafe
+        {
+            NCryptProviderName* ppProviderList = null;
+            CRYPT_PROVIDER_REFS* ppBuffer = null;
+
+            try
+            {
+                HRESULT sslEnumProtocolProvidersStatus = PInvoke.SslEnumProtocolProviders(out uint pdwProviderCount, out ppProviderList);
+
+                if (sslEnumProtocolProvidersStatus.Failed)
+                    throw Marshal.GetExceptionForHR(sslEnumProtocolProvidersStatus)!;
+
+                for (int i = 0; i < pdwProviderCount; i++)
+                {
+                    NCryptProviderName nCryptProviderName = Marshal.PtrToStructure<NCryptProviderName>((IntPtr)ppProviderList + (i * sizeof(NCryptProviderName)));
+
+                    string pszName = nCryptProviderName.pszName.ToString();
+                    string pszComment = nCryptProviderName.pszComment.ToString();
+
+                    HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszName);
+
+                    using (phSslProvider)
+                    {
+                        if (sslOpenProviderResult.Succeeded)
+                        {
+                        }
+                        else
+                        {
+                            throw Marshal.GetExceptionForHR(sslOpenProviderResult)!;
+                        }
+                    }
+
+                    uint pcbBuffer = 0U;
+                    NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, ref ppBuffer);
+
+                    if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                        throw new Win32Exception(bCryptResolveProvidersStatus);
+
+                    if (ppBuffer->cProviders != 1U)
+                        throw new SchannelServiceException(FormattableString.Invariant($"Found {ppBuffer->cProviders} providers, expected 1."));
+
+                    CRYPT_PROVIDER_REF* cryptProviderRef = ppBuffer->rgpProviders[0];
+                    string pszProvider = cryptProviderRef->pszProvider.ToString();
+                    string pszFunction = cryptProviderRef->pszFunction.ToString();
+                    string pszImage = cryptProviderRef->pUM->pszImage.ToString();
+
+                    PInvoke.BCryptFreeBuffer(ppBuffer);
+
+                    ppBuffer = null;
+
+                    BCRYPT_ALG_HANDLE phAlgorithm = default;
+                    NTSTATUS bCryptOpenAlgorithmProviderStatus = PInvoke.BCryptOpenAlgorithmProvider(&phAlgorithm, CngAlgorithmIdentifiers.BCRYPT_ECDH_ALGORITHM, null, 0U);
+
+                    if (bCryptOpenAlgorithmProviderStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                        throw new Win32Exception(bCryptOpenAlgorithmProviderStatus);
+
+                    using var bCryptCloseAlgorithmProviderSafeHandle = new BCryptCloseAlgorithmProviderSafeHandle(phAlgorithm);
+                    NTSTATUS bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, null, 0, out uint length, 0);
+
+                    if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                        throw new Win32Exception(bCryptGetPropertyStatus);
+
+                    byte[] result = new byte[length];
+                    BCRYPT_ECC_CURVE_NAMES bcryptEccCurveNames;
+
+                    fixed (byte* p = result)
+                    {
+                        var ptr = (IntPtr)p;
+
+                        bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, (byte*)ptr, (uint)result.Length, out length, 0);
+
+                        if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                            throw new Win32Exception(bCryptGetPropertyStatus);
+
+                        bcryptEccCurveNames = Marshal.PtrToStructure<BCRYPT_ECC_CURVE_NAMES>(ptr);
+                    }
+
+                    for (int j = 0; j < bcryptEccCurveNames.dwEccCurveNames; j++)
+                    {
+                        PWSTR eccCurveName = Marshal.PtrToStructure<PWSTR>((IntPtr)(bcryptEccCurveNames.pEccCurveNames + j));
+                        string eccCurveNameString = eccCurveName.ToString();
+
+                        var cryptOidInfoPointer = (IntPtr)PInvoke.CryptFindOIDInfo((uint)(CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_NAME_KEY | CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_PUBKEY_SIGN_KEY_FLAG), eccCurveName, (uint)(CRYPT_OID_GROUP_FLAG.CRYPT_OID_PREFER_CNG_ALGID_FLAG | (CRYPT_OID_GROUP_FLAG)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID));
+
+                        if (cryptOidInfoPointer == IntPtr.Zero)
+                        {
+                            NTSTATUS bCryptGenerateKeyPairResult = PInvoke.BCryptGenerateKeyPair(bCryptCloseAlgorithmProviderSafeHandle, out BCryptDestroyKeySafeHandle phKey, 0U, 0U);
+
+                            using (phKey)
+                            {
+                                if (bCryptGenerateKeyPairResult.SeverityCode is not NTSTATUS.Severity.Success)
+                                    throw new Win32Exception(bCryptGenerateKeyPairResult);
+
+                                IntPtr stringPointer = Marshal.StringToHGlobalUni(eccCurveNameString);
+
+                                fixed (char* pszPropertyLocal = CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME)
+                                {
+                                    NTSTATUS bCryptSetPropertyResult = PInvoke.BCryptSetProperty(phKey.DangerousGetHandle().ToPointer(), pszPropertyLocal, (byte*)stringPointer, (uint)(sizeof(char) * (eccCurveName.Length + "\n".Length)), 0U);
+
+                                    if (bCryptSetPropertyResult.SeverityCode is not NTSTATUS.Severity.Success)
+                                        throw new Win32Exception(bCryptSetPropertyResult);
+                                }
+
+                                BCRYPT_KEY_LENGTHS_STRUCT pbOutput = default;
+
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(phKey.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_PUBLIC_KEY_LENGTH, (byte*)&pbOutput, (uint)sizeof(BCRYPT_KEY_LENGTHS_STRUCT), out uint pcbResult, 0U);
+
+                                if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                                    throw new Win32Exception(bCryptGetPropertyStatus);
+
+                                uint dwMinLength = pbOutput.dwMinLength;
+                                uint dwMaxLength = pbOutput.dwMaxLength;
+                                uint dwIncrement = pbOutput.dwIncrement;
+
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(phKey.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, null, 0U, out uint pcbResult1, 0U);
+
+                                if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                                    throw new Win32Exception(bCryptGetPropertyStatus);
+
+                                byte[] result1 = new byte[pcbResult1];
+                                fixed (byte* p = result1)
+                                {
+                                    var ptr = (IntPtr)p;
+                                    bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(phKey.DangerousGetHandle().ToPointer(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, (byte*)ptr, (uint)result1.Length, out uint pcbResult2, 0U);
+
+                                    if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                                        throw new Win32Exception(bCryptGetPropertyStatus);
+
+                                    BCRYPT_ECC_PARAMETER_HEADER bcryptEccParametersBlob = Marshal.PtrToStructure<BCRYPT_ECC_PARAMETER_HEADER>(ptr);
+                                }
+
+                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwMinLength, null, null, new List<string>(), null);
+
+                                curveConfigurations.Add(windowsEllipticCurveInfo);
+                            }
+                        }
+                        else
+                        {
+                            CRYPT_OID_INFO pInfo = Marshal.PtrToStructure<CRYPT_OID_INFO>(cryptOidInfoPointer);
+                            uint cbSize = pInfo.cbSize;
+                            string pszOid = pInfo.pszOID.ToString();
+                            string pwszName = pInfo.pwszName.ToString();
+                            var dwGroupId = (CRYPT_OID_GROUP_ID)pInfo.dwGroupId;
+                            CRYPT_OID_INFO._Anonymous_e__Union anonymous = pInfo.Anonymous;
+                            CRYPTOAPI_BLOB extraInfo = pInfo.ExtraInfo;
+                            var algId = (CALG)anonymous.Algid;
+                            var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
+                            uint dwMagic;
+                            BCRYPT_MAGIC bcryptMagic;
+                            uint dwBitLength;
+
+                            //if (extraInfo.pbData is not null)
+                            //{
+                                BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((IntPtr)extraInfo.pbData);
+
+                                dwMagic = eccKeyStruct.dwMagic;
+                                bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
+                                dwBitLength = (uint)Marshal.ReadInt32((IntPtr)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
+                            //}
+
+                            string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo.pwszCNGAlgid)!;
+                            string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(pInfo.pwszCNGExtraAlgid);
+
+                            if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
+                                pwszCNGExtraAlgid = null;
+
+                            var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new List<string> { pwszCNGAlgid }, pwszCNGExtraAlgid);
+
+                            curveConfigurations.Add(windowsEllipticCurveInfo);
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                if (ppProviderList is not null)
+                    _ = PInvoke.SslFreeBuffer(ppProviderList);
+
+                if (ppBuffer is not null)
+                    PInvoke.BCryptFreeBuffer(ppBuffer);
+            }
+        }
+    }
+
     public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
     {
         var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration?>();
@@ -105,11 +293,11 @@ internal sealed class SchannelService : ISchannelService
         {
             NCRYPT_SSL_CIPHER_SUITE* ppCipherSuite = null;
             void* ppEnumState = null;
+            CRYPT_PROVIDER_REFS* ppBuffer = null;
 
             try
             {
                 uint pcbBuffer = 0U;
-                CRYPT_PROVIDER_REFS* ppBuffer = null;
                 NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(LocalCngSslContextName, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, null, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, BCRYPT_RESOLVE_PROVIDERS_FLAGS.CRYPT_ALL_PROVIDERS, ref pcbBuffer, ref ppBuffer);
 
                 if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
@@ -123,7 +311,11 @@ internal sealed class SchannelService : ISchannelService
                 string pszFunction = cryptProviderRef->pszFunction.ToString();
                 string pszImage = cryptProviderRef->pUM->pszImage.ToString();
 
-                HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle? phSslProvider, pszProvider);
+                PInvoke.BCryptFreeBuffer(ppBuffer);
+
+                ppBuffer = null;
+
+                HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszProvider);
 
                 if (sslOpenProviderResult.Succeeded)
                 {
@@ -228,9 +420,6 @@ internal sealed class SchannelService : ISchannelService
                         if (sslFreeBufferResult.Failed)
                             throw Marshal.GetExceptionForHR(sslFreeBufferResult)!;
                     }
-
-                    if (ppBuffer is not null)
-                        PInvoke.BCryptFreeBuffer(ppBuffer);
                 }
                 else
                 {
@@ -239,6 +428,9 @@ internal sealed class SchannelService : ISchannelService
             }
             finally
             {
+                if (ppBuffer is not null)
+                    PInvoke.BCryptFreeBuffer(ppBuffer);
+
                 if (ppCipherSuite is not null)
                     _ = PInvoke.SslFreeBuffer(ppCipherSuite);
 
@@ -350,8 +542,6 @@ internal sealed class SchannelService : ISchannelService
                     dwMagic = eccKeyStruct.dwMagic;
                     bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
                     dwBitLength = (uint)Marshal.ReadInt32((IntPtr)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
-
-                    bool check = eccKeyStruct.cbKey == (dwBitLength.Value / 8) + (dwBitLength.Value % 8 == 0 ? 0 : 1);
                 }
 
                 string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGAlgid)!;
@@ -388,6 +578,8 @@ internal sealed class SchannelService : ISchannelService
 
     public List<string> GetOperatingSystemActiveEllipticCurveList()
     {
+        Test();
+
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(SSLConfigurationKey);
         string[]? activeEllipticCurves = (string[]?)registryKey?.GetValue(SSLCurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
 

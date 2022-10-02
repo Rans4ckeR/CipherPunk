@@ -4,26 +4,26 @@ using Windows.Win32;
 
 internal sealed class EllipticCurveIdentifierService : IEllipticCurveIdentifierService
 {
-    private Dictionary<BCRYPT_ECC_CURVE, string>? ellipticCurveIdentifiers;
+    private Dictionary<BCRYPT_ECC_CURVE, string?>? ellipticCurveIdentifiers;
 
-    public Dictionary<BCRYPT_ECC_CURVE, string> GetEllipticCurveIdentifiers()
+    public Dictionary<BCRYPT_ECC_CURVE, string?> GetEllipticCurveIdentifiers()
         => ellipticCurveIdentifiers ??= BuildEllipticCurveIdentifiers();
 
-    public string GetIdentifier(string code)
+    public string? GetIdentifier(string code)
     {
         return GetIdentifier(Enum.Parse<BCRYPT_ECC_CURVE>(code, true));
     }
 
-    public string GetIdentifier(BCRYPT_ECC_CURVE code)
+    public string? GetIdentifier(BCRYPT_ECC_CURVE code)
     {
         return GetEllipticCurveIdentifiers()[code];
     }
 
-    private static Dictionary<BCRYPT_ECC_CURVE, string> BuildEllipticCurveIdentifiers()
+    private static Dictionary<BCRYPT_ECC_CURVE, string?> BuildEllipticCurveIdentifiers()
     {
-        return new Dictionary<BCRYPT_ECC_CURVE, string>
+        return new Dictionary<BCRYPT_ECC_CURVE, string?>
         {
-            { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_25519, PInvoke.szOID_ECC_CURVE_25519 },
+            { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_25519, null },
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP160R1, PInvoke.szOID_ECC_CURVE_BRAINPOOLP160R1 },
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP160T1, PInvoke.szOID_ECC_CURVE_BRAINPOOLP160T1 },
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP192R1, PInvoke.szOID_ECC_CURVE_BRAINPOOLP192R1 },
