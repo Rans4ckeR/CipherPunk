@@ -124,8 +124,8 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             q.PreWindows10EllipticCurve,
             onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
 
-        ActiveCipherSuiteConfigurations = new ObservableCollection<UiWindowsApiCipherSuiteConfiguration>(uiWindowsApiCipherSuiteConfigurations);
-        OsDefaultCipherSuiteConfigurations = new ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>(uiWindowsDocumentationCipherSuiteConfigurations);
+        ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
+        OsDefaultCipherSuiteConfigurations = new(uiWindowsDocumentationCipherSuiteConfigurations);
     }
 
     private async Task FetchOnlineCipherSuiteInfo(List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)

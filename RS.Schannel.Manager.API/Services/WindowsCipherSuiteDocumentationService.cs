@@ -487,7 +487,7 @@ internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSui
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, new[] { SslProviderProtocolId.SSL2_PROTOCOL_VERSION })
         };
 
-        return new Dictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>>
+        return new()
         {
             { WindowsSchannelVersion.Windows11OrServer2022, windows11OrServer2022 },
             { WindowsSchannelVersion.Windows10v1903, windows10v1903 },

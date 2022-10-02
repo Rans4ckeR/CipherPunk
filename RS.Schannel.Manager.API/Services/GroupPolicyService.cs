@@ -28,7 +28,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         string microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
         await using FileStream stream = new FileInfo(microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
-        using var xmlReader = XmlReader.Create(stream, new XmlReaderSettings { Async = true });
+        using var xmlReader = XmlReader.Create(stream, new() { Async = true });
         XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
         XNamespace ns = MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace;
         string sslCipherSuiteOrderPolicyWindowsDefaults = xDocument
@@ -47,7 +47,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         string microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
         await using FileStream stream = new FileInfo(microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
-        using var xmlReader = XmlReader.Create(stream, new XmlReaderSettings { Async = true });
+        using var xmlReader = XmlReader.Create(stream, new() { Async = true });
         XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
         XNamespace ns = MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace;
         string sslCurveOrderPolicyHelpText = xDocument

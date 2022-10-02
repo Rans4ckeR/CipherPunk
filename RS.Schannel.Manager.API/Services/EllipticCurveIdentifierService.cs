@@ -21,7 +21,7 @@ internal sealed class EllipticCurveIdentifierService : IEllipticCurveIdentifierS
 
     private static Dictionary<BCRYPT_ECC_CURVE, string?> BuildEllipticCurveIdentifiers()
     {
-        return new Dictionary<BCRYPT_ECC_CURVE, string?>
+        return new()
         {
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_25519, null },
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP160R1, PInvoke.szOID_ECC_CURVE_BRAINPOOLP160R1 },
