@@ -18,8 +18,6 @@ using Windows.Win32.Security.Cryptography;
 
 internal static partial class PInvoke
 {
-    internal const string szOID_ECC_CURVE_25519 = "1.3.101.110";
-
     internal static readonly global::System.Guid REGISTRY_EXTENSION_GUID = new Guid(0x35378EAC, 0x683F, 0x11D2, 0xA8, 0x9A, 0x00, 0xC0, 0x4F, 0xBB, 0xCF, 0xA2);
 
     [DllImport("NCrypt", ExactSpelling = true)]
@@ -36,6 +34,23 @@ internal static partial class PInvoke
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
     public static extern unsafe HRESULT SslEnumCipherSuites(NCRYPT_PROV_HANDLE hProvider, [Optional] NCRYPT_KEY_HANDLE hPrivateKey, NCRYPT_SSL_CIPHER_SUITE** ppCipherSuite, void** ppEnumState, NCRYPT_FLAGS dwFlags);
+
+    [DllImport("NCrypt", ExactSpelling = true)]
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [SupportedOSPlatform("windows6.0.6000")]
+    public static extern unsafe HRESULT SslEnumProtocolProviders(uint* pdwProviderCount, NCryptProviderName** ppProviderList, NCRYPT_FLAGS dwFlags = 0U);
+
+    public static unsafe HRESULT SslEnumProtocolProviders(out uint pdwProviderCount, out NCryptProviderName* ppProviderList, NCRYPT_FLAGS dwFlags = 0U)
+    {
+        fixed (NCryptProviderName** ppProviderListLocal = &ppProviderList)
+        {
+            fixed (uint* pdwProviderCountLocal = &pdwProviderCount)
+            {
+                HRESULT __result = PInvoke.SslEnumProtocolProviders(pdwProviderCountLocal, ppProviderListLocal, dwFlags);
+                return __result;
+            }
+        }
+    }
 
     public static unsafe HRESULT SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, string pszProviderName, NCRYPT_FLAGS dwFlags = 0U)
     {

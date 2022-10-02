@@ -65,12 +65,12 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     {
         //schannelService.ResetEllipticCurveListToOperatingSystemDefault();
 
-        //var x = schannelService.GetOperatingSystemActiveEllipticCurveList();
-        //var y = schannelService.GetOperatingSystemAvailableEllipticCurveList();
-        //var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
-        //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        //var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        //var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
+        var x = schannelService.GetOperatingSystemActiveEllipticCurveList();
+        var y = schannelService.GetOperatingSystemAvailableEllipticCurveList();
+        var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
+        var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 

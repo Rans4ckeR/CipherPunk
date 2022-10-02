@@ -1,13 +1,13 @@
 ﻿namespace RS.Schannel.Manager.API;
 
 public readonly record struct WindowsApiEllipticCurveConfiguration(
-    string pszOid,
+    string? pszOid,
     string pwszName,
-    CRYPT_OID_GROUP_ID dwGroupId,
+    CRYPT_OID_GROUP_ID? dwGroupId,
     uint? dwMagic,
-    CALG algId,
+    CALG? algId,
     uint? dwBitLength,
     BCRYPT_MAGIC? bcryptMagic,
-    CRYPT_OID_FLAG flags,
+    CRYPT_OID_FLAG? flags,
     List<string> CngAlgorithms,
     string? pwszCNGExtraAlgid);
