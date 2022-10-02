@@ -7,13 +7,13 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace Windows.Win32;
 
 [Flags]
 internal enum IconInfo : uint
 {
-    SHGSI_ICONLOCATION = 0U, // you always get the icon location
+    SHGSI_ICONLOCATION = PInvoke.SHGSI_ICONLOCATION, // you always get the icon location
     SHGSI_ICON = 0x000000100, // get icon
     SHGSI_SYSICONINDEX = 0x000004000, // get system icon index
     SHGSI_LINKOVERLAY = 0x000008000, // put a link overlay on icon

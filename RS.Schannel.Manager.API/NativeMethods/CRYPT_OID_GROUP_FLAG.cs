@@ -7,15 +7,17 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace RS.Schannel.Manager.API;
+
+using Windows.Win32;
 
 [Flags]
 public enum CRYPT_OID_GROUP_FLAG : uint
 {
     // The following flag can be set in above dwGroupId parameter to disable
     // searching the directory server
-    CRYPT_OID_DISABLE_SEARCH_DS_FLAG = 0x80000000U,
+    CRYPT_OID_DISABLE_SEARCH_DS_FLAG = PInvoke.CRYPT_OID_DISABLE_SEARCH_DS_FLAG,
 
     // The following flag can be set in above dwGroupId parameter to search
     // through CRYPT_OID_INFO records. If there are multiple records that meet
@@ -23,5 +25,5 @@ public enum CRYPT_OID_GROUP_FLAG : uint
     // returned. If none of the records (meeting the search criteria) have
     // pwszCNGAlgid defined, first record (meeting the search criteria) would be
     // returned.
-    CRYPT_OID_PREFER_CNG_ALGID_FLAG = 0x40000000U
+    CRYPT_OID_PREFER_CNG_ALGID_FLAG = PInvoke.CRYPT_OID_PREFER_CNG_ALGID_FLAG
 }
