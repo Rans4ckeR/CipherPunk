@@ -89,7 +89,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = schannelService.GetOperatingSystemActiveCipherSuiteList();
 
         if (FetchOnlineInfo)
-            await FetchOnlineCipherSuiteInfo(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
+            await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
         ushort priority = 0;
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
@@ -128,19 +128,11 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         OsDefaultCipherSuiteConfigurations = new(uiWindowsDocumentationCipherSuiteConfigurations);
     }
 
-    private async Task FetchOnlineCipherSuiteInfo(List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
+    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
     {
-        var newOnlineCipherSuiteInfos = new List<CipherSuite?>();
-
-        foreach (WindowsDocumentationCipherSuiteConfiguration windowsDocumentationCipherSuiteConfiguration in windowsDocumentationCipherSuiteConfigurations)
-        {
-            CipherSuite? onlineCipherSuiteInfo1 = await cipherSuiteInfoApiService.GetCipherSuite(windowsDocumentationCipherSuiteConfiguration.CipherSuite.ToString(), cancellationToken);
-
-            if (onlineCipherSuiteInfo1 is not null)
-                newOnlineCipherSuiteInfos.Add(onlineCipherSuiteInfo1);
-        }
+        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuite(q.CipherSuite.ToString(), cancellationToken)));
 
         onlineCipherSuiteInfos.Clear();
-        onlineCipherSuiteInfos.AddRange(newOnlineCipherSuiteInfos);
+        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
     }
 }
