@@ -11,6 +11,8 @@ public static class ServiceCollectionExtensions
             .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>()
             .AddSingleton<IWindowsEllipticCurveDocumentationService, WindowsEllipticCurveDocumentationService>()
             .AddSingleton<IGroupPolicyService, GroupPolicyService>()
-            .AddSingleton<IEllipticCurveIdentifierService, EllipticCurveIdentifierService>();
+            .AddSingleton<IEllipticCurveIdentifierService, EllipticCurveIdentifierService>()
+            .AddSingleton<IEllipticCurveService, EllipticCurveService>()
+            .AddSingleton<ITlsService, TlsService>();
     }
 }

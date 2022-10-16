@@ -22,7 +22,7 @@ internal sealed class UacIconService : IUacIconService
 
         try
         {
-            HRESULT shGetStockIconInfoResult = PInvoke.SHGetStockIconInfo(SHSTOCKICONID.SIID_SHIELD, (uint)(IconInfo.SHGSI_ICON | IconInfo.SHGSI_SMALLICON), ref psii);
+            HRESULT shGetStockIconInfoResult = PInvoke.SHGetStockIconInfo(SHSTOCKICONID.SIID_SHIELD, SHGSI_FLAGS.SHGSI_ICON | SHGSI_FLAGS.SHGSI_SMALLICON, ref psii);
 
             if (!shGetStockIconInfoResult.Succeeded)
                 throw Marshal.GetExceptionForHR(shGetStockIconInfoResult)!;

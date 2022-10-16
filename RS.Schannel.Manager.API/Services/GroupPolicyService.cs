@@ -3,6 +3,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Win32.SafeHandles;
@@ -23,6 +24,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
     private readonly Guid rsSchannelManagerGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
 
+    [SupportedOSPlatform("windows")]
     public async Task<string> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
@@ -42,6 +44,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         return sslCipherSuiteOrderPolicyWindowsDefaults;
     }
 
+    [SupportedOSPlatform("windows")]
     public async Task<string> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
@@ -63,6 +66,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         return sslCurveOrderData;
     }
 
+    [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateSslCipherSuiteOrderPolicy(string[] cipherSuites)
     {
         string cipherSuitesString = string.Join(',', cipherSuites);
@@ -70,6 +74,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         UpdateOrderPolicy(cipherSuitesString, SslCipherSuiteOrderValueName, REG_VALUE_TYPE.REG_SZ);
     }
 
+    [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEccCurveOrderPolicy(string[] ellipticCurves)
     {
         string ellipticCurvesString = string.Join('\n', ellipticCurves);
@@ -77,6 +82,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         UpdateOrderPolicy(ellipticCurvesString, SslCurveOrderValueName, REG_VALUE_TYPE.REG_MULTI_SZ);
     }
 
+    [SupportedOSPlatform("windows6.0.6000")]
     private void UpdateOrderPolicy(string valueData, string valueName, REG_VALUE_TYPE valueType)
     {
         if (valueData.Length > ListMaximumCharacters)
@@ -98,7 +104,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
                 ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
 
-                Windows.Win32.System.Registry.HKEY machineKey = default;
+                HKEY machineKey = default;
 
                 ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
 
