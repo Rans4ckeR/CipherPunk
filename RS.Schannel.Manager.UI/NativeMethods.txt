@@ -1,3 +1,2 @@
 ﻿DestroyIcon
 SHGetStockIconInfo
-SHGSI_*
