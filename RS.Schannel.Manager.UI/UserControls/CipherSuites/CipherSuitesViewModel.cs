@@ -14,6 +14,8 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private readonly IUacIconService uacIconService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
+    private readonly ITlsService tlsService;
+    private readonly IEllipticCurveService ellipticCurveService;
     private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? osDefaultCipherSuiteConfigurations;
@@ -21,13 +23,15 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private BitmapSource? uacIcon;
     private bool fetchOnlineInfo = true;
 
-    public CipherSuitesViewModel(ILogger logger, ISchannelService schannelService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
+    public CipherSuitesViewModel(ILogger logger, ISchannelService schannelService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService, ITlsService tlsService, IEllipticCurveService ellipticCurveService)
         : base(logger)
     {
         this.schannelService = schannelService;
         this.uacIconService = uacIconService;
         this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
         this.groupPolicyService = groupPolicyService;
+        this.tlsService = tlsService;
+        this.ellipticCurveService = ellipticCurveService;
 
         UpdateCanExecuteDefaultCommand();
     }
@@ -65,12 +69,13 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     {
         //schannelService.ResetEllipticCurveListToOperatingSystemDefault();
 
-        var x = schannelService.GetOperatingSystemActiveEllipticCurveList();
-        var y = schannelService.GetOperatingSystemAvailableEllipticCurveList();
-        var z = schannelService.GetOperatingSystemDefaultEllipticCurveList();
+        var x = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
+        var y = ellipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
+        var z = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
         var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
         var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
         var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
+        await tlsService.GetRemoteServerCipherSuitesAsync("binfo.bio.wzw.tum.de", cancellationToken); // SSL2 "binfo.bio.wzw.tum.de"
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
