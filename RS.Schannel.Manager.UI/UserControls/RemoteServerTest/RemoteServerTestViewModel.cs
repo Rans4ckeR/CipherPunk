@@ -12,6 +12,7 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
     private readonly ITlsService tlsService;
 
     private string? hostName;
+    private ushort? port;
     private ObservableCollection<UiRemoteServerTestResult>? remoteServerTestResults;
 
     public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService)
@@ -19,6 +20,7 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
     {
         this.tlsService = tlsService;
         RunTestCommand = new AsyncRelayCommand(ExecuteRunTestCommandAsync, CanExecuteRunTestCommand);
+        Port = 443;
 
         UpdateCanExecuteDefaultCommand();
     }
@@ -29,6 +31,16 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
         set
         {
             if (SetProperty(ref hostName, value))
+                RunTestCommand.NotifyCanExecuteChanged();
+        }
+    }
+
+    public ushort? Port
+    {
+        get => port;
+        set
+        {
+            if (SetProperty(ref port, value))
                 RunTestCommand.NotifyCanExecuteChanged();
         }
     }
@@ -62,18 +74,18 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     private async Task ExecuteRunTestCommandAsync(CancellationToken cancellationToken)
     {
-        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, TlsAlert? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, cancellationToken);
+        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
         var uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
             q.TlsVersion,
             q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuites)r.CipherSuiteId).ToString() : ((TlsCipherSuites)r.CipherSuiteId).ToString(),
             r.Supported,
-            r.ErrorReason?.Description.ToString()))).ToList();
+            r.ErrorReason))).ToList();
 
         RemoteServerTestResults = new(uiRemoteServerTestResults);
     }
 
     private bool CanExecuteRunTestCommand()
     {
-        return !string.IsNullOrWhiteSpace(HostName);
+        return !string.IsNullOrWhiteSpace(HostName) && Port.HasValue;
     }
 }

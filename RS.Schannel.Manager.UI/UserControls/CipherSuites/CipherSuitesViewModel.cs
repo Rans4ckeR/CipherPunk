@@ -67,12 +67,12 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
         //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        //var dgdfg = groupPolicyService.GetSslCipherSuiteOrderPolicy();
         List<WindowsApiCipherSuiteConfiguration> windowsApiDefaultActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDefaultCipherSuiteList();
         //await tlsService.GetRemoteServerCipherSuitesAsync("binfo.bio.wzw.tum.de", cancellationToken); // SSL2 "binfo.bio.wzw.tum.de"
-
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
-        //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(new[]
+        //var xxx = new[]
         //{
         //    "TLS_AES_256_GCM_SHA384",
         //    "TLS_AES_128_GCM_SHA256",
@@ -81,7 +81,10 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         //    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
         //    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
         //    "TLS_RSA_WITH_AES_256_CBC_SHA"
-        //});
+        //};
+
+        //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(xxx);
+        //cipherSuiteService.UpdateCipherSuiteOrder(xxx);
 
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
         List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();

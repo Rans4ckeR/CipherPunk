@@ -77,15 +77,17 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                 if (bCryptEnumContextFunctionsStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptEnumContextFunctionsStatus);
 
-                List<WindowsApiCipherSuiteConfiguration> cipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
-                string[] functions = new string[ppBuffer->cFunctions];
+                List<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+                var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
 
                 for (int i = 0; i < ppBuffer->cFunctions; i++)
                 {
-                    functions[i] = ppBuffer->rgpszFunctions[i].ToString();
+                    string function = ppBuffer->rgpszFunctions[i].ToString();
+
+                    cipherSuiteConfigurations.Add(defaultCipherSuiteConfigurations.Single(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase)));
                 }
 
-                return cipherSuiteConfigurations.Where(q => functions.Contains(q.CipherSuiteName, StringComparer.InvariantCultureIgnoreCase)).ToList();
+                return cipherSuiteConfigurations;
             }
             finally
             {

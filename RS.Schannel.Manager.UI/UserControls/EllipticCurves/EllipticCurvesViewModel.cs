@@ -55,7 +55,16 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
         List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
         List<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
         List<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
-        string ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        //string ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        //string[] eee = groupPolicyService.GetEccCurveOrderPolicy();
+
+        //var xxx = new[]
+        //{
+        //    "curve25519",
+        //    "NistP256"
+        //};
+
+        //groupPolicyService.UpdateEccCurveOrderPolicy(xxx);
 
         ushort priority = 0;
         var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(

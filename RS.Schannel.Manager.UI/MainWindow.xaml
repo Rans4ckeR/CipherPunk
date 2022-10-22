@@ -48,9 +48,14 @@
                             <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
-                    <RibbonTab Header="Remote server detection">
+                    <RibbonTab Header="Remote server test">
                         <RibbonGroup>
-                            <RibbonButton Label="Remote server detection" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Remote server test" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                    </RibbonTab>
+                    <RibbonTab Header="Windows version detection">
+                        <RibbonGroup>
+                            <RibbonButton Label="Windows version detection" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                 </Ribbon>
