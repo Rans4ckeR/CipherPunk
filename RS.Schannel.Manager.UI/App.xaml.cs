@@ -31,6 +31,8 @@ internal sealed partial class App
                     .AddSingleton<MainWindow>()
                     .AddSingleton<MainWindowViewModel>()
                     .AddSingleton<CipherSuitesViewModel>()
+                    .AddSingleton<EllipticCurvesViewModel>()
+                    .AddSingleton<RemoteServerTestViewModel>()
                     .AddSchannelApi()
                     .AddCipherSuiteInfoApi();
             }).Build();

@@ -11,7 +11,7 @@ public interface IEllipticCurveService
     List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
 
     [SupportedOSPlatform("windows")]
-    List<string> GetOperatingSystemActiveEllipticCurveList();
+    List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList();
 
     [SupportedOSPlatform("windows6.0.6000")]
     void ResetEllipticCurveListToOperatingSystemDefault();

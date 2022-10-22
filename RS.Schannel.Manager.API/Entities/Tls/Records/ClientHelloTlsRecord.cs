@@ -1,7 +1,6 @@
 ﻿namespace RS.Schannel.Manager.API;
 
 using System.Buffers.Binary;
-using Windows.Win32;
 
 public sealed record ClientHelloTlsRecord : TlsRecord
 {
@@ -22,7 +21,7 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         HandshakeExtensions = HandshakeExtension.GetExtensions(data[index..]);
     }
 
-    public ClientHelloTlsRecord(string serverName, TlsVersion tlsVersion, SslProviderCipherSuiteId[]? sslProviderCipherSuiteIds, TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats, TlsSignatureScheme[]? tlsSignatureSchemes, TlsSupportedGroup[]? tlsSupportedGroups, TlsVersion[]? tlsVersions, TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes, KeyShare[]? keyShares)
+    public ClientHelloTlsRecord(string serverName, TlsVersion tlsVersion, TlsCipherSuites[]? sslProviderCipherSuiteIds, TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats, TlsSignatureScheme[]? tlsSignatureSchemes, TlsSupportedGroup[]? tlsSupportedGroups, TlsVersion[]? tlsVersions, TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes, KeyShare[]? keyShares)
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
         HandshakeCipherSuites = sslProviderCipherSuiteIds?.Any() ?? false

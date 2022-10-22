@@ -1,12 +1,10 @@
 ﻿namespace RS.Schannel.Manager.API;
 
-using System.Runtime.Versioning;
-
 public interface ITlsService
 {
-    [SupportedOSPlatform("windows6.0.6000")]
     WindowsSchannelVersion GetWindowsSchannelVersion();
 
-    [SupportedOSPlatform("windows")]
-    Task GetRemoteServerCipherSuitesAsync(string hostName, CancellationToken cancellationToken);
+    Task<List<(TlsVersion, List<(uint CipherSuiteId, bool Supported, TlsAlert? ErrorReason)>?)>> GetRemoteServerCipherSuitesAsync(string hostName, CancellationToken cancellationToken);
+
+    Task<List<(uint CipherSuiteId, bool Supported, TlsAlert? ErrorReason)>> GetRemoteServerCipherSuitesAsync(string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken);
 }

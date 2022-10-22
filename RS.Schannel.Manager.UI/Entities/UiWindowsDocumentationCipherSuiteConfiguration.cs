@@ -8,7 +8,12 @@ internal readonly record struct UiWindowsDocumentationCipherSuiteConfiguration(
     SslProviderCipherSuiteId CipherSuite,
     bool AllowedByUseStrongCryptographyFlag,
     bool EnabledByDefault,
-    SslProviderProtocolId[] Protocols,
+    bool Ssl2,
+    bool Ssl3,
+    bool Tls1,
+    bool Tls11,
+    bool Tls12,
+    bool Tls13,
     bool ExplicitApplicationRequestOnly = false,
     SslProviderKeyTypeId? PreWindows10EllipticCurve = null,
     Security? Security = null);

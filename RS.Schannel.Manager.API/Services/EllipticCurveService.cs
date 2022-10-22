@@ -247,76 +247,77 @@ internal sealed class EllipticCurveService : IEllipticCurveService
         return windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(windowsSchannelVersion);
     }
 
-    [SupportedOSPlatform("windows5.1.2600")]
-    public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList2()
-    {
-        var list = new List<WindowsApiEllipticCurveConfiguration>();
+    //[SupportedOSPlatform("windows5.1.2600")]
+    //public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList2()
+    //{
+    //    var list = new List<WindowsApiEllipticCurveConfiguration>();
 
-        unsafe
-        {
-            var callbackFunction = new PFN_CRYPT_ENUM_OID_INFO(Callback);
+    //    unsafe
+    //    {
+    //        var callbackFunction = new PFN_CRYPT_ENUM_OID_INFO(Callback);
 
-            BOOL Callback(CRYPT_OID_INFO* pInfo, void* pvArg)
-            {
-                uint cbSize = pInfo->cbSize;
-                string pszOid = pInfo->pszOID.ToString();
-                string pwszName = pInfo->pwszName.ToString();
-                var dwGroupId = (CRYPT_OID_GROUP_ID)pInfo->dwGroupId;
-                CRYPT_OID_INFO._Anonymous_e__Union anonymous = pInfo->Anonymous;
-                CRYPTOAPI_BLOB extraInfo = pInfo->ExtraInfo;
-                var algId = (CALG)anonymous.Algid;
-                var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
-                uint? dwMagic = default;
-                BCRYPT_MAGIC? bcryptMagic = null;
-                uint? dwBitLength = default;
+    //        BOOL Callback(CRYPT_OID_INFO* pInfo, void* pvArg)
+    //        {
+    //            uint cbSize = pInfo->cbSize;
+    //            string pszOid = pInfo->pszOID.ToString();
+    //            string pwszName = pInfo->pwszName.ToString();
+    //            var dwGroupId = (CRYPT_OID_GROUP_ID)pInfo->dwGroupId;
+    //            CRYPT_OID_INFO._Anonymous_e__Union anonymous = pInfo->Anonymous;
+    //            CRYPTOAPI_BLOB extraInfo = pInfo->ExtraInfo;
+    //            var algId = (CALG)anonymous.Algid;
+    //            var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
+    //            uint? dwMagic = default;
+    //            BCRYPT_MAGIC? bcryptMagic = null;
+    //            uint? dwBitLength = default;
 
-                if (extraInfo.pbData is not null)
-                {
-                    BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((nint)extraInfo.pbData);
+    //            if (extraInfo.pbData is not null)
+    //            {
+    //                BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((nint)extraInfo.pbData);
 
-                    dwMagic = eccKeyStruct.dwMagic;
-                    bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
-                    dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
-                }
+    //                dwMagic = eccKeyStruct.dwMagic;
+    //                bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
+    //                dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
+    //            }
 
-                string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGAlgid)!;
-                string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGExtraAlgid);
+    //            string pwszCNGAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGAlgid)!;
+    //            string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(pInfo->pwszCNGExtraAlgid);
 
-                if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
-                    pwszCNGExtraAlgid = null;
+    //            if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
+    //                pwszCNGExtraAlgid = null;
 
-                // var x = list.SingleOrDefault(q => q.Value.pwszName.Equals(pwszName, StringComparison.OrdinalIgnoreCase));
+    //            // var x = list.SingleOrDefault(q => q.Value.pwszName.Equals(pwszName, StringComparison.OrdinalIgnoreCase));
 
-                // if (x is not null)
-                // {
-                //    x.Value.CngAlgorithms.Add(pwszCNGAlgid);
+    //            // if (x is not null)
+    //            // {
+    //            //    x.Value.CngAlgorithms.Add(pwszCNGAlgid);
 
-                // return true;
-                // }
+    //            // return true;
+    //            // }
 
-                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid }, pwszCNGExtraAlgid);
+    //            var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid }, pwszCNGExtraAlgid);
 
-                list.Add(windowsEllipticCurveInfo);
+    //            list.Add(windowsEllipticCurveInfo);
 
-                return true;
-            }
+    //            return true;
+    //        }
 
-            void* pvArg = default;
+    //        void* pvArg = default;
 
-            _ = PInvoke.CryptEnumOIDInfo((uint)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID, 0U, pvArg, callbackFunction);
+    //        _ = PInvoke.CryptEnumOIDInfo((uint)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID, 0U, pvArg, callbackFunction);
 
-            return list.Where(q => q.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDH_ALGORITHM, StringComparer.OrdinalIgnoreCase) || q.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDSA_ALGORITHM, StringComparer.OrdinalIgnoreCase))
-                .ToList();
-        }
-    }
+    //        return list.Where(q => q.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDH_ALGORITHM, StringComparer.OrdinalIgnoreCase) || q.CngAlgorithms.Contains(PInvoke.BCRYPT_ECDSA_ALGORITHM, StringComparer.OrdinalIgnoreCase))
+    //            .ToList();
+    //    }
+    //}
 
     [SupportedOSPlatform("windows")]
-    public List<string> GetOperatingSystemActiveEllipticCurveList()
+    public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(SSLConfigurationKey);
-        string[]? activeEllipticCurves = (string[]?)registryKey?.GetValue(SSLCurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames);
+        string[] activeEllipticCurves = (string[]?)registryKey?.GetValue(SSLCurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? Array.Empty<string>();
+        List<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
 
-        return (activeEllipticCurves ?? Array.Empty<string>()).ToList();
+        return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => activeEllipticCurves.Contains(q.pwszName, StringComparer.OrdinalIgnoreCase)).ToList();
     }
 
     [SupportedOSPlatform("windows6.0.6000")]

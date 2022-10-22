@@ -7,14 +7,14 @@ using Windows.Win32;
 using Windows.Win32.Security.Cryptography;
 using Windows.Win32.Foundation;
 
-internal sealed class SchannelService : ISchannelService
+internal sealed class CipherSuiteService : ICipherSuiteService
 {
     private const string LocalCngSslContextName = "SSL";
 
     private readonly IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService;
     private readonly ITlsService tlsService;
 
-    public SchannelService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
+    public CipherSuiteService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
     {
         this.windowsCipherSuiteDocumentationService = windowsCipherSuiteDocumentationService;
         this.tlsService = tlsService;

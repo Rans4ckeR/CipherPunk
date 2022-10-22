@@ -19,11 +19,13 @@ internal sealed class MainWindowViewModel : BaseViewModel
     private bool mainContentIsHitTestVisible = true;
     private int messageZIndex = ZIndexNoOverlay;
 
-    public MainWindowViewModel(ILogger logger, CipherSuitesViewModel cipherSuitesViewModel)
+    public MainWindowViewModel(ILogger logger, CipherSuitesViewModel cipherSuitesViewModel, EllipticCurvesViewModel ellipticCurvesViewModel, RemoteServerTestViewModel remoteServerTestViewModel)
         : base(logger)
     {
         IsActive = true;
         CipherSuitesViewModel = cipherSuitesViewModel;
+        EllipticCurvesViewModel = ellipticCurvesViewModel;
+        RemoteServerTestViewModel = remoteServerTestViewModel;
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
         CloseMessageCommand = new RelayCommand(ExecuteCloseMessageCommand);
 
@@ -45,6 +47,10 @@ internal sealed class MainWindowViewModel : BaseViewModel
     public IRelayCommand CloseMessageCommand { get; }
 
     public CipherSuitesViewModel CipherSuitesViewModel { get; }
+
+    public EllipticCurvesViewModel EllipticCurvesViewModel { get; }
+
+    public RemoteServerTestViewModel RemoteServerTestViewModel { get; }
 
     public double MainContentOpacity
     {
