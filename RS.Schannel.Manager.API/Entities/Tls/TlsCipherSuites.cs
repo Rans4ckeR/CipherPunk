@@ -173,11 +173,11 @@ public enum TlsCipherSuites : ushort
     //Unassigned = 0x0A0B-FF,
     //Unassigned = 0x0B - 12,*,
     //Unassigned = 0x1300,
-    TLS_AES_128_GCM_SHA256 = 0x1301,
-    TLS_AES_256_GCM_SHA384 = 0x1302,
-    TLS_CHACHA20_POLY1305_SHA256 = 0x1303,
-    TLS_AES_128_CCM_SHA256 = 0x1304,
-    TLS_AES_128_CCM_8_SHA256 = 0x1305,
+    TLS_AES_128_GCM_SHA256 = 0x1301, // TLS 1.3
+    TLS_AES_256_GCM_SHA384 = 0x1302, // TLS 1.3
+    TLS_CHACHA20_POLY1305_SHA256 = 0x1303, // TLS 1.3
+    TLS_AES_128_CCM_SHA256 = 0x1304, // TLS 1.3
+    TLS_AES_128_CCM_8_SHA256 = 0x1305, // TLS 1.3
     //Unassigned = 0x1306-FF,
     //Unassigned = 0x14 - 19,*,
     //Unassigned = 0x1A00-19,

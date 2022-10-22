@@ -22,14 +22,14 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     private const string SslCurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
 
-    private readonly Guid rsSchannelManagerGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
+    private static readonly Guid RsSchannelManagerGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
 
     [SupportedOSPlatform("windows")]
-    public async Task<string> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<string> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
-        string microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
-        await using FileStream stream = new FileInfo(microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
+        string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
+        await using FileStream stream = new FileInfo(microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
         using var xmlReader = XmlReader.Create(stream, new() { Async = true });
         XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
         XNamespace ns = MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace;
@@ -45,11 +45,11 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     }
 
     [SupportedOSPlatform("windows")]
-    public async Task<string> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<string> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
-        string microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
-        await using FileStream stream = new FileInfo(microsoftPoliciesCypherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
+        string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
+        await using FileStream stream = new FileInfo(microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
         using var xmlReader = XmlReader.Create(stream, new() { Async = true });
         XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
         XNamespace ns = MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace;
@@ -77,13 +77,25 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEccCurveOrderPolicy(string[] ellipticCurves)
     {
-        string ellipticCurvesString = string.Join('\n', ellipticCurves);
+        string ellipticCurvesString = string.Join('\0', ellipticCurves);
 
         UpdateOrderPolicy(ellipticCurvesString, SslCurveOrderValueName, REG_VALUE_TYPE.REG_MULTI_SZ);
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    private void UpdateOrderPolicy(string valueData, string valueName, REG_VALUE_TYPE valueType)
+    public string[] GetSslCipherSuiteOrderPolicy()
+    {
+        return GetOrderPolicy(SslCipherSuiteOrderValueName, RRF_RT.RRF_RT_REG_SZ)?.Split(',') ?? Array.Empty<string>();
+    }
+
+    [SupportedOSPlatform("windows6.0.6000")]
+    public string[] GetEccCurveOrderPolicy()
+    {
+        return GetOrderPolicy(SslCurveOrderValueName, RRF_RT.RRF_RT_REG_MULTI_SZ)?.Split('\0', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+    }
+
+    [SupportedOSPlatform("windows6.0.6000")]
+    private static void UpdateOrderPolicy(string valueData, string valueName, REG_VALUE_TYPE valueType)
     {
         if (valueData.Length > ListMaximumCharacters)
             throw new GroupPolicyServiceException(FormattableString.Invariant($"Maximum list length exceeded ({valueData.Length}), the maximum is {ListMaximumCharacters}."));
@@ -135,7 +147,65 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 const bool isComputerPolicySettings = true;
                 const bool isAddOperation = true;
 
-                ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, rsSchannelManagerGuid);
+                ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, RsSchannelManagerGuid);
+            }
+            finally
+            {
+                PInvoke.CoUninitialize();
+            }
+        }
+    }
+
+    [SupportedOSPlatform("windows6.0.6000")]
+    private static string? GetOrderPolicy(string valueName, RRF_RT valueType)
+    {
+        unsafe
+        {
+            try
+            {
+                HRESULT coInitializeExResult = PInvoke.CoInitializeEx(null, COINIT.COINIT_APARTMENTTHREADED);
+
+                if (coInitializeExResult.Failed)
+                    throw Marshal.GetExceptionForHR(coInitializeExResult)!;
+
+                HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
+
+                if (coCreateInstanceResult.Failed)
+                    throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
+
+                ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
+
+                HKEY machineKey = default;
+
+                ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
+
+                using var hKey = new SafeRegistryHandle(machineKey, true);
+                WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);
+
+                if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                    throw new Win32Exception((int)regOpenKeyExResult);
+
+                uint dwOptions = default;
+
+                ppv.GetOptions(ref dwOptions);
+
+                var options = (GPO_OPTION)dwOptions;
+                char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
+                uint pcbData = ListMaximumCharacters * sizeof(char);
+
+                fixed (char* pvData = buffer)
+                {
+                    uint* pdwType = null;
+                    WIN32_ERROR regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, pdwType, pvData, &pcbData);
+
+                    if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                        throw new Win32Exception((int)regGetValueResult);
+
+                    if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                        return null;
+
+                    return new string(buffer[..(int)(pcbData / sizeof(char))]);
+                }
             }
             finally
             {
