@@ -3,7 +3,7 @@
 using System.Runtime.Versioning;
 using Windows.Win32;
 
-public interface ISchannelService
+public interface ICipherSuiteService
 {
     [SupportedOSPlatform("windows6.0.6000")]
     string[] GetLocalCngConfigurationContextIdentifiers();

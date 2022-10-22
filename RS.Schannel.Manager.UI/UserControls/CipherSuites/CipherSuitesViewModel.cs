@@ -4,18 +4,18 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using Windows.Win32;
 using RS.Schannel.Manager.CipherSuiteInfoApi;
 using Microsoft.Extensions.Logging;
 using RS.Schannel.Manager.API;
 
 internal sealed class CipherSuitesViewModel : BaseViewModel
 {
-    private readonly ISchannelService schannelService;
+    private readonly ICipherSuiteService cipherSuiteService;
     private readonly IUacIconService uacIconService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
     private readonly ITlsService tlsService;
-    private readonly IEllipticCurveService ellipticCurveService;
     private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? osDefaultCipherSuiteConfigurations;
@@ -23,15 +23,14 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private BitmapSource? uacIcon;
     private bool fetchOnlineInfo = true;
 
-    public CipherSuitesViewModel(ILogger logger, ISchannelService schannelService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService, ITlsService tlsService, IEllipticCurveService ellipticCurveService)
+    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService, ITlsService tlsService)
         : base(logger)
     {
-        this.schannelService = schannelService;
+        this.cipherSuiteService = cipherSuiteService;
         this.uacIconService = uacIconService;
         this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
         this.groupPolicyService = groupPolicyService;
         this.tlsService = tlsService;
-        this.ellipticCurveService = ellipticCurveService;
 
         UpdateCanExecuteDefaultCommand();
     }
@@ -67,15 +66,9 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        //schannelService.ResetEllipticCurveListToOperatingSystemDefault();
-
-        var x = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-        var y = ellipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
-        var z = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
-        var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        var ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        var hhhh = schannelService.GetOperatingSystemDefaultCipherSuiteList();
-        await tlsService.GetRemoteServerCipherSuitesAsync("binfo.bio.wzw.tum.de", cancellationToken); // SSL2 "binfo.bio.wzw.tum.de"
+        //var ffff = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
+        List<WindowsApiCipherSuiteConfiguration> windowsApiDefaultActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDefaultCipherSuiteList();
+        //await tlsService.GetRemoteServerCipherSuitesAsync("binfo.bio.wzw.tum.de", cancellationToken); // SSL2 "binfo.bio.wzw.tum.de"
 
         //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(Array.Empty<string>());
 
@@ -90,8 +83,8 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         //    "TLS_RSA_WITH_AES_256_CBC_SHA"
         //});
 
-        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = schannelService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
-        List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = schannelService.GetOperatingSystemActiveCipherSuiteList();
+        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
+        List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
@@ -99,7 +92,12 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         ushort priority = 0;
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             ++priority,
-            q.Protocols,
+            q.Protocols.Contains(SslProviderProtocolId.SSL2_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.SSL3_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION),
             q.KeyType,
             q.Certificate,
             q.MaximumExchangeLength,
@@ -124,7 +122,12 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             q.CipherSuite,
             q.AllowedByUseStrongCryptographyFlag,
             q.EnabledByDefault,
-            q.Protocols,
+            q.Protocols.Contains(SslProviderProtocolId.SSL2_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.SSL3_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION),
+            q.Protocols.Contains(SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION),
             q.ExplicitApplicationRequestOnly,
             q.PreWindows10EllipticCurve,
             onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();

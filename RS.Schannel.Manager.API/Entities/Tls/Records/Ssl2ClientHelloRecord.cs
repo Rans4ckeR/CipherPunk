@@ -1,11 +1,10 @@
 ﻿namespace RS.Schannel.Manager.API;
 
 using System.Buffers.Binary;
-using Windows.Win32;
 
 public sealed record Ssl2ClientHelloRecord
 {
-    public Ssl2ClientHelloRecord(SslProviderCipherSuiteId[] sslProviderCipherSuiteIds)
+    public Ssl2ClientHelloRecord(SslCipherSuites[] sslProviderCipherSuiteIds)
     {
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));
