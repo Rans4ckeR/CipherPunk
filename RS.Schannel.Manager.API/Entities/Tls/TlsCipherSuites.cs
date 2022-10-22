@@ -9,6 +9,9 @@
 
 namespace RS.Schannel.Manager.API;
 
+//https://testssl.sh/openssl-iana.mapping.html
+
+
 public enum TlsCipherSuites : ushort
 {
     TLS_NULL_WITH_NULL_NULL = 0x0000,
@@ -81,14 +84,11 @@ public enum TlsCipherSuites : ushort
     TLS_DHE_DSS_WITH_CAMELLIA_128_CBC_SHA = 0x0044,
     TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA = 0x0045,
     TLS_DH_anon_WITH_CAMELLIA_128_CBC_SHA = 0x0046,
-    //"Reserved to avoid conflicts with         
-    //deployed implementations = 0x0047-4F,"
+    //"Reserved to avoid conflicts with deployed implementations = 0x0047-4F,"
     //Reserved to avoid conflicts = 0x0050-58,
-    //"Reserved to avoid conflicts with         
-    //deployed implementations = 0x0059-5C,"
+    //"Reserved to avoid conflicts with deployed implementations = 0x0059-5C,"
     //Unassigned = 0x005D-5F,
-    //"Reserved to avoid conflicts with
-    //widely deployed implementations = 0x0060-66,"
+    //"Reserved to avoid conflicts with widely deployed implementations = 0x0060-66,"
     TLS_DHE_RSA_WITH_AES_128_CBC_SHA256 = 0x0067,
     TLS_DH_DSS_WITH_AES_256_CBC_SHA256 = 0x0068,
     TLS_DH_RSA_WITH_AES_256_CBC_SHA256 = 0x0069,
@@ -438,7 +438,7 @@ public enum TlsCipherSuites : ushort
     TLS_ECDHE_PSK_WITH_AES_256_GCM_SHA384 = 0xD002,
     TLS_ECDHE_PSK_WITH_AES_128_CCM_8_SHA256 = 0xD003,
     //Unassigned = 0xD004,
-    TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256 = 0xD005
+    TLS_ECDHE_PSK_WITH_AES_128_CCM_SHA256 = 0xD005,
     //    Unassigned = 0xD006-FF,
     //    Unassigned = 0xD1 - D9,*,
     //    Unassigned = 0xDA00-D9,
@@ -454,7 +454,39 @@ public enum TlsCipherSuites : ushort
     //    Unassigned = 0xFAFB-FF,
     //    Unassigned = 0xFB - FD,*,
     //    Unassigned = 0xFE00-FD,
-    //"Reserved to avoid conflicts with
-    //widely deployed implementations = 0xFEFE-FF,"
+    //"Reserved to avoid conflicts with widely deployed implementations = 0xFEFE-FF,"
     //Reserved for Private Use = 0xFF00-FF,
+
+    // https://www.rfc-editor.org/rfc/rfc6101
+    //SSL_NULL_WITH_NULL_NULL = 0x0000,
+    //SSL_RSA_WITH_NULL_MD5 = 0x0001,
+    //SSL_RSA_WITH_NULL_SHA = 0x0002,
+    //SSL_RSA_EXPORT_WITH_RC4_40_MD5 = 0x0003,
+    //SSL_RSA_WITH_RC4_128_MD5 = 0x0004,
+    //SSL_RSA_WITH_RC4_128_SHA = 0x0005,
+    //SSL_RSA_EXPORT_WITH_RC2_CBC_40_MD5 = 0x0006,
+    //SSL_RSA_WITH_IDEA_CBC_SHA = 0x0007,
+    //SSL_RSA_EXPORT_WITH_DES40_CBC_SHA = 0x0008,
+    //SSL_RSA_WITH_DES_CBC_SHA = 0x0009,
+    //SSL_RSA_WITH_3DES_EDE_CBC_SHA = 0x000A,
+    //SSL_DH_DSS_EXPORT_WITH_DES40_CBC_SHA = 0x000B,
+    //SSL_DH_DSS_WITH_DES_CBC_SHA = 0x000C,
+    //SSL_DH_DSS_WITH_3DES_EDE_CBC_SHA = 0x000D,
+    //SSL_DH_RSA_EXPORT_WITH_DES40_CBC_SHA = 0x000E,
+    //SSL_DH_RSA_WITH_DES_CBC_SHA = 0x000F,
+    //SSL_DH_RSA_WITH_3DES_EDE_CBC_SHA = 0x0010,
+    //SSL_DHE_DSS_EXPORT_WITH_DES40_CBC_SHA = 0x0011,
+    //SSL_DHE_DSS_WITH_DES_CBC_SHA = 0x0012,
+    //SSL_DHE_DSS_WITH_3DES_EDE_CBC_SHA = 0x0013,
+    //SSL_DHE_RSA_EXPORT_WITH_DES40_CBC_SHA = 0x0014,
+    //SSL_DHE_RSA_WITH_DES_CBC_SHA = 0x0015,
+    //SSL_DHE_RSA_WITH_3DES_EDE_CBC_SHA = 0x0016,
+    //SSL_DH_anon_EXPORT_WITH_RC4_40_MD5 = 0x017,
+    //SSL_DH_anon_WITH_RC4_128_MD5 = 0x0018,
+    //SSL_DH_anon_EXPORT_WITH_DES40_CBC_SHA = 0x0019,
+    //SSL_DH_anon_WITH_DES_CBC_SHA = 0x001A,
+    //SSL_DH_anon_WITH_3DES_EDE_CBC_SHA = 0x001B,
+    SSL_FORTEZZA_KEA_WITH_NULL_SHA = 0X001C,
+    SSL_FORTEZZA_KEA_WITH_FORTEZZA_CBC_SHA = 0x001D,
+    //SSL_FORTEZZA_KEA_WITH_RC4_128_SHA = 0x001E
 }

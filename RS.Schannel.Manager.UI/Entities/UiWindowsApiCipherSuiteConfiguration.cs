@@ -5,7 +5,12 @@ using RS.Schannel.Manager.CipherSuiteInfoApi;
 
 internal readonly record struct UiWindowsApiCipherSuiteConfiguration(
     ushort Priority,
-    List<SslProviderProtocolId> Protocols,
+    bool Ssl2,
+    bool Ssl3,
+    bool Tls1,
+    bool Tls11,
+    bool Tls12,
+    bool Tls13,
     SslProviderKeyTypeId? KeyType,
     string? Certificate,
     uint? MaximumExchangeLength,

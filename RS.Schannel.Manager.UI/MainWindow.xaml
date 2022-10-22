@@ -32,9 +32,25 @@
                     <Ribbon.ContextMenu>
                         <ContextMenu Visibility="Hidden"/>
                     </Ribbon.ContextMenu>
-                    <RibbonTab Header="Schannel">
+                    <RibbonTab Header="Cipher suites">
                         <RibbonGroup>
-                            <RibbonButton Label="Cipher suite priority" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                        <RibbonGroup>
+                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                    </RibbonTab>
+                    <RibbonTab Header="Elliptic curves">
+                        <RibbonGroup>
+                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                        <RibbonGroup>
+                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                    </RibbonTab>
+                    <RibbonTab Header="Remote server detection">
+                        <RibbonGroup>
+                            <RibbonButton Label="Remote server detection" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                 </Ribbon>

@@ -71,5 +71,11 @@
         <DataTemplate DataType="{x:Type ui:CipherSuitesViewModel}">
             <ui:CipherSuitesView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:EllipticCurvesViewModel}">
+            <ui:EllipticCurvesView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:RemoteServerTestViewModel}">
+            <ui:RemoteServerTestView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddSchannelApi(this IServiceCollection serviceCollection)
     {
         return serviceCollection
-            .AddSingleton<ISchannelService, SchannelService>()
+            .AddSingleton<ICipherSuiteService, CipherSuiteService>()
             .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>()
             .AddSingleton<IWindowsEllipticCurveDocumentationService, WindowsEllipticCurveDocumentationService>()
             .AddSingleton<IGroupPolicyService, GroupPolicyService>()
