@@ -21,7 +21,7 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         HandshakeExtensions = HandshakeExtension.GetExtensions(data[index..]);
     }
 
-    public ClientHelloTlsRecord(string serverName, TlsVersion tlsVersion, TlsCipherSuites[]? sslProviderCipherSuiteIds, TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats, TlsSignatureScheme[]? tlsSignatureSchemes, TlsSupportedGroup[]? tlsSupportedGroups, TlsVersion[]? tlsVersions, TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes, KeyShare[]? keyShares)
+    public ClientHelloTlsRecord(string? serverName, TlsVersion tlsVersion, TlsCipherSuites[]? sslProviderCipherSuiteIds, TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats, TlsSignatureScheme[]? tlsSignatureSchemes, TlsSupportedGroup[]? tlsSupportedGroups, TlsVersion[]? tlsVersions, TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes, KeyShare[]? keyShares)
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
         HandshakeCipherSuites = sslProviderCipherSuiteIds?.Any() ?? false
@@ -34,7 +34,6 @@ public sealed record ClientHelloTlsRecord : TlsRecord
 
         HandshakeExtensions.AddRange(new HandshakeExtension[]
         {
-            new ServerNameHandshakeExtension(serverName),
             new StatusRequestHandshakeExtension(),
             new RenegotiationInfoHandshakeExtension(),
             new SignedCertificateTimestampHandshakeExtension(),
@@ -43,23 +42,28 @@ public sealed record ClientHelloTlsRecord : TlsRecord
             new ExtendedMasterSecretExtension()
         });
 
+        if (serverName is not null)
+            HandshakeExtensions.Add(new ServerNameHandshakeExtension(serverName));
+
         if (tlsEllipticCurvesPointFormats?.Any() ?? false)
             HandshakeExtensions.Add(new EllipticCurvesPointFormatsHandshakeExtension(tlsEllipticCurvesPointFormats));
 
         if (tlsSignatureSchemes?.Any() ?? false)
-            HandshakeExtensions.Add(new SignatureAlgorithmsHandshakeExtension(tlsSignatureSchemes));
+            HandshakeExtensions.Add(new SignatureAlgorithmsHandshakeExtension(tlsSignatureSchemes)); // "signature_algorithms" is REQUIRED for certificate authentication.
 
         if (tlsSupportedGroups?.Any() ?? false)
-            HandshakeExtensions.Add(new SupportedGroupsHandshakeExtension(tlsSupportedGroups));
+            HandshakeExtensions.Add(new SupportedGroupsHandshakeExtension(tlsSupportedGroups)); // "supported_groups" is REQUIRED for ClientHello messages using DHE or ECDHE key exchange.
 
         if (tlsVersions?.Any() ?? false)
-            HandshakeExtensions.Add(new SupportedVersionsExtension(tlsVersions));
+            HandshakeExtensions.Add(new SupportedVersionsExtension(tlsVersions)); // "supported_versions" is REQUIRED for all ClientHello, ServerHello, and HelloRetryRequest messages.
 
         if (tlsPreSharedKeysKeyExchangeModes?.Any() ?? false)
-            HandshakeExtensions.Add(new PreSharedKeysKeyExchangeModesExtension(tlsPreSharedKeysKeyExchangeModes));
+            HandshakeExtensions.Add(new PreSharedKeysKeyExchangeModesExtension(tlsPreSharedKeysKeyExchangeModes)); // "pre_shared_key" is REQUIRED for PSK key agreement.
 
         if (keyShares?.Any() ?? false)
-            HandshakeExtensions.Add(new KeyShareExtension(keyShares));
+            HandshakeExtensions.Add(new KeyShareExtension(keyShares)); // "key_share" is REQUIRED for DHE or ECDHE key exchange.
+
+        // "psk_key_exchange_modes" is REQUIRED for PSK key agreement.
 
         var padding = new PaddingHandshakeExtension(512 - (1 + HandshakeMessageLength.Length + HandshakeMessageNumberOfBytes)); // + 1 for size of TlsHandshakeHeaderMessageType
 

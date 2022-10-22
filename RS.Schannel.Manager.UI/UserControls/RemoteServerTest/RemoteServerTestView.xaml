@@ -17,7 +17,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="Active Elliptic Curves">
+            <Expander Header="Remote Server Hostname/IP and port">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -25,9 +25,11 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBox Grid.Row="0" Grid.Column="0" Text="{Binding HostName, UpdateSourceTrigger=PropertyChanged}"/>
-                    <Button Grid.Row="0" Grid.Column="1" Command="{Binding RunTestCommand}">
+                    <TextBox Grid.Row="0" Grid.Column="0" MinWidth="100" Text="{Binding HostName, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" MinWidth="25" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Row="0" Grid.Column="2" Command="{Binding RunTestCommand}">
                         <TextBlock>Run Test</TextBlock>
                     </Button>
                 </Grid>

@@ -4,7 +4,7 @@ public interface ITlsService
 {
     WindowsSchannelVersion GetWindowsSchannelVersion();
 
-    Task<List<(TlsVersion, List<(uint CipherSuiteId, bool Supported, TlsAlert? ErrorReason)>?)>> GetRemoteServerCipherSuitesAsync(string hostName, CancellationToken cancellationToken);
+    ValueTask<List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)>> GetRemoteServerCipherSuitesAsync(string hostName, ushort port, CancellationToken cancellationToken = default);
 
-    Task<List<(uint CipherSuiteId, bool Supported, TlsAlert? ErrorReason)>> GetRemoteServerCipherSuitesAsync(string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken);
+    ValueTask<List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>> GetRemoteServerCipherSuitesAsync(string hostName, ushort port, TlsVersion tlsVersion, CancellationToken cancellationToken = default);
 }
