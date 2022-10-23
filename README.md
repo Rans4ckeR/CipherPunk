@@ -1,4 +1,4 @@
-# RS.Schannel.Manager
+# CipherPunk
 Allows Windows Schannel CipherSuite and Elliptic Curve configuration.
 Inspired by [IISCrypto](https://www.nartac.com/Products/IISCrypto/)
 
@@ -14,15 +14,15 @@ Available as a standalone Windows application ([UI](#rsschannelmanagerui)) and a
 
 Note: not all applications use Schannel, most browsers for example require seperate configuration.
 
-## RS.Schannel.Manager.UI
+## CipherPunk.UI
 A Windows .NET WPF application for x86, x64 and ARM64.
 
 * [Releases](https://github.com/Rans4ckeR/RS.Schannel.Manager/releases)
 
-## RS.Schannel.Manager.API
+## CipherPunk
 A NuGet package to manage Windows Schannel.
 
-* [NuGet](https://www.nuget.org/packages/RS.Schannel.Manager.API)
+* [NuGet](https://www.nuget.org/packages/CipherPunk)
 * [GitHub](https://github.com/Rans4ckeR?tab=packages&repo_name=RS.Schannel.Manager)
 
 ### Usage Examples
@@ -30,11 +30,11 @@ A NuGet package to manage Windows Schannel.
 ```C#
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using RS.Schannel.Manager.API;
+using CipherPunk;
 
-// Register the Schannel services in the dependency container using AddSchannelApi()
+// Register the Schannel services in the dependency container using AddCipherPunk()
 using IHost host = Host.CreateDefaultBuilder(args)
-    .ConfigureServices((_, services) => services.AddSchannelApi())
+    .ConfigureServices((_, services) => services.AddCipherPunk())
     .Build();
 
 using IServiceScope serviceScope = host.Services.CreateScope();

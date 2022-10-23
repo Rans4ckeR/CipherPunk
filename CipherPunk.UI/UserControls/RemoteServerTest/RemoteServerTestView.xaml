@@ -1,0 +1,52 @@
+﻿<UserControl x:Class="CipherPunk.UI.RemoteServerTestView"
+             x:ClassModifier="internal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="clr-namespace:CipherPunk.UI"
+             d:DataContext="{d:DesignInstance Type=ui:RemoteServerTestViewModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
+            <Expander Header="Remote Server Hostname/IP and port">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBox Grid.Row="0" Grid.Column="0" MinWidth="100" Text="{Binding HostName, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" MinWidth="25" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Row="0" Grid.Column="2" Command="{Binding RunTestCommand}">
+                        <TextBlock>Run Test</TextBlock>
+                    </Button>
+                </Grid>
+            </Expander>
+        </Border>
+        <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
+            <Expander Header="Remote Server Test Results">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding RemoteServerTestResults}"/>
+                </Grid>
+            </Expander>
+        </Border>
+    </Grid>
+</UserControl>
