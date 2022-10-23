@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyName>CipherPunk.CipherSuiteInfoApi</AssemblyName>
+    <RootNamespace>CipherPunk.CipherSuiteInfoApi</RootNamespace>
+    <Title>CipherPunk.CipherSuiteInfoApi</Title>
+    <Product>CipherPunk.CipherSuiteInfoApi</Product>
+    <Copyright>Copyright 2022 (c) RS. All rights reserved.</Copyright>
+    <Company>Rans4ckeR</Company>
+    <Configuration></Configuration>
+    <Trademark></Trademark>
+    <Culture></Culture>
+    <Authors>Rans4ckeR</Authors>
+    <ComVisible>false</ComVisible>
+    <CLSCompliant>false</CLSCompliant>
+    <AnalysisLevel>preview-all</AnalysisLevel>
+    <LangVersion>preview</LangVersion>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.0.0.1</Version>
+    <FileVersion>0.0.0.1</FileVersion>
+    <InformationalVersion>0.0.0.1</InformationalVersion>
+    <Platforms>AnyCPU</Platforms>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.435">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0-rc.2.22472.3" />
+  </ItemGroup>
+</Project>
