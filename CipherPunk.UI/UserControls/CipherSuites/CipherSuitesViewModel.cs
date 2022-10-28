@@ -16,7 +16,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private bool fetchOnlineInfo = true;
 
-    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService, ITlsService tlsService)
+    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger)
     {
         this.cipherSuiteService = cipherSuiteService;

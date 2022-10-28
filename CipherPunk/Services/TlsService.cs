@@ -109,7 +109,7 @@ internal sealed class TlsService : ITlsService
         return new IPEndPoint(ipAddresses.First(q => (Socket.OSSupportsIPv6 && q.AddressFamily is AddressFamily.InterNetworkV6) || q.AddressFamily is AddressFamily.InterNetwork), 443);
     }
 
-    private static async ValueTask<List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>> GetRemoteServerCipherSuitesAsync(IPEndPoint ipEndpoint, string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken)
+    private static async ValueTask<List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>> GetRemoteServerCipherSuitesAsync(EndPoint endpoint, string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken)
     {
         TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers = { TlsCompressionMethodIdentifier.NULL };
         TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats = Enum.GetValues<TlsEllipticCurvesPointFormat>();
@@ -125,10 +125,10 @@ internal sealed class TlsService : ITlsService
             ? Enum.GetValuesAsUnderlyingType<SslCipherSuites>().Cast<uint>().ToArray()
             : Enum.GetValuesAsUnderlyingType<TlsCipherSuites>().Cast<ushort>().Select(Convert.ToUInt32).ToArray();
 
-        return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(ipEndpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, q, cancellationToken).AsTask()))).ToList();
+        return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, q, cancellationToken).AsTask()))).ToList();
     }
 
-    private static async ValueTask<(uint CipherSuiteId, bool Supported, string? ErrorReason)> SendClientHelloAsync(IPEndPoint ipEndpoint, string hostName, TlsVersion tlsVersion, TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats, TlsSignatureScheme[] tlsSignatureSchemes, TlsSupportedGroup[] tlsSupportedGroups, TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes, KeyShare[] keyShares, uint sslProviderCipherSuiteId, CancellationToken cancellationToken)
+    private static async ValueTask<(uint CipherSuiteId, bool Supported, string? ErrorReason)> SendClientHelloAsync(EndPoint endpoint, string hostName, TlsVersion tlsVersion, TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats, TlsSignatureScheme[] tlsSignatureSchemes, TlsSupportedGroup[] tlsSupportedGroups, TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes, KeyShare[] keyShares, uint sslProviderCipherSuiteId, CancellationToken cancellationToken)
     {
         await Task.Delay(Random.Shared.Next(1, 10000), cancellationToken);
 
@@ -151,7 +151,7 @@ internal sealed class TlsService : ITlsService
 
         try
         {
-            responseBytes = await SendClientHelloAsync(clientHelloBytes, ipEndpoint, cancellationToken);
+            responseBytes = await SendClientHelloAsync(clientHelloBytes, endpoint, cancellationToken);
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {

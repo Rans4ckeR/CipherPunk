@@ -50,29 +50,6 @@ public abstract record TlsRecord
         HandshakeExtensions = new();
     }
 
-    public static TlsRecord Parse(ReadOnlySpan<byte> data)
-    {
-        var tlsRecordHeader = new TlsRecordHeader(data);
-
-        switch ((TlsContentType)tlsRecordHeader.TlsRecordContentType)
-        {
-            case TlsContentType.alert:
-                return new AlertTlsRecord(data);
-            case TlsContentType.handshake:
-                int index = TlsRecordHeader.Size;
-                byte tlsHandshakeHeaderMessageType = data.TakeByte(ref index);
-
-                return (TlsHandshakeType)tlsHandshakeHeaderMessageType switch
-                {
-                    TlsHandshakeType.client_hello => new ClientHelloTlsRecord(data),
-                    TlsHandshakeType.server_hello => new ServerHelloTlsRecord(data),
-                    _ => throw new ArgumentOutOfRangeException(),
-                };
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
-    }
-
     public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
 
     public TlsRecordHeader TlsRecordHeader { get; }
@@ -99,6 +76,29 @@ public abstract record TlsRecord
     public List<HandshakeExtension> HandshakeExtensions { get; protected set; }
 
     protected abstract byte[] GetRecordTypeBytes();
+
+    public static TlsRecord Parse(ReadOnlySpan<byte> data)
+    {
+        var tlsRecordHeader = new TlsRecordHeader(data);
+
+        switch ((TlsContentType)tlsRecordHeader.TlsRecordContentType)
+        {
+            case TlsContentType.alert:
+                return new AlertTlsRecord(data);
+            case TlsContentType.handshake:
+                int index = TlsRecordHeader.Size;
+                byte tlsHandshakeHeaderMessageType = data.TakeByte(ref index);
+
+                return (TlsHandshakeType)tlsHandshakeHeaderMessageType switch
+                {
+                    TlsHandshakeType.client_hello => new ClientHelloTlsRecord(data),
+                    TlsHandshakeType.server_hello => new ServerHelloTlsRecord(data),
+                    _ => throw new ArgumentOutOfRangeException(nameof(tlsHandshakeHeaderMessageType), tlsHandshakeHeaderMessageType, null)
+                };
+            default:
+                throw new ArgumentOutOfRangeException(nameof(tlsRecordHeader.TlsRecordContentType), tlsRecordHeader.TlsRecordContentType, null);
+        }
+    }
 
     public byte[] GetBytes()
     {
