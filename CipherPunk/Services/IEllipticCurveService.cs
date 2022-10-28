@@ -10,7 +10,7 @@ public interface IEllipticCurveService
     [SupportedOSPlatform("windows6.0.6000")]
     List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows6.0.6000")]
     List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList();
 
     [SupportedOSPlatform("windows6.0.6000")]

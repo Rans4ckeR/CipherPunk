@@ -151,9 +151,9 @@ internal sealed class TlsService : ITlsService
 
         try
         {
-            responseBytes = await SendClientHelloAsync(cancellationToken, clientHelloBytes, ipEndpoint);
+            responseBytes = await SendClientHelloAsync(clientHelloBytes, ipEndpoint, cancellationToken);
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
             return (sslProviderCipherSuiteId, false, "Timed out");
         }
@@ -179,7 +179,7 @@ internal sealed class TlsService : ITlsService
             case TlsContentType.alert:
                 var alertRecord = (AlertTlsRecord)tlsRecord;
 
-                return (sslProviderCipherSuiteId, false, FormattableString.CurrentCulture($"TLS Alert: {((TlsAlertDescription)alertRecord.Description).ToString()}"));
+                return (sslProviderCipherSuiteId, false, FormattableString.CurrentCulture($"TLS Alert: {(TlsAlertDescription)alertRecord.Description}"));
             case TlsContentType.handshake:
                 var serverHandshakeTlsVersion = (TlsVersion)BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(tlsRecord.HandshakeClientVersion));
 
@@ -217,7 +217,7 @@ internal sealed class TlsService : ITlsService
         return (responseBytes.Span[0] & 0x80) == 0x80;
     }
 
-    private static async ValueTask<Memory<byte>> SendClientHelloAsync(CancellationToken cancellationToken, Memory<byte> clientHelloBytes, IPEndPoint ipEndPoint)
+    private static async ValueTask<Memory<byte>> SendClientHelloAsync(Memory<byte> clientHelloBytes, EndPoint endPoint, CancellationToken cancellationToken)
     {
         using IMemoryOwner<byte> memoryOwner = MemoryPool<byte>.Shared.Rent(8192);
         Memory<byte> buffer = memoryOwner.Memory[..8192];
@@ -227,7 +227,7 @@ internal sealed class TlsService : ITlsService
         using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
         CancellationToken timeoutCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(10000).Token).Token;
 
-        await socket.ConnectAsync(ipEndPoint, timeoutCancellationToken);
+        await socket.ConnectAsync(endPoint, timeoutCancellationToken);
 
         _ = await socket.SendAsync(clientHelloBytes, timeoutCancellationToken);
 

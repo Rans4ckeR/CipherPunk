@@ -30,9 +30,13 @@ internal sealed partial class App
                     .AddSingleton<IUacIconService, UacIconService>()
                     .AddSingleton<MainWindow>()
                     .AddSingleton<MainWindowViewModel>()
+                    .AddSingleton<OverviewViewModel>()
                     .AddSingleton<CipherSuitesViewModel>()
+                    .AddSingleton<CipherSuitesOsSettingsViewModel>()
+                    .AddSingleton<CipherSuitesGroupPolicySettingsViewModel>()
                     .AddSingleton<EllipticCurvesViewModel>()
                     .AddSingleton<RemoteServerTestViewModel>()
+                    .AddSingleton<LoggingViewModel>()
                     .AddCipherPunk()
                     .AddCipherSuiteInfoApi();
             }).Build();

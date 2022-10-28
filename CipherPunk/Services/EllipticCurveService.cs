@@ -51,13 +51,8 @@ internal sealed class EllipticCurveService : IEllipticCurveService
 
                     using (phSslProvider)
                     {
-                        if (sslOpenProviderResult.Succeeded)
-                        {
-                        }
-                        else
-                        {
+                        if (!sslOpenProviderResult.Succeeded)
                             throw Marshal.GetExceptionForHR(sslOpenProviderResult)!;
-                        }
                     }
 
                     uint pcbBuffer = 0U;
@@ -247,7 +242,7 @@ internal sealed class EllipticCurveService : IEllipticCurveService
         return windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(windowsSchannelVersion);
     }
 
-    [SupportedOSPlatform("windows")]
+    [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(SslConfigurationKey);
