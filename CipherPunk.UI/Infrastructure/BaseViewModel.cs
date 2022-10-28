@@ -89,7 +89,7 @@ internal abstract class BaseViewModel : ObservableRecipient
             if (showView ?? true)
                 _ = StrongReferenceMessenger.Default.Send(new ActiveViewValueChangedMessage(this));
         }
-        catch (OperationCanceledException)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             // Ignore Task cancellation
         }

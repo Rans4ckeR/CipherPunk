@@ -32,16 +32,20 @@
                     <Ribbon.ContextMenu>
                         <ContextMenu Visibility="Hidden"/>
                     </Ribbon.ContextMenu>
+                    <RibbonTab Header="Overview">
+                        <RibbonGroup>
+                            <RibbonButton Label="Overview" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding OverviewViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                    </RibbonTab>
                     <RibbonTab Header="Cipher Suites">
                         <RibbonGroup>
                             <RibbonButton Label="Active Cipher Suites" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesOsSettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
-                            <RibbonTwoLineText Text="Always takes precedence over OS Settings"/>
+                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesGroupPolicySettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Elliptic Curves">
@@ -61,6 +65,9 @@
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Information">
+                        <RibbonGroup>
+                            <RibbonButton Label="Schannel logging" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding LoggingViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
                         <RibbonGroup>
                             <RibbonButton Label="Windows Default Cipher Suites" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
                         </RibbonGroup>

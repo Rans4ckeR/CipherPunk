@@ -4,15 +4,22 @@ using Microsoft.Extensions.DependencyInjection;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCipherPunk(this IServiceCollection serviceCollection)
+    /// <summary>
+    /// Adds the CipherPunk services to the specified <see cref="IServiceCollection"/>.
+    /// </summary>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
+    /// <returns>A reference to this instance after the operation has completed.</returns>
+    public static IServiceCollection AddCipherPunk(this IServiceCollection services)
     {
-        return serviceCollection
+        return services
             .AddSingleton<ICipherSuiteService, CipherSuiteService>()
             .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>()
             .AddSingleton<IWindowsEllipticCurveDocumentationService, WindowsEllipticCurveDocumentationService>()
             .AddSingleton<IGroupPolicyService, GroupPolicyService>()
             .AddSingleton<IEllipticCurveIdentifierService, EllipticCurveIdentifierService>()
             .AddSingleton<IEllipticCurveService, EllipticCurveService>()
-            .AddSingleton<ITlsService, TlsService>();
+            .AddSingleton<ITlsService, TlsService>()
+            .AddSingleton<ISchannelService, SchannelService>()
+            .AddSingleton<ISchannelLogService, SchannelLogService>();
     }
 }
