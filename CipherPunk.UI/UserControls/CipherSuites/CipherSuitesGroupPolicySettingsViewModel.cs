@@ -78,7 +78,6 @@ internal sealed class CipherSuitesGroupPolicySettingsViewModel : BaseViewModel
             AdminMessage = "Run as Administrator to see the Group Policy settings.";
         }
 
-        //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(xxx);
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
 
         if (FetchOnlineInfo)
