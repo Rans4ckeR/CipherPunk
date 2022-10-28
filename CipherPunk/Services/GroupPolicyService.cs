@@ -25,7 +25,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     private static readonly Guid RsSchannelManagerGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
 
     [SupportedOSPlatform("windows")]
-    public async ValueTask<string> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<string[]> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
@@ -41,11 +41,11 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             .Elements(ns + "textBox").Single(q => "Pol_SSLCipherSuiteOrder".Equals(q.Attribute("refId")!.Value, StringComparison.OrdinalIgnoreCase))
             .Elements(ns + "defaultValue").Single().Value;
 
-        return sslCipherSuiteOrderPolicyWindowsDefaults;
+        return sslCipherSuiteOrderPolicyWindowsDefaults.Split(',');
     }
 
     [SupportedOSPlatform("windows")]
-    public async ValueTask<string> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<string[]> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
         string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
@@ -63,7 +63,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
         sslCurveOrderData = sslCurveOrderData[..sslCurveOrderData.IndexOf("\n\n", StringComparison.OrdinalIgnoreCase)].Replace('\n', ',');
 
-        return sslCurveOrderData;
+        return sslCurveOrderData.Split(',');
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
@@ -185,11 +185,6 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regOpenKeyExResult);
 
-                uint dwOptions = default;
-
-                ppv.GetOptions(ref dwOptions);
-
-                var options = (GPO_OPTION)dwOptions;
                 char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
                 uint pcbData = ListMaximumCharacters * sizeof(char);
 

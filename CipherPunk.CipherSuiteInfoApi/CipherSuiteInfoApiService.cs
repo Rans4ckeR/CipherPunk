@@ -14,7 +14,7 @@ internal sealed class CipherSuiteInfoApiService : ICipherSuiteInfoApiService
         this.httpClientFactory = httpClientFactory;
     }
 
-    public async Task<CipherSuite?> GetCipherSuite(string cipherSuiteName, CancellationToken cancellationToken)
+    public async ValueTask<CipherSuite?> GetCipherSuiteAsync(string cipherSuiteName, CancellationToken cancellationToken = default)
     {
         string cipherSuiteResponseJson;
 
@@ -57,7 +57,7 @@ internal sealed class CipherSuiteInfoApiService : ICipherSuiteInfoApiService
         return await JsonSerializer.DeserializeAsync<CipherSuite>(stream, options, cancellationToken);
     }
 
-    public async Task<CipherSuite[]> GetAllCipherSuites(CancellationToken cancellationToken)
+    public async ValueTask<CipherSuite[]> GetAllCipherSuitesAsync(CancellationToken cancellationToken = default)
     {
         string cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync("cs", cancellationToken);
         var cipherSuitesResponseNode = JsonNode.Parse(cipherSuiteResponseJson);

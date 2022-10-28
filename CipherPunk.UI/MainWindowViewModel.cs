@@ -19,13 +19,25 @@ internal sealed class MainWindowViewModel : BaseViewModel
     private bool mainContentIsHitTestVisible = true;
     private int messageZIndex = ZIndexNoOverlay;
 
-    public MainWindowViewModel(ILogger logger, CipherSuitesViewModel cipherSuitesViewModel, EllipticCurvesViewModel ellipticCurvesViewModel, RemoteServerTestViewModel remoteServerTestViewModel)
+    public MainWindowViewModel(
+        ILogger logger,
+        OverviewViewModel overviewViewModel,
+        CipherSuitesViewModel cipherSuitesViewModel,
+        CipherSuitesOsSettingsViewModel cipherSuitesOsSettingsViewModel,
+        CipherSuitesGroupPolicySettingsViewModel cipherSuitesGroupPolicySettingsViewModel,
+        EllipticCurvesViewModel ellipticCurvesViewModel,
+        RemoteServerTestViewModel remoteServerTestViewModel,
+        LoggingViewModel loggingViewModel)
         : base(logger)
     {
         IsActive = true;
+        OverviewViewModel = overviewViewModel;
         CipherSuitesViewModel = cipherSuitesViewModel;
+        CipherSuitesOsSettingsViewModel = cipherSuitesOsSettingsViewModel;
+        CipherSuitesGroupPolicySettingsViewModel = cipherSuitesGroupPolicySettingsViewModel;
         EllipticCurvesViewModel = ellipticCurvesViewModel;
         RemoteServerTestViewModel = remoteServerTestViewModel;
+        LoggingViewModel = loggingViewModel;
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
         CloseMessageCommand = new RelayCommand(ExecuteCloseMessageCommand);
 
@@ -46,11 +58,19 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public IRelayCommand CloseMessageCommand { get; }
 
+    public OverviewViewModel OverviewViewModel { get; }
+
     public CipherSuitesViewModel CipherSuitesViewModel { get; }
+
+    public CipherSuitesOsSettingsViewModel CipherSuitesOsSettingsViewModel { get; }
+
+    public CipherSuitesGroupPolicySettingsViewModel CipherSuitesGroupPolicySettingsViewModel { get; }
 
     public EllipticCurvesViewModel EllipticCurvesViewModel { get; }
 
     public RemoteServerTestViewModel RemoteServerTestViewModel { get; }
+
+    public LoggingViewModel LoggingViewModel { get; }
 
     public double MainContentOpacity
     {

@@ -29,21 +29,28 @@ internal sealed class CipherSuiteService : ICipherSuiteService
         unsafe
         {
             CRYPT_CONTEXTS* ppBuffer = null;
-            NTSTATUS status = PInvoke.BCryptEnumContexts(BCRYPT_TABLE.CRYPT_LOCAL, ref pcbBuffer, ref ppBuffer);
 
-            if (status.SeverityCode is not NTSTATUS.Severity.Success)
-                throw new Win32Exception(status);
-
-            contexts = new string[ppBuffer->cContexts];
-
-            for (int i = 0; i < ppBuffer->cContexts; i++)
+            try
             {
-                PWSTR pStr = ppBuffer->rgpszContexts[i];
+                NTSTATUS status = PInvoke.BCryptEnumContexts(BCRYPT_TABLE.CRYPT_LOCAL, ref pcbBuffer, ref ppBuffer);
 
-                contexts[i] = pStr.ToString();
+                if (status.SeverityCode is not NTSTATUS.Severity.Success)
+                    throw new Win32Exception(status);
+
+                contexts = new string[ppBuffer->cContexts];
+
+                for (int i = 0; i < ppBuffer->cContexts; i++)
+                {
+                    PWSTR pStr = ppBuffer->rgpszContexts[i];
+
+                    contexts[i] = pStr.ToString();
+                }
             }
-
-            PInvoke.BCryptFreeBuffer(ppBuffer);
+            finally
+            {
+                if (ppBuffer is not null)
+                    PInvoke.BCryptFreeBuffer(ppBuffer);
+            }
         }
 
         return contexts;

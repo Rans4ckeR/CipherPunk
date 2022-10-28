@@ -68,14 +68,26 @@
             <Setter Property="AlternatingRowBackground" Value="{StaticResource NavigationBackgroundSolidColorBrush}"/>
             <Setter Property="RowBackground" Value="{StaticResource TitleBackgroundSolidColorBrush}"/>
         </Style>
+        <DataTemplate DataType="{x:Type ui:OverviewViewModel}">
+            <ui:OverviewView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type ui:CipherSuitesViewModel}">
             <ui:CipherSuitesView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:CipherSuitesOsSettingsViewModel}">
+            <ui:CipherSuitesOsSettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:CipherSuitesGroupPolicySettingsViewModel}">
+            <ui:CipherSuitesGroupPolicySettingsView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type ui:EllipticCurvesViewModel}">
             <ui:EllipticCurvesView/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type ui:RemoteServerTestViewModel}">
             <ui:RemoteServerTestView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:LoggingViewModel}">
+            <ui:LoggingView/>
         </DataTemplate>
     </Application.Resources>
 </Application>
