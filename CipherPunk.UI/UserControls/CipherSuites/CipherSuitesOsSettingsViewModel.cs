@@ -55,28 +55,11 @@ internal sealed class CipherSuitesOsSettingsViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        //List<WindowsApiCipherSuiteConfiguration> windowsApiDefaultActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDefaultCipherSuiteList();
-        //await tlsService.GetRemoteServerCipherSuitesAsync("binfo.bio.wzw.tum.de", cancellationToken); // SSL2 "binfo.bio.wzw.tum.de"
-
-        //var xxx = new[]
-        //{
-        //    "TLS_AES_256_GCM_SHA384",
-        //    "TLS_AES_128_GCM_SHA256",
-        //    "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
-        //    "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
-        //    "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
-        //    "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
-        //    "TLS_RSA_WITH_AES_256_CBC_SHA"
-        //};
-
-        //groupPolicyService.UpdateSslCipherSuiteOrderPolicy(xxx);
-        //cipherSuiteService.UpdateCipherSuiteOrder(xxx);
-
         List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
         List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 
         if (FetchOnlineInfo)
-            await FetchOnlineCipherSuiteInfoAsync(windowsApiActiveCipherSuiteConfigurations, cancellationToken);
+            await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
         ushort priority = 0;
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
@@ -123,7 +106,7 @@ internal sealed class CipherSuitesOsSettingsViewModel : BaseViewModel
         OsDefaultCipherSuiteConfigurations = new(uiWindowsDocumentationCipherSuiteConfigurations);
     }
 
-    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsApiCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
+    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
     {
         CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.CipherSuite.ToString(), cancellationToken).AsTask()));
 

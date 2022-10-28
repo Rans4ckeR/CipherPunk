@@ -10,18 +10,16 @@ using CipherPunk;
 internal sealed class EllipticCurvesViewModel : BaseViewModel
 {
     private readonly IUacIconService uacIconService;
-    private readonly IGroupPolicyService groupPolicyService;
     private readonly IEllipticCurveService ellipticCurveService;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? availableEllipticCurveConfigurations;
     private ObservableCollection<UiWindowsDocumentationEllipticCurveConfiguration>? osDefaultEllipticCurveConfigurations;
     private BitmapSource? uacIcon;
 
-    public EllipticCurvesViewModel(ILogger logger, IUacIconService uacIconService, IGroupPolicyService groupPolicyService, IEllipticCurveService ellipticCurveService)
+    public EllipticCurvesViewModel(ILogger logger, IUacIconService uacIconService, IEllipticCurveService ellipticCurveService)
         : base(logger)
     {
         this.uacIconService = uacIconService;
-        this.groupPolicyService = groupPolicyService;
         this.ellipticCurveService = ellipticCurveService;
 
         UpdateCanExecuteDefaultCommand();
@@ -57,16 +55,6 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
         List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
         List<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
         List<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
-        //string ddd = await groupPolicyService.GetSslCurveOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        //string[] eee = groupPolicyService.GetEccCurveOrderPolicy();
-
-        //var xxx = new[]
-        //{
-        //    "curve25519",
-        //    "NistP256"
-        //};
-
-        //groupPolicyService.UpdateEccCurveOrderPolicy(xxx);
 
         ushort priority = 0;
         var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(

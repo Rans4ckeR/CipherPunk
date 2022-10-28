@@ -15,7 +15,7 @@ using Windows.Win32.System.GroupPolicy;
 
 internal sealed class GroupPolicyService : IGroupPolicyService
 {
-    private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = "{0}\\PolicyDefinitions\\en-US\\CipherSuiteOrder.adml";
+    private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = "{0}\\PolicyDefinitions\\{1}\\CipherSuiteOrder.adml";
     private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
     private const string SslConfigurationPolicyKey = "SOFTWARE\\Policies\\Microsoft\\Cryptography\\Configuration\\SSL\\00010002";
     private const string SslCipherSuiteOrderValueName = "Functions";
@@ -28,7 +28,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     public async ValueTask<string[]> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
-        string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
+        string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder, CultureInfo.CurrentUICulture);
         await using FileStream stream = new FileInfo(microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
         using var xmlReader = XmlReader.Create(stream, new() { Async = true });
         XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
@@ -48,7 +48,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     public async ValueTask<string[]> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
     {
         string windowsFolder = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
-        string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder);
+        string microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = string.Format(CultureInfo.InvariantCulture, MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile, windowsFolder, CultureInfo.CurrentUICulture);
         await using FileStream stream = new FileInfo(microsoftPoliciesCipherStrengthPolicyDefinitionResourcesFile).Open(new FileStreamOptions { Access = FileAccess.Read, Mode = FileMode.Open, Options = FileOptions.Asynchronous });
         using var xmlReader = XmlReader.Create(stream, new() { Async = true });
         XDocument xDocument = await XDocument.LoadAsync(xmlReader, LoadOptions.SetBaseUri, cancellationToken);
