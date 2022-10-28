@@ -8,7 +8,7 @@ permissions:
   packages: write
 jobs:
   build:
-    if: github.repository == 'Rans4ckeR/RS.Schannel.Manager'
+    if: github.repository == 'Rans4ckeR/CipherPunk'
     runs-on: windows-latest
     steps:
     - name: Checkout

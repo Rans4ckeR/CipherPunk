@@ -22,7 +22,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     private const string SslCurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
 
-    private static readonly Guid RsSchannelManagerGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
+    private static readonly Guid CipherPunkGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
 
     [SupportedOSPlatform("windows")]
     public async ValueTask<string[]> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
@@ -147,7 +147,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 const bool isComputerPolicySettings = true;
                 const bool isAddOperation = true;
 
-                ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, RsSchannelManagerGuid);
+                ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, CipherPunkGuid);
             }
             finally
             {
