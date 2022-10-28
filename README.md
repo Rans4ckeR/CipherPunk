@@ -11,7 +11,7 @@ Features
 * Configuration using local Group Policy (IISCrypto style)
 * Configuration using Schannel API
 
-Available as a standalone Windows application ([UI](#CipherPunk.UI)) and as a NuGet package ([API](#CipherPunk)).
+Available as a standalone Windows application ([UI](#cipherpunkui)) and as a NuGet package ([API](#cipherpunk-1)).
 
 Note: not all applications use Schannel, most browsers for example require seperate configuration.
 
