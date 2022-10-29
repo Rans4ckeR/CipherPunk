@@ -44,9 +44,21 @@ internal sealed class SchannelLogService : ISchannelLogService
 
         foreach (int processId in schannelEventLogEntries.Select(q => q.ProcessId).Distinct())
         {
+            Process? process = null;
+
             try
             {
-                using var process = Process.GetProcessById(processId);
+                process = Process.GetProcessById(processId);
+            }
+            catch (ArgumentException)
+            {
+            }
+
+            if (process is null)
+                continue;
+
+            using (process)
+            {
                 string processCurrentName = process.ProcessName;
                 string processMainWindowTitle = process.MainWindowTitle;
                 string? processMainModuleFileName = process.MainModule?.FileName;
@@ -57,9 +69,6 @@ internal sealed class SchannelLogService : ISchannelLogService
                     ProcessMainWindowTitle = processMainWindowTitle,
                     ProcessMainModuleFileName = processMainModuleFileName
                 }));
-            }
-            catch (ArgumentException)
-            {
             }
         }
 

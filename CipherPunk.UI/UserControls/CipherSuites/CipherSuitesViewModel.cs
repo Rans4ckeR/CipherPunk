@@ -61,8 +61,6 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             q.CipherBlockLength,
             q.CipherLength,
             q.Cipher,
-            q.Provider,
-            q.Image,
             onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
 
         ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);

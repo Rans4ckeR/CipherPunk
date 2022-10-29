@@ -124,9 +124,11 @@ public abstract record TlsRecord
 
     public byte[] GetMessageBytes()
     {
-        var result = new List<byte>();
+        var result = new List<byte>
+        {
+            TlsHandshakeHeaderMessageType
+        };
 
-        result.Add(TlsHandshakeHeaderMessageType);
         result.AddRange(HandshakeMessageLength);
         result.AddRange(HandshakeClientVersion);
         result.AddRange(HandshakeClientRandom);
