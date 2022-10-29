@@ -5,7 +5,7 @@ using CipherPunk.CipherSuiteInfoApi;
 
 internal readonly record struct UiWindowsApiCipherSuiteConfiguration(
     ushort Priority,
-    SslProviderCipherSuiteId CipherSuite,
+    SslProviderCipherSuiteId Id,
     bool Ssl2,
     bool Ssl3,
     bool Tls1,
@@ -22,6 +22,4 @@ internal readonly record struct UiWindowsApiCipherSuiteConfiguration(
     uint CipherBlockLength,
     uint CipherLength,
     string Cipher,
-    string Provider,
-    string Image,
     Security? Security = null);

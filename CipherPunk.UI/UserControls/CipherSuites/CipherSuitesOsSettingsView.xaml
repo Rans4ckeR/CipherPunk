@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="OS Active Cipher Suites">
+            <Expander Header="Active OS Cipher Suites">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -31,7 +31,7 @@
             </Expander>
         </Border>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
-            <Expander Header="OS Default Cipher Suites">
+            <Expander Header="Default OS Cipher Suites">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

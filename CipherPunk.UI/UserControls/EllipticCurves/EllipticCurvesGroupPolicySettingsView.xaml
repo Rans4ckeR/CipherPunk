@@ -19,7 +19,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="Active Elliptic Curves">
+            <Expander Header="Active Group Policy Elliptic Curves">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -47,7 +47,7 @@
             </Expander>
         </Border>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="2" Grid.Column="0">
-            <Expander Header="Group Policy Default Elliptic Curves">
+            <Expander Header="Default Group Policy Elliptic Curves">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

@@ -135,8 +135,6 @@ internal sealed class OverviewViewModel : BaseViewModel
             q.CipherBlockLength,
             q.CipherLength,
             q.Cipher,
-            q.Provider,
-            q.Image,
             onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
 
         ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
@@ -149,14 +147,8 @@ internal sealed class OverviewViewModel : BaseViewModel
             ++priority,
             q.pszOid,
             q.pwszName,
-            q.dwGroupId,
-            q.dwMagic,
-            q.algId,
             q.dwBitLength,
-            q.bcryptMagic,
-            q.flags,
-            string.Join(",", q.CngAlgorithms),
-            q.pwszCNGExtraAlgid)).ToList();
+            string.Join(",", q.CngAlgorithms))).ToList();
 
         ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
 
