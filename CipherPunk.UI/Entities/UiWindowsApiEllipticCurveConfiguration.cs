@@ -2,13 +2,7 @@
 
 internal readonly record struct UiWindowsApiEllipticCurveConfiguration(
     ushort Priority,
-    string? pszOid,
-    string pwszName,
-    CRYPT_OID_GROUP_ID? dwGroupId,
-    uint? dwMagic,
-    CALG? algId,
-    uint? dwBitLength,
-    BCRYPT_MAGIC? bcryptMagic,
-    CRYPT_OID_FLAG? flags,
-    string CngAlgorithms,
-    string? pwszCNGExtraAlgid);
+    string? Id,
+    string Name,
+    uint? BitLength,
+    string CngAlgorithms);

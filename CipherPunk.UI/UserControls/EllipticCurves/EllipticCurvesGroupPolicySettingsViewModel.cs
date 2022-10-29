@@ -79,27 +79,15 @@ internal sealed class EllipticCurvesGroupPolicySettingsViewModel : BaseViewModel
             ++priority,
             q.pszOid,
             q.pwszName,
-            q.dwGroupId,
-            q.dwMagic,
-            q.algId,
             q.dwBitLength,
-            q.bcryptMagic,
-            q.flags,
-            string.Join(",", q.CngAlgorithms),
-            q.pwszCNGExtraAlgid)).ToList();
+            string.Join(",", q.CngAlgorithms))).ToList();
 
         var uiWindowsApiAvailableEllipticCurveConfigurations = windowsApiAvailableEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
             0,
             q.pszOid,
             q.pwszName,
-            q.dwGroupId,
-            q.dwMagic,
-            q.algId,
             q.dwBitLength,
-            q.bcryptMagic,
-            q.flags,
-            string.Join(",", q.CngAlgorithms),
-            q.pwszCNGExtraAlgid)).ToList();
+            string.Join(",", q.CngAlgorithms))).ToList();
 
         priority = 0;
 
