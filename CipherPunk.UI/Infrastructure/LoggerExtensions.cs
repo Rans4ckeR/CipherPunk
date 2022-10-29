@@ -1,7 +1,5 @@
 ﻿namespace CipherPunk.UI;
 
-using Microsoft.Extensions.Logging;
-
 public static class LoggerExtensions
 {
     private static readonly Action<ILogger, string, Exception?> ExceptionDetails = LoggerMessage.Define<string>(LogLevel.Error, new(1, nameof(ExceptionThrown)), "{Exception}");

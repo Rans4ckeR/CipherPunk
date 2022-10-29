@@ -1,19 +1,13 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using Microsoft.Extensions.Logging;
-using CipherPunk;
 
 internal sealed class EllipticCurvesViewModel : BaseViewModel
 {
     private readonly IUacIconService uacIconService;
     private readonly IEllipticCurveService ellipticCurveService;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
-    private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? availableEllipticCurveConfigurations;
-    private ObservableCollection<UiWindowsDocumentationEllipticCurveConfiguration>? osDefaultEllipticCurveConfigurations;
     private BitmapSource? uacIcon;
 
     public EllipticCurvesViewModel(ILogger logger, IUacIconService uacIconService, IEllipticCurveService ellipticCurveService)
@@ -36,25 +30,11 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
         private set => _ = SetProperty(ref activeEllipticCurveConfigurations, value);
     }
 
-    public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? AvailableEllipticCurveConfigurations
-    {
-        get => availableEllipticCurveConfigurations;
-        private set => _ = SetProperty(ref availableEllipticCurveConfigurations, value);
-    }
-
-    public ObservableCollection<UiWindowsDocumentationEllipticCurveConfiguration>? OsDefaultEllipticCurveConfigurations
-    {
-        get => osDefaultEllipticCurveConfigurations;
-        private set => _ = SetProperty(ref osDefaultEllipticCurveConfigurations, value);
-    }
-
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
         await Task.CompletedTask;
 
         List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-        List<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
-        List<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
 
         ushort priority = 0;
         var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
@@ -70,32 +50,6 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
             string.Join(",", q.CngAlgorithms),
             q.pwszCNGExtraAlgid)).ToList();
 
-        var uiWindowsApiAvailableEllipticCurveConfigurations = windowsApiAvailableEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
-            0,
-            q.pszOid,
-            q.pwszName,
-            q.dwGroupId,
-            q.dwMagic,
-            q.algId,
-            q.dwBitLength,
-            q.bcryptMagic,
-            q.flags,
-            string.Join(",", q.CngAlgorithms),
-            q.pwszCNGExtraAlgid)).ToList();
-
-        priority = 0;
-
-        var uiWindowsDocumentationEllipticCurveConfiguration = windowsDocumentationEllipticCurveConfiguration.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
-            ++priority,
-            q.Name,
-            q.Identifier,
-            q.Code,
-            q.TlsSupportedGroup,
-            q.AllowedByUseStrongCryptographyFlag,
-            q.EnabledByDefault)).ToList();
-
         ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
-        AvailableEllipticCurveConfigurations = new(uiWindowsApiAvailableEllipticCurveConfigurations);
-        OsDefaultEllipticCurveConfigurations = new(uiWindowsDocumentationEllipticCurveConfiguration);
     }
 }
