@@ -7,6 +7,8 @@
         xmlns:ui="clr-namespace:CipherPunk.UI"
         d:DataContext="{d:DesignInstance Type=ui:MainWindowViewModel}"
         mc:Ignorable="d"
+        MinWidth="640px"
+        MinHeight="480px"
         Title="{Binding Title}"
         Style="{DynamicResource TextStyle}">
     <Grid>

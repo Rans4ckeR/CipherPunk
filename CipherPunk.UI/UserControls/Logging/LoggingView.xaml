@@ -26,7 +26,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding AdminMessage}" />
-                    <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Logs}"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Logs}"/>
                 </Grid>
             </Expander>
         </Border>
