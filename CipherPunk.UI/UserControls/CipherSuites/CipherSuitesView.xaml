@@ -24,7 +24,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
         </Border>

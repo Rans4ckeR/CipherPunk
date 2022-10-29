@@ -30,7 +30,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ProtocolSettings}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ProtocolSettings}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -45,7 +45,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" />
-                    <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -60,7 +60,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" />
-                    <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -73,7 +73,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding KeyExchangeAlgorithmSettings}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding KeyExchangeAlgorithmSettings}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -86,7 +86,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding CipherSettings}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding CipherSettings}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -99,7 +99,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding HashSettings}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding HashSettings}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -131,8 +131,8 @@
                     <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Settings.ClientCacheTime}" />
                     <Label Grid.Row="2" Grid.Column="0" Content="EnableOcspStaplingForSni"/>
                     <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Settings.EnableOcspStaplingForSni}" />
-                    <Label Grid.Row="3" Grid.Column="0" Content="FIPSAlgorithmPolicy"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Settings.FIPSAlgorithmPolicy}" />
+                    <Label Grid.Row="3" Grid.Column="0" Content="FipsAlgorithmPolicy"/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Settings.FipsAlgorithmPolicy}" />
                     <Label Grid.Row="4" Grid.Column="0" Content="IssuerCacheSize"/>
                     <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Settings.IssuerCacheSize}" />
                     <Label Grid.Row="5" Grid.Column="0" Content="IssuerCacheTime"/>
