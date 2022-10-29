@@ -4,7 +4,6 @@ using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.Logging;
 
 internal sealed class MainWindowViewModel : BaseViewModel
 {
@@ -26,6 +25,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
         CipherSuitesOsSettingsViewModel cipherSuitesOsSettingsViewModel,
         CipherSuitesGroupPolicySettingsViewModel cipherSuitesGroupPolicySettingsViewModel,
         EllipticCurvesViewModel ellipticCurvesViewModel,
+        EllipticCurvesOsSettingsViewModel ellipticCurvesOsSettingsViewModel,
+        EllipticCurvesGroupPolicySettingsViewModel ellipticCurvesGroupPolicySettingsViewModel,
         RemoteServerTestViewModel remoteServerTestViewModel,
         LoggingViewModel loggingViewModel)
         : base(logger)
@@ -36,6 +37,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
         CipherSuitesOsSettingsViewModel = cipherSuitesOsSettingsViewModel;
         CipherSuitesGroupPolicySettingsViewModel = cipherSuitesGroupPolicySettingsViewModel;
         EllipticCurvesViewModel = ellipticCurvesViewModel;
+        EllipticCurvesOsSettingsViewModel = ellipticCurvesOsSettingsViewModel;
+        EllipticCurvesGroupPolicySettingsViewModel = ellipticCurvesGroupPolicySettingsViewModel;
         RemoteServerTestViewModel = remoteServerTestViewModel;
         LoggingViewModel = loggingViewModel;
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
@@ -67,6 +70,10 @@ internal sealed class MainWindowViewModel : BaseViewModel
     public CipherSuitesGroupPolicySettingsViewModel CipherSuitesGroupPolicySettingsViewModel { get; }
 
     public EllipticCurvesViewModel EllipticCurvesViewModel { get; }
+
+    public EllipticCurvesOsSettingsViewModel EllipticCurvesOsSettingsViewModel { get; }
+
+    public EllipticCurvesGroupPolicySettingsViewModel EllipticCurvesGroupPolicySettingsViewModel { get; }
 
     public RemoteServerTestViewModel RemoteServerTestViewModel { get; }
 

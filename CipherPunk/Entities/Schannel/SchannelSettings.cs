@@ -5,7 +5,7 @@ public readonly record struct SchannelSettings(
     CertificateMappingMethod? CertificateMappingMethods,
     int? ClientCacheTime,
     bool? EnableOcspStaplingForSni,
-    bool? FIPSAlgorithmPolicy,
+    bool? FipsAlgorithmPolicy,
     int? IssuerCacheSize,
     int? IssuerCacheTime,
     int? MaximumCacheSize,

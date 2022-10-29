@@ -11,9 +11,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -29,42 +26,6 @@
                     </Grid.ColumnDefinitions>
                     <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
                 </Grid>
-            </Expander>
-        </Border>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
-            <Expander Header="Available Elliptic Curves">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding AvailableEllipticCurveConfigurations}"/>
-                </Grid>
-            </Expander>
-        </Border>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="2" Grid.Column="0">
-            <Expander Header="OS Default Elliptic Curves">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding OsDefaultEllipticCurveConfigurations}"/>
-                </Grid>
-            </Expander>
-        </Border>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="3" Grid.Column="0">
-            <Expander Header="Reset to OS Defaults">
-                <Button>
-                    <StackPanel>
-                        <Image Source="{Binding UacIcon}"/>
-                        <TextBlock>Admin Action</TextBlock>
-                    </StackPanel>
-                </Button>
             </Expander>
         </Border>
     </Grid>

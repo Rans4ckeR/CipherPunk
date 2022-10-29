@@ -1,7 +1,5 @@
 ﻿namespace CipherPunk.UI;
 
-using CipherPunk;
-
 internal readonly record struct UiWindowsDocumentationEllipticCurveConfiguration(
     ushort Priority,
     string Name,
