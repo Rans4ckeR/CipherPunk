@@ -53,10 +53,10 @@
                             <RibbonButton Label="Active Elliptic Curves" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesOsSettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesGroupPolicySettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Remote Server Probe">
@@ -82,7 +82,7 @@
             </Grid>
         </ContentControl>
         <ContentControl Grid.Row="0" Grid.Column="0" Panel.ZIndex="{Binding MessageZIndex}">
-            <Border Style="{StaticResource BorderStyle}" Margin="200">
+            <Border Style="{StaticResource BorderStyle}" Margin="20">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>

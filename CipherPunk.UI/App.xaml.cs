@@ -5,10 +5,8 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Threading;
-using CipherPunk;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed partial class App
@@ -35,6 +33,8 @@ internal sealed partial class App
                     .AddSingleton<CipherSuitesOsSettingsViewModel>()
                     .AddSingleton<CipherSuitesGroupPolicySettingsViewModel>()
                     .AddSingleton<EllipticCurvesViewModel>()
+                    .AddSingleton<EllipticCurvesOsSettingsViewModel>()
+                    .AddSingleton<EllipticCurvesGroupPolicySettingsViewModel>()
                     .AddSingleton<RemoteServerTestViewModel>()
                     .AddSingleton<LoggingViewModel>()
                     .AddCipherPunk()

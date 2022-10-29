@@ -1,13 +1,9 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using Windows.Win32;
 using CipherPunk.CipherSuiteInfoApi;
-using Microsoft.Extensions.Logging;
-using CipherPunk;
 
 internal sealed class CipherSuitesOsSettingsViewModel : BaseViewModel
 {

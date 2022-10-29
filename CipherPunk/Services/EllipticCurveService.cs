@@ -12,8 +12,8 @@ using Microsoft.Win32.SafeHandles;
 
 internal sealed class EllipticCurveService : IEllipticCurveService
 {
-    private const string SslConfigurationKey = "SYSTEM\\CurrentControlSet\\Control\\Cryptography\\Configuration\\Local\\SSL\\00010002";
-    private const string SslCurveOrderValueName = "EccCurves";
+    private const string NcryptSchannelInterfaceSslKey = "SYSTEM\\CurrentControlSet\\Control\\Cryptography\\Configuration\\Local\\SSL\\00010002";
+    private const string CurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
 
     private readonly IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService;
@@ -245,8 +245,8 @@ internal sealed class EllipticCurveService : IEllipticCurveService
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
-        using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(SslConfigurationKey);
-        string[] activeEllipticCurves = (string[]?)registryKey?.GetValue(SslCurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? Array.Empty<string>();
+        using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
+        string[] activeEllipticCurves = (string[]?)registryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? Array.Empty<string>();
         List<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
 
         return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => activeEllipticCurves.Contains(q.pwszName, StringComparer.OrdinalIgnoreCase)).ToList();
@@ -271,14 +271,14 @@ internal sealed class EllipticCurveService : IEllipticCurveService
         unsafe
         {
             var hKey = new SafeRegistryHandle(HKEY.HKEY_LOCAL_MACHINE, true);
-            WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SslConfigurationKey, 0U, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
+            WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, NcryptSchannelInterfaceSslKey, 0U, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
             if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
                 throw new Win32Exception((int)regCreateKeyExResult);
 
             fixed (char* lpData = ellipticCurvesString)
             {
-                WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, SslCurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
+                WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, CurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
 
                 if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regSetKeyValueResult);

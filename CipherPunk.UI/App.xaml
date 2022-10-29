@@ -83,6 +83,12 @@
         <DataTemplate DataType="{x:Type ui:EllipticCurvesViewModel}">
             <ui:EllipticCurvesView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:EllipticCurvesOsSettingsViewModel}">
+            <ui:EllipticCurvesOsSettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:EllipticCurvesGroupPolicySettingsViewModel}">
+            <ui:EllipticCurvesGroupPolicySettingsView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type ui:RemoteServerTestViewModel}">
             <ui:RemoteServerTestView/>
         </DataTemplate>
