@@ -28,7 +28,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding AdminMessage}" />
-                    <DataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveGroupPolicyCipherSuiteConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveGroupPolicyCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
         </Border>
@@ -41,7 +41,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <DataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding DefaultGroupPolicyCipherSuiteConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding DefaultGroupPolicyCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
         </Border>
