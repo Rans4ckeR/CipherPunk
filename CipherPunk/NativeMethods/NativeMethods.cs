@@ -28,19 +28,19 @@ internal static partial class PInvoke
     [DllImport("NCrypt", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
-    public static extern unsafe HRESULT SslOpenProvider(NCRYPT_PROV_HANDLE* phSslProvider, PCWSTR pszProviderName, NCRYPT_FLAGS dwFlags);
+    public static extern unsafe HRESULT SslOpenProvider(NCRYPT_PROV_HANDLE* phSslProvider, PCWSTR pszProviderName, uint dwFlags = 0U);
 
     [DllImport("NCrypt", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
-    public static extern unsafe HRESULT SslEnumCipherSuites(NCRYPT_PROV_HANDLE hProvider, [Optional] NCRYPT_KEY_HANDLE hPrivateKey, NCRYPT_SSL_CIPHER_SUITE** ppCipherSuite, void** ppEnumState, NCRYPT_FLAGS dwFlags);
+    public static extern unsafe HRESULT SslEnumCipherSuites(NCRYPT_PROV_HANDLE hProvider, [Optional] NCRYPT_KEY_HANDLE hPrivateKey, NCRYPT_SSL_CIPHER_SUITE** ppCipherSuite, void** ppEnumState, uint dwFlags = 0U);
 
     [DllImport("NCrypt", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
-    public static extern unsafe HRESULT SslEnumProtocolProviders(uint* pdwProviderCount, NCryptProviderName** ppProviderList, NCRYPT_FLAGS dwFlags = 0U);
+    public static extern unsafe HRESULT SslEnumProtocolProviders(uint* pdwProviderCount, NCryptProviderName** ppProviderList, uint dwFlags = 0U);
 
-    public static unsafe HRESULT SslEnumProtocolProviders(out uint pdwProviderCount, out NCryptProviderName* ppProviderList, NCRYPT_FLAGS dwFlags = 0U)
+    public static unsafe HRESULT SslEnumProtocolProviders(out uint pdwProviderCount, out NCryptProviderName* ppProviderList, uint dwFlags = 0U)
     {
         fixed (NCryptProviderName** ppProviderListLocal = &ppProviderList)
         {
@@ -52,7 +52,7 @@ internal static partial class PInvoke
         }
     }
 
-    public static unsafe HRESULT SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, string pszProviderName, NCRYPT_FLAGS dwFlags = 0U)
+    public static unsafe HRESULT SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, string pszProviderName, uint dwFlags = 0U)
     {
         fixed (char* pszProviderNameLocal = pszProviderName)
         {
@@ -63,7 +63,7 @@ internal static partial class PInvoke
         }
     }
 
-    public static unsafe HRESULT SslEnumCipherSuites(SafeHandle hSslProvider, SafeHandle? hPrivateKey, out NCRYPT_SSL_CIPHER_SUITE* ppCipherSuite, ref void* ppEnumState, NCRYPT_FLAGS dwFlags = 0U)
+    public static unsafe HRESULT SslEnumCipherSuites(SafeHandle hSslProvider, SafeHandle? hPrivateKey, out NCRYPT_SSL_CIPHER_SUITE* ppCipherSuite, ref void* ppEnumState, uint dwFlags = 0U)
     {
         bool hSslProviderAddRef = false;
         bool hPrivateKeyAddRef = false;

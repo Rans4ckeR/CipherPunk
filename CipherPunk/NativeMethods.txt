@@ -6,7 +6,6 @@ BCryptRemoveContextFunction
 BCryptResolveProviders
 NCryptOpenStorageProvider
 NCryptEnumAlgorithms
-NCRYPT_FLAGS
 NCRYPT_KEY_HANDLE
 IGroupPolicyObject
 CoInitializeEx
@@ -20,7 +19,7 @@ RegGetValue
 CryptEnumOIDInfo
 BCRYPT_ECCKEY_BLOB
 PCSTR
-CRYPTOAPI_BLOB
+CRYPT_INTEGER_BLOB
 NTE_NO_MORE_ITEMS
 szOID_ECC_CURVE_*
 CLSID_GroupPolicyObject
