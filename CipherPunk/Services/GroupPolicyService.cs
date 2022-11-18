@@ -85,13 +85,13 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     [SupportedOSPlatform("windows6.0.6000")]
     public string[] GetSslCipherSuiteOrderPolicy()
     {
-        return GetOrderPolicy(SslCipherSuiteOrderValueName, RRF_RT.RRF_RT_REG_SZ)?.Split(',') ?? Array.Empty<string>();
+        return GetOrderPolicy(SslCipherSuiteOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_SZ)?.Split(',') ?? Array.Empty<string>();
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
     public string[] GetEccCurveOrderPolicy()
     {
-        return GetOrderPolicy(SslCurveOrderValueName, RRF_RT.RRF_RT_REG_MULTI_SZ)?.Split('\0', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
+        return GetOrderPolicy(SslCurveOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_MULTI_SZ)?.Split('\0', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
@@ -157,7 +157,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    private static string? GetOrderPolicy(string valueName, RRF_RT valueType)
+    private static string? GetOrderPolicy(string valueName, REG_ROUTINE_FLAGS valueType)
     {
         unsafe
         {
@@ -190,7 +190,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
                 fixed (char* pvData = buffer)
                 {
-                    uint* pdwType = null;
+                    REG_VALUE_TYPE* pdwType = null;
                     WIN32_ERROR regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, pdwType, pvData, &pcbData);
 
                     if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
