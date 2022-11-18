@@ -46,7 +46,7 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
     - name: Package
-      run: dotnet pack CipherPunk/CipherPunk.csproj --no-restore --no-build --configuration Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
+      run: dotnet pack CipherPunk/CipherPunk.csproj --no-restore --configuration Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
     - name: NuGet Push
       run: dotnet nuget push ${{ format('CipherPunk/bin/Release/CipherPunk.{0}.nupkg', env.GitVersion_NuGetVersionV2) }} --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
     - name: GitHub Push
