@@ -90,8 +90,16 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                 for (int i = 0; i < ppBuffer->cFunctions; i++)
                 {
                     string function = ppBuffer->rgpszFunctions[i].ToString();
+                    WindowsApiCipherSuiteConfiguration? cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
 
-                    cipherSuiteConfigurations.Add(defaultCipherSuiteConfigurations.Single(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase)));
+                    if (cipherSuite is null)
+                    {
+                        // todo
+                    }
+                    else
+                    {
+                        cipherSuiteConfigurations.Add(cipherSuite.Value);
+                    }
                 }
 
                 return cipherSuiteConfigurations;

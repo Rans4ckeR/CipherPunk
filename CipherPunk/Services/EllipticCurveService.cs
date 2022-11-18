@@ -192,7 +192,7 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                             string pwszName = cryptOidInfoPointer->pwszName.ToString();
                             var dwGroupId = (CRYPT_OID_GROUP_ID)cryptOidInfoPointer->dwGroupId;
                             CRYPT_OID_INFO._Anonymous_e__Union anonymous = cryptOidInfoPointer->Anonymous;
-                            CRYPTOAPI_BLOB extraInfo = cryptOidInfoPointer->ExtraInfo;
+                            CRYPT_INTEGER_BLOB extraInfo = cryptOidInfoPointer->ExtraInfo;
                             var algId = (CALG)anonymous.Algid; // The CRYPT_*_ALG_OID_GROUP_ID's have an Algid
                             var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
                             uint dwMagic;
