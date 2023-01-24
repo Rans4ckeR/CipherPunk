@@ -5,7 +5,7 @@
     <RootNamespace>CipherPunk</RootNamespace>
     <Title>CipherPunk</Title>
     <Product>CipherPunk</Product>
-    <Copyright>Copyright 2022 (c) RS. All rights reserved.</Copyright>
+    <Copyright>Copyright 2023 (c) RS. All rights reserved.</Copyright>
     <Company>Rans4ckeR</Company>
     <Configuration></Configuration>
     <Trademark></Trademark>
@@ -45,14 +45,14 @@
     <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.138-beta">
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.188-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Docs" Version="0.1.8-alpha">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Docs" Version="0.1.12-alpha">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="38.0.19-preview">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="40.0.14-preview">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

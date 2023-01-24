@@ -24,7 +24,7 @@ namespace Windows.Win32
         /// <remarks>
         /// <para><see href="https://docs.microsoft.com/windows/win32/api//wincrypt/ns-wincrypt-crypt_oid_info">Learn more about this API from docs.microsoft.com</see>.</para>
         /// </remarks>
-        [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.2.138-beta+f3247a3e2a")]
+        [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.2.188-beta+852e176a3b")]
         internal struct CRYPT_OID_INFO
         {
             /// <summary>The size, in bytes, of this structure.</summary>
@@ -50,7 +50,7 @@ namespace Windows.Win32
             internal winmdroot.Security.Cryptography.CRYPT_INTEGER_BLOB ExtraInfo;
 
             [StructLayout(LayoutKind.Explicit)]
-            [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.2.138-beta+f3247a3e2a")]
+            [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.2.188-beta+852e176a3b")]
             internal partial struct _Anonymous_e__Union
             {
                 [FieldOffset(0)]

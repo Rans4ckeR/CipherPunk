@@ -21,7 +21,7 @@ namespace Windows.Win32
     /// <summary>
     /// Represents a Win32 handle that can be closed with <see cref="PInvoke.BCryptCloseAlgorithmProvider"/>.
     /// </summary>
-    [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.2.138-beta+f3247a3e2a")]
+    [global::System.CodeDom.Compiler.GeneratedCode("Microsoft.Windows.CsWin32", "0.2.188-beta+852e176a3b")]
     internal class BCryptCloseAlgorithmProviderSafeHandle
         : SafeHandle
     {
@@ -36,6 +36,6 @@ namespace Windows.Win32
 
         public override bool IsInvalid => this.handle.ToInt64() == 0L;
 
-        protected override bool ReleaseHandle() => PInvoke.BCryptCloseAlgorithmProvider((winmdroot.Security.Cryptography.BCRYPT_ALG_HANDLE)this.handle, 0U) == winmdroot.Foundation.HRESULT.S_OK;
+        protected override bool ReleaseHandle() => PInvoke.BCryptCloseAlgorithmProvider((winmdroot.Security.Cryptography.BCRYPT_ALG_HANDLE)this.handle, 0U) == winmdroot.Foundation.NTSTATUS.STATUS_SUCCESS;
     }
 }

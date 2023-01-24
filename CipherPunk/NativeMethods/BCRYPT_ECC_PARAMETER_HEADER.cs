@@ -19,7 +19,7 @@ namespace Windows.Win32
 
     namespace Security.Cryptography
     {
-        internal partial struct BCRYPT_ECC_PARAMETER_HEADER
+        internal struct BCRYPT_ECC_PARAMETER_HEADER
         {
             internal uint dwVersion; //Version of the structure
             internal ECC_CURVE_TYPE_ENUM dwCurveType; //Supported curve types.
