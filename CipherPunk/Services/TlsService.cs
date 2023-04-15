@@ -169,7 +169,7 @@ internal sealed class TlsService : ITlsService
         {
             var ssl2ServerHelloRecord = new Ssl2ServerHelloRecord(responseBytes.Span);
 
-            return (sslProviderCipherSuiteId, ssl2ServerHelloRecord.CipherSpecs.Any(), null);
+            return (sslProviderCipherSuiteId, ssl2ServerHelloRecord.CipherSpecs.Length > 0, null);
         }
 
         var tlsRecord = TlsRecord.Parse(responseBytes.Span);
@@ -186,7 +186,7 @@ internal sealed class TlsService : ITlsService
                 byte[]? supportedVersions = ((ServerHelloTlsRecord)tlsRecord).HandshakeExtensions.OfType<SupportedVersionsExtension>().SingleOrDefault()?.SupportedVersions;
                 var tlsVersions = new List<TlsVersion>();
 
-                if (supportedVersions?.Any() ?? false)
+                if (supportedVersions?.Length > 0)
                 {
                     int index = 0;
 

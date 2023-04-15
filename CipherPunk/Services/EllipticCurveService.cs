@@ -56,18 +56,18 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                     }
 
                     uint pcbBuffer = 0U;
-                    NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, ref ppBuffer);
+                    NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, &ppBuffer);
 
                     if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                         throw new Win32Exception(bCryptResolveProvidersStatus);
 
-                    if (ppBuffer->cProviders != 1U)
-                        throw new SchannelServiceException(FormattableString.Invariant($"Found {ppBuffer->cProviders} providers, expected 1."));
+                    if ((*ppBuffer).cProviders != 1U)
+                        throw new SchannelServiceException(FormattableString.Invariant($"Found {(*ppBuffer).cProviders} providers, expected 1."));
 
-                    CRYPT_PROVIDER_REF* cryptProviderRef = ppBuffer->rgpProviders[0];
-                    string pszProvider = cryptProviderRef->pszProvider.ToString();
-                    string pszFunction = cryptProviderRef->pszFunction.ToString();
-                    string pszImage = cryptProviderRef->pUM->pszImage.ToString();
+                    CRYPT_PROVIDER_REF cryptProviderRef = *(*ppBuffer).rgpProviders[0];
+                    string pszProvider = cryptProviderRef.pszProvider.ToString();
+                    string pszFunction = cryptProviderRef.pszFunction.ToString();
+                    string pszImage = (*cryptProviderRef.pUM).pszImage.ToString();
 
                     PInvoke.BCryptFreeBuffer(ppBuffer);
 
@@ -106,7 +106,7 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                         string eccCurveNameString = eccCurveName.ToString();
                         CRYPT_OID_INFO* cryptOidInfoPointer = PInvoke.CryptFindOIDInfo((uint)CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_NAME_KEY, eccCurveName, (uint)(CRYPT_OID_GROUP_FLAG.CRYPT_OID_PREFER_CNG_ALGID_FLAG | (CRYPT_OID_GROUP_FLAG)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID));
 
-                        if ((nint)cryptOidInfoPointer == nint.Zero)
+                        if (cryptOidInfoPointer is null)
                         {
                             NTSTATUS bCryptGenerateKeyPairResult = PInvoke.BCryptGenerateKeyPair(bCryptCloseAlgorithmProviderSafeHandle, out BCryptDestroyKeySafeHandle phKey, 0U, 0U);
 
@@ -187,12 +187,12 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                             //  DWORD[1] - BCRYPT_ECCKEY_BLOB dwMagic field value
                             //  DWORD[2] - dwBitLength. Where BCRYPT_ECCKEY_BLOB's
                             //             cbKey = dwBitLength / 8 + ((dwBitLength % 8) ? 1 : 0)
-                            uint cbSize = cryptOidInfoPointer->cbSize;
-                            string pszOid = cryptOidInfoPointer->pszOID.ToString();
-                            string pwszName = cryptOidInfoPointer->pwszName.ToString();
-                            var dwGroupId = (CRYPT_OID_GROUP_ID)cryptOidInfoPointer->dwGroupId;
-                            CRYPT_OID_INFO._Anonymous_e__Union anonymous = cryptOidInfoPointer->Anonymous;
-                            CRYPT_INTEGER_BLOB extraInfo = cryptOidInfoPointer->ExtraInfo;
+                            uint cbSize = (*cryptOidInfoPointer).cbSize;
+                            string pszOid = (*cryptOidInfoPointer).pszOID.ToString();
+                            string pwszName = (*cryptOidInfoPointer).pwszName.ToString();
+                            var dwGroupId = (CRYPT_OID_GROUP_ID)(*cryptOidInfoPointer).dwGroupId;
+                            CRYPT_OID_INFO._Anonymous_e__Union anonymous = (*cryptOidInfoPointer).Anonymous;
+                            CRYPT_INTEGER_BLOB extraInfo = (*cryptOidInfoPointer).ExtraInfo;
                             var algId = (CALG)anonymous.Algid; // The CRYPT_*_ALG_OID_GROUP_ID's have an Algid
                             var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
                             uint dwMagic;
@@ -208,8 +208,8 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                             dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
                             // }
 
-                            string pwszCNGAlgid = Marshal.PtrToStringAuto(cryptOidInfoPointer->pwszCNGAlgid)!;
-                            string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(cryptOidInfoPointer->pwszCNGExtraAlgid); // CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM = "CryptOIDInfoECCParameters"
+                            string pwszCNGAlgid = Marshal.PtrToStringAuto((*cryptOidInfoPointer).pwszCNGAlgid)!;
+                            string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto((*cryptOidInfoPointer).pwszCNGExtraAlgid); // CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM = "CryptOIDInfoECCParameters"
 
                             if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                 pwszCNGExtraAlgid = null;

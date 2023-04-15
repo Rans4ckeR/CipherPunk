@@ -165,10 +165,10 @@ internal sealed class OverviewViewModel : BaseViewModel
             string[] cipherSuiteOrderPolicy = groupPolicyService.GetSslCipherSuiteOrderPolicy();
             string[] eccCurveOrderPolicy = groupPolicyService.GetEccCurveOrderPolicy();
 
-            if (cipherSuiteOrderPolicy.Any())
+            if (cipherSuiteOrderPolicy.Length > 0)
                 GroupPolicyCipherSuiteMessage = "Current Cipher Suite settings are set by Group Policy.";
 
-            if (eccCurveOrderPolicy.Any())
+            if (eccCurveOrderPolicy.Length > 0)
                 GroupPolicyEllipticCurveMessage = "Current Elliptic Curve settings are set by Group Policy.";
         }
         catch (UnauthorizedAccessException)
