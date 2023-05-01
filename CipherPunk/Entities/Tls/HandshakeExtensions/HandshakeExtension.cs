@@ -35,7 +35,7 @@ public abstract record HandshakeExtension
                         extensionLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
                         byte[] publicKey = data.TakeBytes(ref index, extensionLength);
 
-                        keyShares.Add(new KeyShare(tlsSupportedGroup, publicKey));
+                        keyShares.Add(new(tlsSupportedGroup, publicKey));
                     }
 
                     handshakeExtensions.Add(new KeyShareExtension(keyShares.ToArray()));

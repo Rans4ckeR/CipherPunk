@@ -100,27 +100,28 @@ internal sealed class GroupPolicyService : IGroupPolicyService
         if (valueData.Length > ListMaximumCharacters)
             throw new GroupPolicyServiceException(FormattableString.Invariant($"Maximum list length exceeded ({valueData.Length}), the maximum is {ListMaximumCharacters}."));
 
-        unsafe
+        try
         {
-            try
+            HRESULT coInitializeExResult = PInvoke.CoInitializeEx(COINIT.COINIT_APARTMENTTHREADED);
+
+            if (coInitializeExResult.Failed)
+                throw Marshal.GetExceptionForHR(coInitializeExResult)!;
+
+            HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
+
+            if (coCreateInstanceResult.Failed)
+                throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
+
+            ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
+
+            HKEY machineKey = default;
+
+            ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
+
+            using var hKey = new SafeRegistryHandle(machineKey, true);
+
+            unsafe
             {
-                HRESULT coInitializeExResult = PInvoke.CoInitializeEx(null, COINIT.COINIT_APARTMENTTHREADED);
-
-                if (coInitializeExResult.Failed)
-                    throw Marshal.GetExceptionForHR(coInitializeExResult)!;
-
-                HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
-
-                if (coCreateInstanceResult.Failed)
-                    throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
-
-                ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
-
-                HKEY machineKey = default;
-
-                ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
-
-                using var hKey = new SafeRegistryHandle(machineKey, true);
                 WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SslConfigurationPolicyKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
                 if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
@@ -143,51 +144,51 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                     if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS)
                         throw new Win32Exception((int)regDeleteValueResult);
                 }
-
-                const bool isComputerPolicySettings = true;
-                const bool isAddOperation = true;
-
-                ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, CipherPunkGuid);
             }
-            finally
-            {
-                PInvoke.CoUninitialize();
-            }
+
+            const bool isComputerPolicySettings = true;
+            const bool isAddOperation = true;
+
+            ppv.Save(isComputerPolicySettings, isAddOperation, PInvoke.REGISTRY_EXTENSION_GUID, CipherPunkGuid);
+        }
+        finally
+        {
+            PInvoke.CoUninitialize();
         }
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
     private static string? GetOrderPolicy(string valueName, REG_ROUTINE_FLAGS valueType)
     {
-        unsafe
+        try
         {
-            try
+            HRESULT coInitializeExResult = PInvoke.CoInitializeEx(COINIT.COINIT_APARTMENTTHREADED);
+
+            if (coInitializeExResult.Failed)
+                throw Marshal.GetExceptionForHR(coInitializeExResult)!;
+
+            HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
+
+            if (coCreateInstanceResult.Failed)
+                throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
+
+            ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
+
+            HKEY machineKey = default;
+
+            ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
+
+            using var hKey = new SafeRegistryHandle(machineKey, true);
+            WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);
+
+            if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                throw new Win32Exception((int)regOpenKeyExResult);
+
+            char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
+            uint pcbData = ListMaximumCharacters * sizeof(char);
+
+            unsafe
             {
-                HRESULT coInitializeExResult = PInvoke.CoInitializeEx(null, COINIT.COINIT_APARTMENTTHREADED);
-
-                if (coInitializeExResult.Failed)
-                    throw Marshal.GetExceptionForHR(coInitializeExResult)!;
-
-                HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
-
-                if (coCreateInstanceResult.Failed)
-                    throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
-
-                ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
-
-                HKEY machineKey = default;
-
-                ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
-
-                using var hKey = new SafeRegistryHandle(machineKey, true);
-                WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);
-
-                if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
-                    throw new Win32Exception((int)regOpenKeyExResult);
-
-                char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
-                uint pcbData = ListMaximumCharacters * sizeof(char);
-
                 fixed (char* pvData = buffer)
                 {
                     REG_VALUE_TYPE* pdwType = null;
@@ -199,13 +200,13 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                     if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
                         return null;
 
-                    return new string(buffer[..(int)(pcbData / sizeof(char))]);
+                    return new(buffer[..(int)(pcbData / sizeof(char))]);
                 }
             }
-            finally
-            {
-                PInvoke.CoUninitialize();
-            }
+        }
+        finally
+        {
+            PInvoke.CoUninitialize();
         }
     }
 }

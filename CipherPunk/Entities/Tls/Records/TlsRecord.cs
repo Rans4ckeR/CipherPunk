@@ -6,7 +6,7 @@ public abstract record TlsRecord
 {
     protected TlsRecord(ReadOnlySpan<byte> data)
     {
-        TlsRecordHeader = new TlsRecordHeader(data);
+        TlsRecordHeader = new(data);
 
         int index = TlsRecordHeader.Size;
 
@@ -32,7 +32,7 @@ public abstract record TlsRecord
 
     protected TlsRecord(TlsVersion tlsVersion, TlsContentType tlsContentType, TlsHandshakeType tlsHandshakeType)
     {
-        TlsRecordHeader = new TlsRecordHeader(this, tlsVersion, tlsContentType);
+        TlsRecordHeader = new(this, tlsVersion, tlsContentType);
         TlsHandshakeHeaderMessageType = (byte)tlsHandshakeType;
 
         if (tlsVersion is TlsVersion.TLS1_3_PROTOCOL_VERSION)

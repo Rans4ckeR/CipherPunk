@@ -44,9 +44,9 @@ internal sealed class EllipticCurveService : IEllipticCurveService
 
                 for (int i = 0; i < pdwProviderCount; i++)
                 {
-                    NCryptProviderName nCryptProviderName = Marshal.PtrToStructure<NCryptProviderName>((nint)ppProviderList + (i * sizeof(NCryptProviderName)));
+                    NCryptProviderName nCryptProviderName = new Span<NCryptProviderName>(ppProviderList + (i * sizeof(NCryptProviderName)), 1)[0];
                     string pszName = nCryptProviderName.pszName.ToString();
-                    string pszComment = nCryptProviderName.pszComment.ToString();
+                    string? pszComment = nCryptProviderName.pszComment.ToString();
                     HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszName);
 
                     using (phSslProvider)
@@ -80,29 +80,23 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                         throw new Win32Exception(bCryptOpenAlgorithmProviderStatus);
 
                     using var bCryptCloseAlgorithmProviderSafeHandle = new BCryptCloseAlgorithmProviderSafeHandle(phAlgorithm);
-                    NTSTATUS bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, null, 0, out uint length, 0);
+                    NTSTATUS bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, Span<byte>.Empty, out uint length, 0U);
 
                     if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                         throw new Win32Exception(bCryptGetPropertyStatus);
 
-                    byte[] result = new byte[length];
-                    BCRYPT_ECC_CURVE_NAMES bcryptEccCurveNames;
+                    Span<byte> bcryptEccCurveNamesSpan = new byte[length];
 
-                    fixed (byte* p = result)
+                    bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, bcryptEccCurveNamesSpan, out length, 0U);
+
+                    if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                        throw new Win32Exception(bCryptGetPropertyStatus);
+
+                    BCRYPT_ECC_CURVE_NAMES bcryptEccCurveNames = MemoryMarshal.AsRef<BCRYPT_ECC_CURVE_NAMES>(bcryptEccCurveNamesSpan);
+                    var eccCurveNames = new Span<PWSTR>(bcryptEccCurveNames.pEccCurveNames, (int)bcryptEccCurveNames.dwEccCurveNames);
+
+                    foreach (PWSTR eccCurveName in eccCurveNames)
                     {
-                        nint ptr = (nint)p;
-
-                        bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)bCryptCloseAlgorithmProviderSafeHandle.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, (byte*)ptr, (uint)result.Length, out length, 0);
-
-                        if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
-                            throw new Win32Exception(bCryptGetPropertyStatus);
-
-                        bcryptEccCurveNames = Marshal.PtrToStructure<BCRYPT_ECC_CURVE_NAMES>(ptr);
-                    }
-
-                    for (int j = 0; j < bcryptEccCurveNames.dwEccCurveNames; j++)
-                    {
-                        PWSTR eccCurveName = Marshal.PtrToStructure<PWSTR>((nint)(bcryptEccCurveNames.pEccCurveNames + j));
                         string eccCurveNameString = eccCurveName.ToString();
                         CRYPT_OID_INFO* cryptOidInfoPointer = PInvoke.CryptFindOIDInfo((uint)CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_NAME_KEY, eccCurveName, (uint)(CRYPT_OID_GROUP_FLAG.CRYPT_OID_PREFER_CNG_ALGID_FLAG | (CRYPT_OID_GROUP_FLAG)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID));
 
@@ -116,49 +110,54 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                                     throw new Win32Exception(bCryptGenerateKeyPairResult);
 
                                 nint stringPointer = Marshal.StringToHGlobalUni(eccCurveNameString);
+                                NTSTATUS bCryptSetPropertyResult;
 
-                                fixed (char* pszPropertyLocal = CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME)
+                                try
                                 {
-                                    NTSTATUS bCryptSetPropertyResult = PInvoke.BCryptSetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), pszPropertyLocal, (byte*)stringPointer, (uint)(sizeof(char) * (eccCurveName.Length + "\n".Length)), 0U);
+                                    Span<byte> pbInput = new(stringPointer.ToPointer(), sizeof(char) * (eccCurveName.Length + "\n".Length));
 
-                                    if (bCryptSetPropertyResult.SeverityCode is not NTSTATUS.Severity.Success)
-                                        throw new Win32Exception(bCryptSetPropertyResult);
+                                    bCryptSetPropertyResult = PInvoke.BCryptSetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME, pbInput, 0U);
+                                }
+                                finally
+                                {
+                                    Marshal.FreeHGlobal(stringPointer);
                                 }
 
-                                BCRYPT_KEY_LENGTHS_STRUCT pbOutput = default;
+                                if (bCryptSetPropertyResult.SeverityCode is not NTSTATUS.Severity.Success)
+                                    throw new Win32Exception(bCryptSetPropertyResult);
 
-                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_PUBLIC_KEY_LENGTH, (byte*)&pbOutput, (uint)sizeof(BCRYPT_KEY_LENGTHS_STRUCT), out uint pcbResult, 0U);
+                                Span<byte> bcryptKeyLengthsStructSpan = new byte[length];
+
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_PUBLIC_KEY_LENGTH, bcryptKeyLengthsStructSpan, out uint _, 0U);
 
                                 if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                                     throw new Win32Exception(bCryptGetPropertyStatus);
 
-                                uint dwMinLength = pbOutput.dwMinLength;
-                                uint dwMaxLength = pbOutput.dwMaxLength;
-                                uint dwIncrement = pbOutput.dwIncrement;
+                                BCRYPT_KEY_LENGTHS_STRUCT bcryptKeyLengthsStruct = MemoryMarshal.AsRef<BCRYPT_KEY_LENGTHS_STRUCT>(bcryptKeyLengthsStructSpan);
+                                uint dwMinLength = bcryptKeyLengthsStruct.dwMinLength;
+                                uint dwMaxLength = bcryptKeyLengthsStruct.dwMaxLength;
+                                uint dwIncrement = bcryptKeyLengthsStruct.dwIncrement;
 
-                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, null, 0U, out uint pcbResult1, 0U);
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, null, out uint pcbResult, 0U);
 
                                 if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
                                     throw new Win32Exception(bCryptGetPropertyStatus);
 
-                                byte[] result1 = new byte[pcbResult1];
-                                fixed (byte* p = result1)
-                                {
-                                    nint ptr = (nint)p;
-                                    bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, (byte*)ptr, (uint)result1.Length, out uint pcbResult2, 0U);
+                                Span<byte> bcryptEccParametersBlobSpan = new byte[pcbResult];
 
-                                    if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
-                                        throw new Win32Exception(bCryptGetPropertyStatus);
+                                bCryptGetPropertyStatus = PInvoke.BCryptGetProperty((BCRYPT_HANDLE)phKey.DangerousGetHandle(), CngPropertyIdentifiers.BCRYPT_ECC_PARAMETERS, bcryptEccParametersBlobSpan, out uint _, 0U);
 
-                                    BCRYPT_ECC_PARAMETER_HEADER bcryptEccParametersBlob = Marshal.PtrToStructure<BCRYPT_ECC_PARAMETER_HEADER>(ptr);
-                                    uint dwVersion = bcryptEccParametersBlob.dwVersion;
-                                    ECC_CURVE_TYPE_ENUM dwCurveType = bcryptEccParametersBlob.dwCurveType;
-                                    ECC_CURVE_ALG_ID_ENUM dwCurveGenerationAlgId = bcryptEccParametersBlob.dwCurveGenerationAlgId;
-                                    uint cbFieldLength = bcryptEccParametersBlob.cbFieldLength;
-                                    uint cbSubgroupOrder = bcryptEccParametersBlob.cbSubgroupOrder;
-                                    uint cbCofactor = bcryptEccParametersBlob.cbCofactor;
-                                    uint cbSeed = bcryptEccParametersBlob.cbSeed;
-                                }
+                                if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                                    throw new Win32Exception(bCryptGetPropertyStatus);
+
+                                BCRYPT_ECC_PARAMETER_HEADER bcryptEccParametersBlob = MemoryMarshal.AsRef<BCRYPT_ECC_PARAMETER_HEADER>(bcryptEccParametersBlobSpan);
+                                uint dwVersion = bcryptEccParametersBlob.dwVersion;
+                                ECC_CURVE_TYPE_ENUM dwCurveType = bcryptEccParametersBlob.dwCurveType;
+                                ECC_CURVE_ALG_ID_ENUM dwCurveGenerationAlgId = bcryptEccParametersBlob.dwCurveGenerationAlgId;
+                                uint cbFieldLength = bcryptEccParametersBlob.cbFieldLength;
+                                uint cbSubgroupOrder = bcryptEccParametersBlob.cbSubgroupOrder;
+                                uint cbCofactor = bcryptEccParametersBlob.cbCofactor;
+                                uint cbSeed = bcryptEccParametersBlob.cbSeed;
 
                                 // todo search strings in certutil.exe: CurveType, EccCurveFlags
                                 var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwMinLength, null, null, new(), null);
@@ -195,17 +194,13 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                             CRYPT_INTEGER_BLOB extraInfo = (*cryptOidInfoPointer).ExtraInfo;
                             var algId = (CALG)anonymous.Algid; // The CRYPT_*_ALG_OID_GROUP_ID's have an Algid
                             var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
-                            uint dwMagic;
-                            BCRYPT_MAGIC bcryptMagic;
-                            uint dwBitLength;
 
                             // if (extraInfo.pbData is not null)
                             // {
-                            BCRYPT_ECCKEY_BLOB eccKeyStruct = Marshal.PtrToStructure<BCRYPT_ECCKEY_BLOB>((nint)extraInfo.pbData);
-
-                            dwMagic = eccKeyStruct.dwMagic;
-                            bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
-                            dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
+                            BCRYPT_ECCKEY_BLOB eccKeyStruct = new Span<BCRYPT_ECCKEY_BLOB>(extraInfo.pbData, 1)[0];
+                            uint dwMagic = eccKeyStruct.dwMagic;
+                            var bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
+                            uint dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
                             // }
 
                             string pwszCNGAlgid = Marshal.PtrToStringAuto((*cryptOidInfoPointer).pwszCNGAlgid)!;
@@ -268,9 +263,10 @@ internal sealed class EllipticCurveService : IEllipticCurveService
         if (ellipticCurvesString.Length > ListMaximumCharacters)
             throw new GroupPolicyServiceException(FormattableString.Invariant($"Maximum list length exceeded ({ellipticCurvesString.Length}), the maximum is {ListMaximumCharacters}."));
 
+        using var hKey = new SafeRegistryHandle(HKEY.HKEY_LOCAL_MACHINE, true);
+
         unsafe
         {
-            var hKey = new SafeRegistryHandle(HKEY.HKEY_LOCAL_MACHINE, true);
             WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, NcryptSchannelInterfaceSslKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
             if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
