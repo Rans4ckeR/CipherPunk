@@ -31,14 +31,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
-    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.229-beta">
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.252-beta">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Docs" Version="0.1.12-alpha">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Docs" Version="0.1.41-alpha">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="50.0.71-preview">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="52.0.65-preview">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
