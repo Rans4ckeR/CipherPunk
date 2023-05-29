@@ -20,7 +20,6 @@ public abstract record HandshakeExtension
         {
             var tlsExtensionType = (TlsExtensionType)BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
             ushort tlsExtensionLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
-            ushort extensionLength;
             int extensionEndIndex;
 
             switch (tlsExtensionType)
@@ -32,7 +31,7 @@ public abstract record HandshakeExtension
                     while (index != extensionEndIndex)
                     {
                         var tlsSupportedGroup = (TlsSupportedGroup)BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
-                        extensionLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
+                        ushort extensionLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
                         byte[] publicKey = data.TakeBytes(ref index, extensionLength);
 
                         keyShares.Add(new(tlsSupportedGroup, publicKey));

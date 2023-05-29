@@ -99,20 +99,20 @@ internal sealed class MainWindowViewModel : BaseViewModel
         get => userMessage;
         private set
         {
-            if (SetProperty(ref userMessage, value))
+            if (!SetProperty(ref userMessage, value))
+                return;
+
+            if (value is null)
             {
-                if (value is null)
-                {
-                    MessageZIndex = ZIndexNoOverlay;
-                    MainContentOpacity = OpacityNoOverlay;
-                    MainContentIsHitTestVisible = true;
-                }
-                else
-                {
-                    MessageZIndex = ZIndexOverlay;
-                    MainContentOpacity = OpacityOverlay;
-                    MainContentIsHitTestVisible = false;
-                }
+                MessageZIndex = ZIndexNoOverlay;
+                MainContentOpacity = OpacityNoOverlay;
+                MainContentIsHitTestVisible = true;
+            }
+            else
+            {
+                MessageZIndex = ZIndexOverlay;
+                MainContentOpacity = OpacityOverlay;
+                MainContentIsHitTestVisible = false;
             }
         }
     }
@@ -132,7 +132,10 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     private void ExecuteCopyMessageCommand()
     {
-        Clipboard.SetText(UserMessage);
+        if (UserMessage is not null)
+            Clipboard.SetText(UserMessage);
+        else
+            Clipboard.Clear();
     }
 
     private void ExecuteCloseMessageCommand()

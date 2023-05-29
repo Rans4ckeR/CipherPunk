@@ -1,6 +1,8 @@
 ﻿namespace CipherPunk;
 
 using System.ComponentModel;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Windows.Win32;
@@ -44,8 +46,8 @@ internal sealed class EllipticCurveService : IEllipticCurveService
 
                 for (int i = 0; i < pdwProviderCount; i++)
                 {
-                    NCryptProviderName nCryptProviderName = new Span<NCryptProviderName>(ppProviderList + (i * sizeof(NCryptProviderName)), 1)[0];
-                    string pszName = nCryptProviderName.pszName.ToString();
+                    NCryptProviderName nCryptProviderName = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<NCryptProviderName>(ppProviderList + (i * sizeof(NCryptProviderName))), 1)[0];
+                    string? pszName = nCryptProviderName.pszName.ToString();
                     string? pszComment = nCryptProviderName.pszComment.ToString();
                     HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszName);
 
@@ -61,13 +63,19 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                     if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                         throw new Win32Exception(bCryptResolveProvidersStatus);
 
-                    if ((*ppBuffer).cProviders != 1U)
-                        throw new SchannelServiceException(FormattableString.Invariant($"Found {(*ppBuffer).cProviders} providers, expected 1."));
+                    CRYPT_PROVIDER_REFS cryptProviderRefs = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REFS>(ppBuffer), 1)[0];
 
-                    CRYPT_PROVIDER_REF cryptProviderRef = *(*ppBuffer).rgpProviders[0];
-                    string pszProvider = cryptProviderRef.pszProvider.ToString();
-                    string pszFunction = cryptProviderRef.pszFunction.ToString();
-                    string pszImage = (*cryptProviderRef.pUM).pszImage.ToString();
+                    if (cryptProviderRefs.cProviders != 1U)
+                        throw new SchannelServiceException(FormattableString.Invariant($"Found {cryptProviderRefs.cProviders} providers, expected 1."));
+
+                    CRYPT_PROVIDER_REF cryptProviderRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REF>(cryptProviderRefs.rgpProviders[0]), 1)[0];
+                    string? pszProvider = cryptProviderRef.pszProvider.ToString();
+                    string? pszFunction = cryptProviderRef.pszFunction.ToString();
+                    uint cProperties = cryptProviderRef.cProperties;
+                    uint dwInterface = cryptProviderRef.dwInterface;
+                    CRYPT_IMAGE_REF userModeCryptImageRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_IMAGE_REF>(cryptProviderRef.pUM), 1)[0];
+                    string? pszImage = userModeCryptImageRef.pszImage.ToString();
+                    CRYPT_IMAGE_REF_FLAGS dwFlags = userModeCryptImageRef.dwFlags;
 
                     PInvoke.BCryptFreeBuffer(ppBuffer);
 
@@ -96,7 +104,7 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                             throw new Win32Exception(bCryptGetPropertyStatus);
 
                         BCRYPT_ECC_CURVE_NAMES bcryptEccCurveNames = MemoryMarshal.AsRef<BCRYPT_ECC_CURVE_NAMES>(bcryptEccCurveNamesSpan);
-                        var eccCurveNames = new Span<PWSTR>(bcryptEccCurveNames.pEccCurveNames, (int)bcryptEccCurveNames.dwEccCurveNames);
+                        ReadOnlySpan<PWSTR> eccCurveNames = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<PWSTR>(bcryptEccCurveNames.pEccCurveNames), (int)bcryptEccCurveNames.dwEccCurveNames);
 
                         foreach (PWSTR eccCurveName in eccCurveNames)
                         {
@@ -164,6 +172,28 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                                     uint cbSubgroupOrder = bcryptEccParametersBlob.cbSubgroupOrder;
                                     uint cbCofactor = bcryptEccParametersBlob.cbCofactor;
                                     uint cbSeed = bcryptEccParametersBlob.cbSeed;
+                                    BigInteger prime;
+                                    BigInteger a;
+                                    BigInteger b;
+                                    BigInteger gx;
+                                    BigInteger gy;
+                                    BigInteger subgroupOrder;
+                                    BigInteger cofactor;
+                                    BigInteger seed;
+
+                                    fixed (byte* spanPointer = bcryptEccParametersBlobSpan)
+                                    {
+                                        ReadOnlySpan<byte> parameters = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<byte>(spanPointer + sizeof(BCRYPT_ECC_PARAMETER_HEADER)), (int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor + cbSeed));
+
+                                        prime = new(parameters[..(int)cbFieldLength], true, true);
+                                        a = new(parameters[(int)cbFieldLength..(int)(cbFieldLength * 2)], true, true);
+                                        b = new(parameters[(int)(cbFieldLength * 2)..(int)(cbFieldLength * 3)], true, true);
+                                        gx = new(parameters[(int)(cbFieldLength * 3)..(int)(cbFieldLength * 4)], true, true);
+                                        gy = new(parameters[(int)(cbFieldLength * 4)..(int)(cbFieldLength * 5)], true, true);
+                                        subgroupOrder = new(parameters[(int)(cbFieldLength * 5)..(int)((cbFieldLength * 5) + cbSubgroupOrder)], true, true);
+                                        cofactor = new(parameters[(int)((cbFieldLength * 5) + cbSubgroupOrder)..(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor)], true, true);
+                                        seed = new(parameters[(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor)..(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor + cbSeed)], true, true);
+                                    }
 
                                     // todo search strings in certutil.exe: CurveType, EccCurveFlags
                                     var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwBitLength, null, null, new(), null);
@@ -192,25 +222,26 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                                 //  DWORD[1] - BCRYPT_ECCKEY_BLOB dwMagic field value
                                 //  DWORD[2] - dwBitLength. Where BCRYPT_ECCKEY_BLOB's
                                 //             cbKey = dwBitLength / 8 + ((dwBitLength % 8) ? 1 : 0)
-                                uint cbSize = (*cryptOidInfoPointer).cbSize;
-                                string pszOid = (*cryptOidInfoPointer).pszOID.ToString();
-                                string pwszName = (*cryptOidInfoPointer).pwszName.ToString();
-                                var dwGroupId = (CRYPT_OID_GROUP_ID)(*cryptOidInfoPointer).dwGroupId;
-                                CRYPT_OID_INFO._Anonymous_e__Union anonymous = (*cryptOidInfoPointer).Anonymous;
-                                CRYPT_INTEGER_BLOB extraInfo = (*cryptOidInfoPointer).ExtraInfo;
+                                CRYPT_OID_INFO cryptOidInfo = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_OID_INFO>(cryptOidInfoPointer), 1)[0];
+                                uint cbSize = cryptOidInfo.cbSize;
+                                string? pszOid = cryptOidInfo.pszOID.ToString();
+                                string? pwszName = cryptOidInfo.pwszName.ToString();
+                                var dwGroupId = (CRYPT_OID_GROUP_ID)cryptOidInfo.dwGroupId;
+                                CRYPT_OID_INFO._Anonymous_e__Union anonymous = cryptOidInfo.Anonymous;
+                                CRYPT_INTEGER_BLOB extraInfo = cryptOidInfo.ExtraInfo;
                                 var algId = (CALG)anonymous.Algid; // The CRYPT_*_ALG_OID_GROUP_ID's have an Algid
                                 var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
 
                                 // if (extraInfo.pbData is not null)
                                 // {
-                                BCRYPT_ECCKEY_BLOB eccKeyStruct = new Span<BCRYPT_ECCKEY_BLOB>(extraInfo.pbData, 1)[0];
+                                BCRYPT_ECCKEY_BLOB eccKeyStruct = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<BCRYPT_ECCKEY_BLOB>(extraInfo.pbData), 1)[0];
                                 uint dwMagic = eccKeyStruct.dwMagic;
                                 var bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
                                 uint dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
                                 // }
 
-                                string pwszCNGAlgid = Marshal.PtrToStringAuto((*cryptOidInfoPointer).pwszCNGAlgid)!;
-                                string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto((*cryptOidInfoPointer).pwszCNGExtraAlgid); // CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM = "CryptOIDInfoECCParameters"
+                                string? pwszCNGAlgid = Marshal.PtrToStringAuto(cryptOidInfo.pwszCNGAlgid);
+                                string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(cryptOidInfo.pwszCNGExtraAlgid); // CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM = "CryptOIDInfoECCParameters"
 
                                 if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                     pwszCNGExtraAlgid = null;

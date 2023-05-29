@@ -1,6 +1,7 @@
 ﻿namespace CipherPunk;
 
 using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Windows.Win32;
@@ -37,11 +38,13 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                 if (status.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(status);
 
-                contexts = new string[(*ppBuffer).cContexts];
+                CRYPT_CONTEXTS cryptContexts = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_CONTEXTS>(ppBuffer), 1)[0];
 
-                for (int i = 0; i < (*ppBuffer).cContexts; i++)
+                contexts = new string[cryptContexts.cContexts];
+
+                for (int i = 0; i < cryptContexts.cContexts; i++)
                 {
-                    PWSTR pStr = (*ppBuffer).rgpszContexts[i];
+                    PWSTR pStr = cryptContexts.rgpszContexts[i];
 
                     contexts[i] = pStr.ToString();
                 }
@@ -86,10 +89,11 @@ internal sealed class CipherSuiteService : ICipherSuiteService
 
                 List<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
                 var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
+                CRYPT_CONTEXT_FUNCTIONS cryptContextFunctions = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_CONTEXT_FUNCTIONS>(ppBuffer), 1)[0];
 
-                for (int i = 0; i < (*ppBuffer).cFunctions; i++)
+                for (int i = 0; i < cryptContextFunctions.cFunctions; i++)
                 {
-                    string function = (*ppBuffer).rgpszFunctions[i].ToString();
+                    string? function = cryptContextFunctions.rgpszFunctions[i].ToString();
                     WindowsApiCipherSuiteConfiguration? cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
 
                     if (cipherSuite is null)
@@ -131,13 +135,19 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                 if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptResolveProvidersStatus);
 
-                if ((*ppBuffer).cProviders != 1U)
-                    throw new SchannelServiceException(FormattableString.Invariant($"Found {(*ppBuffer).cProviders} providers, expected 1."));
+                CRYPT_PROVIDER_REFS cryptProviderRefs = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REFS>(ppBuffer), 1)[0];
 
-                CRYPT_PROVIDER_REF cryptProviderRef = *(*ppBuffer).rgpProviders[0];
-                string pszProvider = cryptProviderRef.pszProvider.ToString();
-                string pszFunction = cryptProviderRef.pszFunction.ToString();
-                string pszImage = (*cryptProviderRef.pUM).pszImage.ToString();
+                if (cryptProviderRefs.cProviders != 1U)
+                    throw new SchannelServiceException(FormattableString.Invariant($"Found {cryptProviderRefs.cProviders} providers, expected 1."));
+
+                CRYPT_PROVIDER_REF cryptProviderRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REF>(cryptProviderRefs.rgpProviders[0]), 1)[0];
+                string? pszProvider = cryptProviderRef.pszProvider.ToString();
+                string? pszFunction = cryptProviderRef.pszFunction.ToString();
+                uint cProperties = cryptProviderRef.cProperties;
+                uint dwInterface = cryptProviderRef.dwInterface;
+                CRYPT_IMAGE_REF userModeCryptImageRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_IMAGE_REF>(cryptProviderRef.pUM), 1)[0];
+                string? pszImage = userModeCryptImageRef.pszImage.ToString();
+                CRYPT_IMAGE_REF_FLAGS dwFlags = userModeCryptImageRef.dwFlags;
 
                 PInvoke.BCryptFreeBuffer(ppBuffer);
 
@@ -155,8 +165,9 @@ internal sealed class CipherSuiteService : ICipherSuiteService
 
                         if (sslEnumCipherSuitesResult.Value.Succeeded)
                         {
-                            SslProviderCipherSuiteId dwCipherSuite = (*ppCipherSuite).dwCipherSuite;
-                            SslProviderProtocolId dwProtocol = (*ppCipherSuite).dwProtocol;
+                            NCRYPT_SSL_CIPHER_SUITE ncryptSslCipherSuite = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<NCRYPT_SSL_CIPHER_SUITE>(ppCipherSuite), 1)[0];
+                            SslProviderCipherSuiteId dwCipherSuite = ncryptSslCipherSuite.dwCipherSuite;
+                            SslProviderProtocolId dwProtocol = ncryptSslCipherSuite.dwProtocol;
                             WindowsApiCipherSuiteConfiguration? windowsApiCipherSuiteConfiguration = cipherSuiteConfigurations.SingleOrDefault(q => q!.Value.CipherSuite == dwCipherSuite, null);
 
                             if (windowsApiCipherSuiteConfiguration.HasValue)
@@ -166,7 +177,7 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                                 continue;
                             }
 
-                            var providerProtocolIds = new List<SslProviderProtocolId> { (*ppCipherSuite).dwProtocol };
+                            var providerProtocolIds = new List<SslProviderProtocolId> { ncryptSslCipherSuite.dwProtocol };
                             string? keyExchangeAlgorithm = null;
                             uint? minimumKeyExchangeKeyLengthBits = null;
                             uint? maximumKeyExchangeKeyLengthBits = null;
@@ -174,29 +185,29 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                             uint? hashLengthBytes = null;
                             string? serverCertificateKeyType = null;
                             SslProviderKeyTypeId? keyType = null;
-                            string szExchange = (*ppCipherSuite).szExchange.ToString();
+                            string? szExchange = ncryptSslCipherSuite.szExchange.ToString();
 
                             if (!string.IsNullOrWhiteSpace(szExchange))
                             {
                                 keyExchangeAlgorithm = szExchange;
-                                minimumKeyExchangeKeyLengthBits = (*ppCipherSuite).dwMinExchangeLen;
-                                maximumKeyExchangeKeyLengthBits = (*ppCipherSuite).dwMaxExchangeLen;
+                                minimumKeyExchangeKeyLengthBits = ncryptSslCipherSuite.dwMinExchangeLen;
+                                maximumKeyExchangeKeyLengthBits = ncryptSslCipherSuite.dwMaxExchangeLen;
                             }
 
-                            string szHash = (*ppCipherSuite).szHash.ToString();
+                            string? szHash = ncryptSslCipherSuite.szHash.ToString();
 
                             if (!string.IsNullOrWhiteSpace(szHash))
                             {
                                 hash = szHash;
-                                hashLengthBytes = (*ppCipherSuite).dwHashLen;
+                                hashLengthBytes = ncryptSslCipherSuite.dwHashLen;
                             }
 
-                            string szCertificate = (*ppCipherSuite).szCertificate.ToString();
+                            string? szCertificate = ncryptSslCipherSuite.szCertificate.ToString();
 
                             if (!string.IsNullOrWhiteSpace(szCertificate))
                                 serverCertificateKeyType = szCertificate;
 
-                            SslProviderKeyTypeId dwKeyType = (*ppCipherSuite).dwKeyType;
+                            SslProviderKeyTypeId dwKeyType = ncryptSslCipherSuite.dwKeyType;
 
                             if (dwKeyType is not 0)
                                 keyType = dwKeyType;
@@ -204,11 +215,11 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                             var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
                             {
                                 Protocols = providerProtocolIds,
-                                BaseCipherSuite = (*ppCipherSuite).dwBaseCipherSuite,
+                                BaseCipherSuite = ncryptSslCipherSuite.dwBaseCipherSuite,
                                 Certificate = serverCertificateKeyType,
-                                Cipher = (*ppCipherSuite).szCipher.ToString(),
-                                CipherBlockLength = (*ppCipherSuite).dwCipherBlockLen,
-                                CipherLength = (*ppCipherSuite).dwCipherLen,
+                                Cipher = ncryptSslCipherSuite.szCipher.ToString(),
+                                CipherBlockLength = ncryptSslCipherSuite.dwCipherBlockLen,
+                                CipherLength = ncryptSslCipherSuite.dwCipherLen,
                                 CipherSuite = dwCipherSuite,
                                 Exchange = keyExchangeAlgorithm,
                                 Hash = hash,
@@ -218,7 +229,7 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                                 MaximumExchangeLength = maximumKeyExchangeKeyLengthBits,
                                 MinimumExchangeLength = minimumKeyExchangeKeyLengthBits,
                                 Provider = pszProvider,
-                                CipherSuiteName = (*ppCipherSuite).szCipherSuite.ToString()
+                                CipherSuiteName = ncryptSslCipherSuite.szCipherSuite.ToString()
                             };
 
                             cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
