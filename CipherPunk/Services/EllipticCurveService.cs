@@ -44,7 +44,7 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                 if (sslEnumProtocolProvidersStatus.Failed)
                     throw Marshal.GetExceptionForHR(sslEnumProtocolProvidersStatus)!;
 
-                for (int i = 0; i < pdwProviderCount; i++)
+                for (uint i = uint.MinValue; i < pdwProviderCount; i++)
                 {
                     NCryptProviderName nCryptProviderName = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<NCryptProviderName>(ppProviderList + (i * sizeof(NCryptProviderName))), 1)[0];
                     string? pszName = nCryptProviderName.pszName.ToString();

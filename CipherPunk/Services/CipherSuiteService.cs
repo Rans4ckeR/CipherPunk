@@ -42,7 +42,7 @@ internal sealed class CipherSuiteService : ICipherSuiteService
 
                 contexts = new string[cryptContexts.cContexts];
 
-                for (int i = 0; i < cryptContexts.cContexts; i++)
+                for (uint i = uint.MinValue; i < cryptContexts.cContexts; i++)
                 {
                     PWSTR pStr = cryptContexts.rgpszContexts[i];
 
@@ -91,7 +91,7 @@ internal sealed class CipherSuiteService : ICipherSuiteService
                 var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
                 CRYPT_CONTEXT_FUNCTIONS cryptContextFunctions = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_CONTEXT_FUNCTIONS>(ppBuffer), 1)[0];
 
-                for (int i = 0; i < cryptContextFunctions.cFunctions; i++)
+                for (uint i = uint.MinValue; i < cryptContextFunctions.cFunctions; i++)
                 {
                     string? function = cryptContextFunctions.rgpszFunctions[i].ToString();
                     WindowsApiCipherSuiteConfiguration? cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
