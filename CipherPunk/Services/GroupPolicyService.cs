@@ -15,9 +15,9 @@ using Windows.Win32.System.GroupPolicy;
 
 internal sealed class GroupPolicyService : IGroupPolicyService
 {
-    private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = "{0}\\PolicyDefinitions\\{1}\\CipherSuiteOrder.adml";
+    private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = @"{0}\PolicyDefinitions\{1}\CipherSuiteOrder.adml";
     private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
-    private const string SslConfigurationPolicyKey = "SOFTWARE\\Policies\\Microsoft\\Cryptography\\Configuration\\SSL\\00010002";
+    private const string SslConfigurationPolicyKey = @"SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002";
     private const string SslCipherSuiteOrderValueName = "Functions";
     private const string SslCurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
@@ -112,11 +112,11 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             if (coCreateInstanceResult.Failed)
                 throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
 
-            ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
+            ppv.OpenLocalMachineGPO(GPO_OPEN_FLAGS.GPO_OPEN_LOAD_REGISTRY);
 
             HKEY machineKey = default;
 
-            ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
+            ppv.GetRegistryKey(GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
 
             using var hKey = new SafeRegistryHandle(machineKey, true);
 
@@ -172,11 +172,11 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             if (coCreateInstanceResult.Failed)
                 throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
 
-            ppv.OpenLocalMachineGPO((uint)GPO_OPEN.GPO_OPEN_LOAD_REGISTRY);
+            ppv.OpenLocalMachineGPO(GPO_OPEN_FLAGS.GPO_OPEN_LOAD_REGISTRY);
 
             HKEY machineKey = default;
 
-            ppv.GetRegistryKey((uint)GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
+            ppv.GetRegistryKey(GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
 
             using var hKey = new SafeRegistryHandle(machineKey, true);
             WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);

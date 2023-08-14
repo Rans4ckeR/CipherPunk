@@ -14,7 +14,7 @@ using Microsoft.Win32.SafeHandles;
 
 internal sealed class EllipticCurveService : IEllipticCurveService
 {
-    private const string NcryptSchannelInterfaceSslKey = "SYSTEM\\CurrentControlSet\\Control\\Cryptography\\Configuration\\Local\\SSL\\00010002";
+    private const string NcryptSchannelInterfaceSslKey = @"SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002";
     private const string CurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
 

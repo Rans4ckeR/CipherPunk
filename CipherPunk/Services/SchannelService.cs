@@ -7,7 +7,7 @@ using Microsoft.Win32;
 internal sealed class SchannelService : ISchannelService
 {
     // https://learn.microsoft.com/en-us/windows-server/security/tls/tls-registry-settings
-    private const string SchannelPath = "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\";
+    private const string SchannelPath = @"SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\";
     private const string SchannelProtocolsPath = SchannelPath + "Protocols\\";
     private const string SchannelProtocolsClientPath = "\\Client";
     private const string SchannelProtocolsServerPath = "\\Server";
