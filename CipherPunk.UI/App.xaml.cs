@@ -5,9 +5,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Threading;
+using CipherPunk.CipherSuiteInfoApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed partial class App
 {

@@ -2,10 +2,4 @@
 
 using System;
 
-public sealed class GroupPolicyServiceException : Exception
-{
-    public GroupPolicyServiceException(string message)
-        : base(message)
-    {
-    }
-}
+public sealed class GroupPolicyServiceException(string message) : Exception(message);

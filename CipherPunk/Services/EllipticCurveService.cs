@@ -5,27 +5,20 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Windows.Win32;
-using Windows.Win32.Security.Cryptography;
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Registry;
 using Microsoft.Win32;
 using Microsoft.Win32.SafeHandles;
+using Windows.Win32;
+using Windows.Win32.Foundation;
+using Windows.Win32.Security.Cryptography;
+using Windows.Win32.System.Registry;
 
-internal sealed class EllipticCurveService : IEllipticCurveService
+internal sealed class EllipticCurveService(
+    IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService, ITlsService tlsService)
+    : IEllipticCurveService
 {
     private const string NcryptSchannelInterfaceSslKey = @"SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002";
     private const string CurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
-
-    private readonly IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService;
-    private readonly ITlsService tlsService;
-
-    public EllipticCurveService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService, ITlsService tlsService)
-    {
-        this.windowsEllipticCurveDocumentationService = windowsEllipticCurveDocumentationService;
-        this.tlsService = tlsService;
-    }
 
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
@@ -246,7 +239,7 @@ internal sealed class EllipticCurveService : IEllipticCurveService
                                 if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                     pwszCNGExtraAlgid = null;
 
-                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid }, pwszCNGExtraAlgid);
+                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid! }, pwszCNGExtraAlgid);
 
                                 curveConfigurations.Add(windowsEllipticCurveInfo);
                             }

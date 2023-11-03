@@ -2,25 +2,31 @@
 
 public enum WindowsSchannelVersion
 {
-    Windows11OrServer2022,
-
-    Windows10v1903,
-
-    Windows10v1709,
-
-    Windows10v1703,
-
-    Windows10v1607OrServer2016,
-
-    Windows10v1511,
-
-    Windows10v1507,
-
-    Windows81OrServer2012R2,
-
-    Windows8OrServer2012,
+    WindowsVistaOrServer2008,
 
     Windows7OrServer2008R2,
 
-    WindowsVistaOrServer2008,
+    Windows8OrServer2012,
+
+    Windows81OrServer2012R2,
+
+    Windows10V1507,
+
+    Windows10V1511,
+
+    Windows10V1607OrServer2016,
+
+    Windows10V1703,
+
+    Windows10V1709,
+
+    Windows10V1903,
+
+    Windows10V22H2,
+
+    WindowsServer2022,
+
+    Windows11,
+
+    Windows11V22H2
 }

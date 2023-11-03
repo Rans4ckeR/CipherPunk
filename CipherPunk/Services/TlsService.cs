@@ -9,56 +9,59 @@ internal sealed class TlsService : ITlsService
 {
     public WindowsSchannelVersion GetWindowsSchannelVersion()
     {
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22631)) // Windows11v23H2
+            return WindowsSchannelVersion.Windows11V22H2;
+
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621)) // Windows11v22H2
-            return WindowsSchannelVersion.Windows11OrServer2022;
+            return WindowsSchannelVersion.Windows11V22H2;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) // Windows11v21H2
-            return WindowsSchannelVersion.Windows11OrServer2022;
+            return WindowsSchannelVersion.Windows11;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 20348)) // WindowsServer2022
-            return WindowsSchannelVersion.Windows11OrServer2022;
+            return WindowsSchannelVersion.WindowsServer2022;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19045)) // Windows10v22H2
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V22H2;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19044)) // Windows10v21H2
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19043)) // Windows10v21H1
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19042)) // Windows10v20H2
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041)) // Windows10v2004
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18363)) // Windows10v1909
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362)) // Windows10v1903
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763)) // Windows10v1809OrServer2019
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1709;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134)) // Windows10v1803
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1709;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 16299))
-            return WindowsSchannelVersion.Windows10v1709;
+            return WindowsSchannelVersion.Windows10V1709;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 15063))
-            return WindowsSchannelVersion.Windows10v1703;
+            return WindowsSchannelVersion.Windows10V1703;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393))
-            return WindowsSchannelVersion.Windows10v1607OrServer2016;
+            return WindowsSchannelVersion.Windows10V1607OrServer2016;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 10586))
-            return WindowsSchannelVersion.Windows10v1511;
+            return WindowsSchannelVersion.Windows10V1511;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10))
-            return WindowsSchannelVersion.Windows10v1507;
+            return WindowsSchannelVersion.Windows10V1507;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(6, 3))
             return WindowsSchannelVersion.Windows81OrServer2012R2;
@@ -111,7 +114,9 @@ internal sealed class TlsService : ITlsService
 
     private static async ValueTask<List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>> GetRemoteServerCipherSuitesAsync(EndPoint endpoint, string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken)
     {
-        TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers = { TlsCompressionMethodIdentifier.NULL };
+#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
+        TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers = [TlsCompressionMethodIdentifier.NULL];
+#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats = Enum.GetValues<TlsEllipticCurvesPointFormat>();
         TlsSignatureScheme[] tlsSignatureSchemes = Enum.GetValues<TlsSignatureScheme>();
         TlsSupportedGroup[] tlsSupportedGroups = Enum.GetValues<TlsSupportedGroup>();
@@ -136,13 +141,13 @@ internal sealed class TlsService : ITlsService
 
         if (tlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION)
         {
-            var ssl2ClientHelloRecord = new Ssl2ClientHelloRecord(new[] { (SslCipherSuites)sslProviderCipherSuiteId });
+            var ssl2ClientHelloRecord = new Ssl2ClientHelloRecord([(SslCipherSuites)sslProviderCipherSuiteId]);
 
             clientHelloBytes = ssl2ClientHelloRecord.GetBytes();
         }
         else
         {
-            var clientHelloTlsRecord = new ClientHelloTlsRecord(IPAddress.TryParse(hostName, out _) ? null : hostName, tlsVersion, new[] { (TlsCipherSuites)sslProviderCipherSuiteId }, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, new[] { tlsVersion }, tlsPreSharedKeysKeyExchangeModes, keyShares);
+            var clientHelloTlsRecord = new ClientHelloTlsRecord(IPAddress.TryParse(hostName, out _) ? null : hostName, tlsVersion, [(TlsCipherSuites)sslProviderCipherSuiteId], tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, [tlsVersion], tlsPreSharedKeysKeyExchangeModes, keyShares);
 
             clientHelloBytes = clientHelloTlsRecord.GetBytes();
         }

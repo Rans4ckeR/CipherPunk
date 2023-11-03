@@ -2,8 +2,8 @@
 
 using System.Collections.ObjectModel;
 using System.Windows.Media.Imaging;
-using Windows.Win32;
 using CipherPunk.CipherSuiteInfoApi;
+using Windows.Win32;
 
 internal sealed class CipherSuitesOsSettingsViewModel : BaseViewModel
 {

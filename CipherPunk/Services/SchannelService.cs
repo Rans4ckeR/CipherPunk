@@ -125,10 +125,17 @@ internal sealed class SchannelService : ISchannelService
             SchannelHash schannelHash = subKeyName switch
             {
                 "MD5" => SchannelHash.MD5,
-                "SHA" => SchannelHash.SHA,
+                "SHA" => SchannelHash.SHA1,
                 "SHA256" => SchannelHash.SHA256,
                 "SHA384" => SchannelHash.SHA384,
                 "SHA512" => SchannelHash.SHA512,
+                "SHA3-256" => SchannelHash.SHA3_256,
+                "SHA3-384" => SchannelHash.SHA3_384,
+                "SHA3-512" => SchannelHash.SHA3_512,
+                "SHAKE128" => SchannelHash.SHAKE128,
+                "SHAKE256" => SchannelHash.SHAKE256,
+                "CSHAKE128" => SchannelHash.CSHAKE128,
+                "CSHAKE256" => SchannelHash.CSHAKE256,
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 

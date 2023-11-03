@@ -5,21 +5,14 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Windows.Win32;
-using Windows.Win32.Security.Cryptography;
 using Windows.Win32.Foundation;
+using Windows.Win32.Security.Cryptography;
 
-internal sealed class CipherSuiteService : ICipherSuiteService
+internal sealed class CipherSuiteService(
+    IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
+    : ICipherSuiteService
 {
     private const string LocalCngSslContextName = "SSL";
-
-    private readonly IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService;
-    private readonly ITlsService tlsService;
-
-    public CipherSuiteService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
-    {
-        this.windowsCipherSuiteDocumentationService = windowsCipherSuiteDocumentationService;
-        this.tlsService = tlsService;
-    }
 
     [SupportedOSPlatform("windows6.0.6000")]
     public string[] GetLocalCngConfigurationContextIdentifiers()
@@ -153,7 +146,7 @@ internal sealed class CipherSuiteService : ICipherSuiteService
 
                 ppBuffer = null;
 
-                HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszProvider);
+                HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszProvider!);
 
                 if (sslOpenProviderResult.Succeeded)
                 {

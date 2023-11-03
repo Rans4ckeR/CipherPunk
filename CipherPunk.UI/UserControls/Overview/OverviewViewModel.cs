@@ -1,8 +1,8 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
-using Windows.Win32;
 using CipherPunk.CipherSuiteInfoApi;
+using Windows.Win32;
 
 internal sealed class OverviewViewModel : BaseViewModel
 {

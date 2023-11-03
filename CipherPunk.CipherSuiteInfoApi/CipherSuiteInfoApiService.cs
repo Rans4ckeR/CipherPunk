@@ -5,14 +5,13 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-internal sealed class CipherSuiteInfoApiService : ICipherSuiteInfoApiService
+internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFactory)
+    : ICipherSuiteInfoApiService
 {
-    private readonly IHttpClientFactory httpClientFactory;
-
-    public CipherSuiteInfoApiService(IHttpClientFactory httpClientFactory)
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        this.httpClientFactory = httpClientFactory;
-    }
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public async ValueTask<CipherSuite?> GetCipherSuiteAsync(string cipherSuiteName, CancellationToken cancellationToken = default)
     {
@@ -49,12 +48,7 @@ internal sealed class CipherSuiteInfoApiService : ICipherSuiteInfoApiService
 
         stream.Position = 0L;
 
-        var options = new JsonSerializerOptions
-        {
-            Converters = { new JsonStringEnumConverter() }
-        };
-
-        return await JsonSerializer.DeserializeAsync<CipherSuite>(stream, options, cancellationToken);
+        return await JsonSerializer.DeserializeAsync<CipherSuite>(stream, JsonSerializerOptions, cancellationToken);
     }
 
     public async ValueTask<CipherSuite[]> GetAllCipherSuitesAsync(CancellationToken cancellationToken = default)
@@ -91,11 +85,6 @@ internal sealed class CipherSuiteInfoApiService : ICipherSuiteInfoApiService
 
         stream.Position = 0L;
 
-        var options = new JsonSerializerOptions
-        {
-            Converters = { new JsonStringEnumConverter() }
-        };
-
-        return (await JsonSerializer.DeserializeAsync<CipherSuite[]>(stream, options, cancellationToken))!;
+        return (await JsonSerializer.DeserializeAsync<CipherSuite[]>(stream, JsonSerializerOptions, cancellationToken))!;
     }
 }

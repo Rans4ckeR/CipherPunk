@@ -23,7 +23,7 @@ public readonly record struct WindowsDocumentationCipherSuiteConfiguration(
             SslProviderKeyTypeId.TLS_ECC_P384_CURVE_KEY_TYPE => "_P384",
             SslProviderKeyTypeId.TLS_ECC_P521_CURVE_KEY_TYPE => "_P512",
             null => null,
-            _ => throw new ArgumentOutOfRangeException(nameof(preWindows10EllipticCurve), preWindows10EllipticCurve, null),
+            _ => throw new ArgumentOutOfRangeException(nameof(preWindows10EllipticCurve), preWindows10EllipticCurve, null)
         };
     }
 }

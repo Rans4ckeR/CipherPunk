@@ -10,8 +10,8 @@ using Microsoft.Win32.SafeHandles;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
-using Windows.Win32.System.Registry;
 using Windows.Win32.System.GroupPolicy;
+using Windows.Win32.System.Registry;
 
 internal sealed class GroupPolicyService : IGroupPolicyService
 {
