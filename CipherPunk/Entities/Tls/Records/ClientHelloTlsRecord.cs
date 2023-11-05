@@ -21,7 +21,18 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         HandshakeExtensions = HandshakeExtension.GetExtensions(data[index..]);
     }
 
-    public ClientHelloTlsRecord(string? serverName, TlsVersion tlsVersion, TlsCipherSuites[]? sslProviderCipherSuiteIds, TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats, TlsSignatureScheme[]? tlsSignatureSchemes, TlsSupportedGroup[]? tlsSupportedGroups, TlsVersion[]? tlsVersions, TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes, KeyShare[]? keyShares)
+    public ClientHelloTlsRecord(
+        string? serverName,
+        TlsVersion tlsVersion,
+        TlsCipherSuite[]? sslProviderCipherSuiteIds,
+        TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers,
+        TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats,
+        TlsSignatureScheme[]? tlsSignatureSchemes,
+        TlsSupportedGroup[]? tlsSupportedGroups,
+        TlsVersion[]? tlsVersions,
+        TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes,
+        KeyShare[]? keyShares,
+        TlsCertificateCompressionAlgorithm[]? tlsCertificateCompressionAlgorithms)
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
         HandshakeCipherSuites = sslProviderCipherSuiteIds?.Length > 0
@@ -62,6 +73,9 @@ public sealed record ClientHelloTlsRecord : TlsRecord
 
         if (keyShares?.Length > 0)
             HandshakeExtensions.Add(new KeyShareExtension(keyShares)); // "key_share" is REQUIRED for DHE or ECDHE key exchange.
+
+        if (tlsCertificateCompressionAlgorithms?.Length > 0)
+            HandshakeExtensions.Add(new CompressCertificateHandshakeExtension(tlsCertificateCompressionAlgorithms));
 
         // "psk_key_exchange_modes" is REQUIRED for PSK key agreement.
 

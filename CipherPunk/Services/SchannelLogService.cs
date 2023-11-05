@@ -6,6 +6,9 @@ using System.Runtime.Versioning;
 
 internal sealed class SchannelLogService : ISchannelLogService
 {
+    private const long TlsConnectionSchannelEventId = 36871L;
+    private const long NoCommonCipherSuiteClientServerSchannelEventId = 36874L;
+
     [SupportedOSPlatform("windows")]
     public List<SchannelLog> GetSchannelLogs()
     {
@@ -29,11 +32,11 @@ internal sealed class SchannelLogService : ISchannelLogService
             string? processType = null;
             string? errorCode = null;
 
-            if (eventLogEntry.InstanceId == 36874)
+            if (eventLogEntry.InstanceId is NoCommonCipherSuiteClientServerSchannelEventId)
             {
                 tlsVersion = eventLogEntry.ReplacementStrings[2];
             }
-            else if (eventLogEntry.InstanceId == 36871)
+            else if (eventLogEntry.InstanceId is TlsConnectionSchannelEventId)
             {
                 processType = eventLogEntry.ReplacementStrings[2];
                 errorCode = eventLogEntry.ReplacementStrings[3];

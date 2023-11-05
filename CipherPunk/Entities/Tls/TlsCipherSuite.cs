@@ -12,7 +12,7 @@ namespace CipherPunk;
 //https://testssl.sh/openssl-iana.mapping.html
 
 
-public enum TlsCipherSuites : ushort
+public enum TlsCipherSuite : ushort
 {
     TLS_NULL_WITH_NULL_NULL = 0x0000,
     TLS_RSA_WITH_NULL_MD5 = 0x0001,

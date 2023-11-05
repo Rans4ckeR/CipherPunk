@@ -74,7 +74,7 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
         List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
         var uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
             q.TlsVersion,
-            q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuites)r.CipherSuiteId).ToString() : ((TlsCipherSuites)r.CipherSuiteId).ToString(),
+            q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuite)r.CipherSuiteId).ToString() : ((TlsCipherSuite)r.CipherSuiteId).ToString(),
             r.Supported,
             r.ErrorReason))).ToList();
 

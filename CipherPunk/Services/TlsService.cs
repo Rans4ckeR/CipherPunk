@@ -121,19 +121,32 @@ internal sealed class TlsService : ITlsService
         TlsSignatureScheme[] tlsSignatureSchemes = Enum.GetValues<TlsSignatureScheme>();
         TlsSupportedGroup[] tlsSupportedGroups = Enum.GetValues<TlsSupportedGroup>();
         TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes = Enum.GetValues<TlsPreSharedKeysKeyExchangeMode>();
+        TlsCertificateCompressionAlgorithm[] tlsCertificateCompressionAlgorithms = Enum.GetValues<TlsCertificateCompressionAlgorithm>();
         byte[] clientPublicKey = new byte[32];
 
         new Random().NextBytes(clientPublicKey);
 
         var keyShares = new KeyShare[] { new(TlsSupportedGroup.x25519, clientPublicKey) };
         uint[] sslProviderCipherSuiteIds = tlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION
-            ? Enum.GetValuesAsUnderlyingType<SslCipherSuites>().Cast<uint>().ToArray()
-            : Enum.GetValuesAsUnderlyingType<TlsCipherSuites>().Cast<ushort>().Select(Convert.ToUInt32).ToArray();
+            ? Enum.GetValuesAsUnderlyingType<SslCipherSuite>().Cast<uint>().ToArray()
+            : Enum.GetValuesAsUnderlyingType<TlsCipherSuite>().Cast<ushort>().Select(Convert.ToUInt32).ToArray();
 
-        return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, q, cancellationToken).AsTask()))).ToList();
+        return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, tlsCertificateCompressionAlgorithms, q, cancellationToken).AsTask()))).ToList();
     }
 
-    private static async ValueTask<(uint CipherSuiteId, bool Supported, string? ErrorReason)> SendClientHelloAsync(EndPoint endpoint, string hostName, TlsVersion tlsVersion, TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers, TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats, TlsSignatureScheme[] tlsSignatureSchemes, TlsSupportedGroup[] tlsSupportedGroups, TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes, KeyShare[] keyShares, uint sslProviderCipherSuiteId, CancellationToken cancellationToken)
+    private static async ValueTask<(uint CipherSuiteId, bool Supported, string? ErrorReason)> SendClientHelloAsync(
+        EndPoint endpoint,
+        string hostName,
+        TlsVersion tlsVersion,
+        TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers,
+        TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats,
+        TlsSignatureScheme[] tlsSignatureSchemes,
+        TlsSupportedGroup[] tlsSupportedGroups,
+        TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes,
+        KeyShare[] keyShares,
+        TlsCertificateCompressionAlgorithm[] tlsCertificateCompressionAlgorithms,
+        uint sslProviderCipherSuiteId,
+        CancellationToken cancellationToken)
     {
         await Task.Delay(Random.Shared.Next(1, 10000), cancellationToken);
 
@@ -141,13 +154,24 @@ internal sealed class TlsService : ITlsService
 
         if (tlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION)
         {
-            var ssl2ClientHelloRecord = new Ssl2ClientHelloRecord([(SslCipherSuites)sslProviderCipherSuiteId]);
+            var ssl2ClientHelloRecord = new Ssl2ClientHelloRecord([(SslCipherSuite)sslProviderCipherSuiteId]);
 
             clientHelloBytes = ssl2ClientHelloRecord.GetBytes();
         }
         else
         {
-            var clientHelloTlsRecord = new ClientHelloTlsRecord(IPAddress.TryParse(hostName, out _) ? null : hostName, tlsVersion, [(TlsCipherSuites)sslProviderCipherSuiteId], tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, [tlsVersion], tlsPreSharedKeysKeyExchangeModes, keyShares);
+            var clientHelloTlsRecord = new ClientHelloTlsRecord(
+                IPAddress.TryParse(hostName, out _) ? null : hostName,
+                tlsVersion,
+                [(TlsCipherSuite)sslProviderCipherSuiteId],
+                tlsCompressionMethodIdentifiers,
+                tlsEllipticCurvesPointFormats,
+                tlsSignatureSchemes,
+                tlsSupportedGroups,
+                [tlsVersion],
+                tlsPreSharedKeysKeyExchangeModes,
+                keyShares,
+                tlsCertificateCompressionAlgorithms);
 
             clientHelloBytes = clientHelloTlsRecord.GetBytes();
         }
@@ -177,7 +201,16 @@ internal sealed class TlsService : ITlsService
             return (sslProviderCipherSuiteId, ssl2ServerHelloRecord.CipherSpecs.Length > 0, null);
         }
 
-        var tlsRecord = TlsRecord.Parse(responseBytes.Span);
+        TlsRecord tlsRecord;
+
+        try
+        {
+            tlsRecord = TlsRecord.Parse(responseBytes.Span);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            return (sslProviderCipherSuiteId, false, ex.Message);
+        }
 
         switch ((TlsContentType?)tlsRecord.TlsRecordHeader.TlsRecordContentType)
         {
@@ -203,8 +236,8 @@ internal sealed class TlsService : ITlsService
                     }
                 }
 
-                if ((tlsVersion == TlsVersion.TLS1_3_PROTOCOL_VERSION && (serverHandshakeTlsVersion != TlsVersion.TLS1_2_PROTOCOL_VERSION || !tlsVersions.Contains(tlsVersion)))
-                    || (tlsVersion != TlsVersion.TLS1_3_PROTOCOL_VERSION && serverHandshakeTlsVersion != tlsVersion))
+                if ((tlsVersion is TlsVersion.TLS1_3_PROTOCOL_VERSION && (serverHandshakeTlsVersion is not TlsVersion.TLS1_2_PROTOCOL_VERSION || !tlsVersions.Contains(tlsVersion)))
+                    || (tlsVersion is not TlsVersion.TLS1_3_PROTOCOL_VERSION && serverHandshakeTlsVersion != tlsVersion))
                 {
                     return (sslProviderCipherSuiteId, false, FormattableString.CurrentCulture($"TLS downgrade to {serverHandshakeTlsVersion}"));
                 }
@@ -219,7 +252,7 @@ internal sealed class TlsService : ITlsService
     {
         // https://www.rfc-editor.org/rfc/rfc2246#appendix-E
         // E.1. Version 2 client hello
-        return (responseBytes.Span[0] & 0x80) == 0x80;
+        return (responseBytes.Span[0] & 0x80) is 0x80;
     }
 
     private static async ValueTask<Memory<byte>> SendClientHelloAsync(Memory<byte> clientHelloBytes, EndPoint endPoint, CancellationToken cancellationToken)

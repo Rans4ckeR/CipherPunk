@@ -99,7 +99,7 @@ internal sealed class SchannelService : ISchannelService
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled != 0));
+            result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled is not 0));
         }
 
         return result;
@@ -139,7 +139,7 @@ internal sealed class SchannelService : ISchannelService
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            result.Add(new(schannelHash, enabled is null ? null : enabled != 0));
+            result.Add(new(schannelHash, enabled is null ? null : enabled is not 0));
         }
 
         return result;
@@ -179,7 +179,7 @@ internal sealed class SchannelService : ISchannelService
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            result.Add(new(schannelCipher, enabled is null ? null : enabled != 0));
+            result.Add(new(schannelCipher, enabled is null ? null : enabled is not 0));
         }
 
         return result;

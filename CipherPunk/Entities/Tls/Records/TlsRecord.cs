@@ -93,10 +93,10 @@ public abstract record TlsRecord
                 {
                     TlsHandshakeType.client_hello => new ClientHelloTlsRecord(data),
                     TlsHandshakeType.server_hello => new ServerHelloTlsRecord(data),
-                    _ => throw new ArgumentOutOfRangeException(nameof(tlsHandshakeHeaderMessageType), tlsHandshakeHeaderMessageType, null)
+                    _ => throw new ArgumentOutOfRangeException(nameof(tlsHandshakeHeaderMessageType), (TlsHandshakeType)tlsHandshakeHeaderMessageType, "Unexpected reply from server.")
                 };
             default:
-                throw new ArgumentOutOfRangeException(nameof(tlsRecordHeader.TlsRecordContentType), tlsRecordHeader.TlsRecordContentType, null);
+                throw new ArgumentOutOfRangeException(nameof(tlsRecordHeader.TlsRecordContentType), (TlsContentType)tlsRecordHeader.TlsRecordContentType, "Unexpected reply from server.");
         }
     }
 

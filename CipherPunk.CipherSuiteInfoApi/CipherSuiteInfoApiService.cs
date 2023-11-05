@@ -21,7 +21,7 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
         {
             cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync(FormattableString.Invariant($"cs/{cipherSuiteName}"), cancellationToken);
         }
-        catch (HttpRequestException e) when (e.StatusCode == HttpStatusCode.NotFound)
+        catch (HttpRequestException e) when (e.StatusCode is HttpStatusCode.NotFound)
         {
             return null;
         }

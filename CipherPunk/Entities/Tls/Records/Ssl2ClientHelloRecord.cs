@@ -4,7 +4,7 @@ using System.Buffers.Binary;
 
 public sealed record Ssl2ClientHelloRecord
 {
-    public Ssl2ClientHelloRecord(SslCipherSuites[] sslProviderCipherSuiteIds)
+    public Ssl2ClientHelloRecord(SslCipherSuite[] sslProviderCipherSuiteIds)
     {
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));

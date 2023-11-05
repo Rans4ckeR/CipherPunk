@@ -35,7 +35,7 @@ internal sealed class UacIconService : IUacIconService
                 destroyIconResult = PInvoke.DestroyIcon(psii.hIcon);
         }
 
-        if (destroyIconResult.Value == 0)
+        if (destroyIconResult.Value is 0)
             throw new Win32Exception(Marshal.GetLastWin32Error());
 
         return bitmapSource;
