@@ -7,8 +7,8 @@ public sealed record ClientHelloTlsRecord : TlsRecord
     public ClientHelloTlsRecord(ReadOnlySpan<byte> data)
         : base(data)
     {
-        HandshakeCipherSuites = Array.Empty<byte>();
-        HandshakeCompressionMethods = Array.Empty<byte>();
+        HandshakeCipherSuites = [];
+        HandshakeCompressionMethods = [];
 
         int index = TlsRecordHeader.Size + 1 + HandshakeMessageLength.Length + HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length; // + 1 for TlsHandshakeHeaderMessageType, HandshakeSessionIdLength
         ushort handshakeCipherSuitesLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
@@ -35,13 +35,9 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         TlsCertificateCompressionAlgorithm[]? tlsCertificateCompressionAlgorithms)
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
-        HandshakeCipherSuites = sslProviderCipherSuiteIds?.Length > 0
-            ? sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray()
-            : Array.Empty<byte>();
+        HandshakeCipherSuites = sslProviderCipherSuiteIds?.Length > 0 ? sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray() : [];
 
-        HandshakeCompressionMethods = tlsCompressionMethodIdentifiers?.Length > 0
-            ? tlsCompressionMethodIdentifiers.Cast<byte>().ToArray()
-            : Array.Empty<byte>();
+        HandshakeCompressionMethods = tlsCompressionMethodIdentifiers?.Length > 0 ? tlsCompressionMethodIdentifiers.Cast<byte>().ToArray() : [];
 
         HandshakeExtensions.AddRange(new HandshakeExtension[]
         {
@@ -104,6 +100,6 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         result.Add(HandshakeCompressionMethodsLength);
         result.AddRange(HandshakeCompressionMethods);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

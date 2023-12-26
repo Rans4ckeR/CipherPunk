@@ -22,6 +22,6 @@ public sealed record KeyShareExtension(KeyShare[] KeyShares) : HandshakeExtensio
         result.AddRange(KeyShareLength);
         result.AddRange(KeyShares.SelectMany(q => q.GetBytes()));
 
-        return result.ToArray();
+        return [.. result];
     }
 }

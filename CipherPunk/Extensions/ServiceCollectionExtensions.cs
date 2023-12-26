@@ -10,8 +10,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the service to.</param>
     /// <returns>A reference to this instance after the operation has completed.</returns>
     public static IServiceCollection AddCipherPunk(this IServiceCollection services)
-    {
-        return services
+        => services
             .AddSingleton<ICipherSuiteService, CipherSuiteService>()
             .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>()
             .AddSingleton<IWindowsEllipticCurveDocumentationService, WindowsEllipticCurveDocumentationService>()
@@ -21,5 +20,4 @@ public static class ServiceCollectionExtensions
             .AddSingleton<ITlsService, TlsService>()
             .AddSingleton<ISchannelService, SchannelService>()
             .AddSingleton<ISchannelLogService, SchannelLogService>();
-    }
 }

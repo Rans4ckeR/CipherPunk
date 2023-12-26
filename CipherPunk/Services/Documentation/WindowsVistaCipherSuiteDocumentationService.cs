@@ -4,7 +4,6 @@ using Windows.Win32;
 
 internal static class WindowsVistaCipherSuiteDocumentationService
 {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
     public static (WindowsSchannelVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations) GetConfiguration()
         => (WindowsSchannelVersion.WindowsVistaOrServer2008, [.. GetDefaultEnabledConfiguration(), .. GetDefaultDisabledConfiguration()]);
 
@@ -49,5 +48,4 @@ internal static class WindowsVistaCipherSuiteDocumentationService
             new(SslProviderCipherSuiteId.TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_DHE_DSS_WITH_DES_CBC_SHA, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION])
         };
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 }

@@ -5,9 +5,7 @@ using System.Buffers.Binary;
 public sealed record CompressCertificateHandshakeExtension : HandshakeExtension
 {
     public CompressCertificateHandshakeExtension(TlsCertificateCompressionAlgorithm[] tlsCertificateCompressionAlgorithms)
-    {
-        CertificateCompressionAlgorithms = tlsCertificateCompressionAlgorithms.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
-    }
+        => CertificateCompressionAlgorithms = tlsCertificateCompressionAlgorithms.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
 
     // 2 bytes
     public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.compress_certificate));
@@ -29,6 +27,6 @@ public sealed record CompressCertificateHandshakeExtension : HandshakeExtension
         result.Add(CertificateCompressionAlgorithmsLength);
         result.AddRange(CertificateCompressionAlgorithms);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

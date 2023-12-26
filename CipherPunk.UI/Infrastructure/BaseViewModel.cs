@@ -19,10 +19,7 @@ internal abstract class BaseViewModel : ObservableRecipient
         DefaultCommand = new AsyncRelayCommand<bool?>(ExecuteDefaultCommandAsync, _ => CanExecuteDefaultCommand);
         PropertyChanged += BaseViewModelPropertyChanged;
 
-        StrongReferenceMessenger.Default.Register<PropertyChangedMessage<bool>>(this, (r, m) =>
-        {
-            ((BaseViewModel)r).Receive(m);
-        });
+        StrongReferenceMessenger.Default.Register<PropertyChangedMessage<bool>>(this, (r, m) => ((BaseViewModel)r).Receive(m));
     }
 
     public IAsyncRelayCommand DefaultCommand { get; }
@@ -67,15 +64,9 @@ internal abstract class BaseViewModel : ObservableRecipient
         }
     }
 
-    protected virtual bool GetCanExecuteDefaultCommand()
-    {
-        return !DefaultCommandActive;
-    }
+    protected virtual bool GetCanExecuteDefaultCommand() => !DefaultCommandActive;
 
-    protected void UpdateCanExecuteDefaultCommand()
-    {
-        CanExecuteDefaultCommand = GetCanExecuteDefaultCommand();
-    }
+    protected void UpdateCanExecuteDefaultCommand() => CanExecuteDefaultCommand = GetCanExecuteDefaultCommand();
 
     private async Task ExecuteDefaultCommandAsync(bool? showView, CancellationToken cancellationToken)
     {

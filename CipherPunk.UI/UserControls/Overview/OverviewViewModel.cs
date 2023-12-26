@@ -11,7 +11,7 @@ internal sealed class OverviewViewModel : BaseViewModel
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
     private readonly ISchannelService schannelService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
+    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<SchannelProtocolSettings>? protocolSettings;
     private ObservableCollection<SchannelKeyExchangeAlgorithmSettings>? keyExchangeAlgorithmSettings;
     private ObservableCollection<SchannelCipherSettings>? cipherSettings;

@@ -49,6 +49,6 @@ public sealed record TlsRecordHeader
         result.AddRange(TlsRecordVersion);
         result.AddRange(TlsRecordLength);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

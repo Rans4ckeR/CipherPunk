@@ -83,16 +83,10 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public string[] GetSslCipherSuiteOrderPolicy()
-    {
-        return GetOrderPolicy(SslCipherSuiteOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_SZ)?.Split(',') ?? Array.Empty<string>();
-    }
+    public string[] GetSslCipherSuiteOrderPolicy() => GetOrderPolicy(SslCipherSuiteOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_SZ)?.Split(',') ?? [];
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public string[] GetEccCurveOrderPolicy()
-    {
-        return GetOrderPolicy(SslCurveOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_MULTI_SZ)?.Split('\0', StringSplitOptions.RemoveEmptyEntries) ?? Array.Empty<string>();
-    }
+    public string[] GetEccCurveOrderPolicy() => GetOrderPolicy(SslCurveOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_MULTI_SZ)?.Split('\0', StringSplitOptions.RemoveEmptyEntries) ?? [];
 
     [SupportedOSPlatform("windows6.0.6000")]
     private static void UpdateOrderPolicy(string valueData, string valueName, REG_VALUE_TYPE valueType)

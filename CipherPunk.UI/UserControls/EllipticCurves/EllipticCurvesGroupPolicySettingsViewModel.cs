@@ -30,10 +30,7 @@ internal sealed class EllipticCurvesGroupPolicySettingsViewModel : BaseViewModel
         private set => _ = SetProperty(ref adminMessage, value);
     }
 
-    public BitmapSource UacIcon
-    {
-        get => uacIcon ??= uacIconService.GetUacShieldIcon();
-    }
+    public BitmapSource UacIcon => uacIcon ??= uacIconService.GetUacShieldIcon();
 
     public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? ActiveEllipticCurveConfigurations
     {
@@ -57,7 +54,7 @@ internal sealed class EllipticCurvesGroupPolicySettingsViewModel : BaseViewModel
     {
         await Task.CompletedTask;
 
-        string[] activeGroupPolicyEllipticCurveConfigurationsStrings = Array.Empty<string>();
+        string[] activeGroupPolicyEllipticCurveConfigurationsStrings = [];
 
         AdminMessage = null;
 

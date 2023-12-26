@@ -1,9 +1,9 @@
 # CipherPunk
-Allows Windows Schannel CipherSuite and Elliptic Curve configuration.
+Library & UI for Windows Schannel CipherSuite and Elliptic Curve configuration and remote server probing.
 Inspired by [IISCrypto](https://www.nartac.com/Products/IISCrypto/)
 
 Features
-* Supports SSL/TLS protocols from SSL2.0 to TLS1.3
+* Supports SSL2.0, SSL3.0, TLS1.0, TLS1.1, TLS1.2 & TLS1.3
 * Remote server probing
 * Cipher Suite configuration
 * Elliptic Curve configuration
@@ -13,7 +13,7 @@ Features
 
 Available as a standalone Windows application ([UI](#cipherpunkui)) and as a NuGet package ([API](#cipherpunk-1)).
 
-Note: not all applications use Schannel, most browsers for example require seperate configuration.
+Note: not all applications use Schannel, most browsers for example require separate configuration.
 
 ## CipherPunk.UI
 A Windows .NET WPF application for x86, x64 and ARM64.

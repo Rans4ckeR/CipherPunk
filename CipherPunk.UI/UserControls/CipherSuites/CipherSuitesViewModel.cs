@@ -8,7 +8,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 {
     private readonly ICipherSuiteService cipherSuiteService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
+    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private bool fetchOnlineInfo = true;
 

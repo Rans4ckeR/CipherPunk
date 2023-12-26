@@ -14,10 +14,10 @@ public abstract record TlsRecord
         {
             case TlsContentType.alert:
                 TlsHandshakeHeaderMessageType = byte.MinValue;
-                HandshakeClientVersion = Array.Empty<byte>();
-                HandshakeClientRandom = Array.Empty<byte>();
-                HandshakeSessionId = Array.Empty<byte>();
-                HandshakeExtensions = new();
+                HandshakeClientVersion = [];
+                HandshakeClientRandom = [];
+                HandshakeSessionId = [];
+                HandshakeExtensions = [];
                 return;
         }
 
@@ -27,7 +27,7 @@ public abstract record TlsRecord
         HandshakeClientRandom = data.TakeBytes(ref index, 32);
         byte handshakeSessionIdLength = data.TakeByte(ref index);
         HandshakeSessionId = data.TakeBytes(ref index, handshakeSessionIdLength);
-        HandshakeExtensions = new();
+        HandshakeExtensions = [];
     }
 
     protected TlsRecord(TlsVersion tlsVersion, TlsContentType tlsContentType, TlsHandshakeType tlsHandshakeType)
@@ -47,7 +47,7 @@ public abstract record TlsRecord
 
         new Random().NextBytes(HandshakeSessionId);
 
-        HandshakeExtensions = new();
+        HandshakeExtensions = [];
     }
 
     public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
@@ -119,7 +119,7 @@ public abstract record TlsRecord
             result.AddRange(handshakeExtension.GetBytes());
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 
     public byte[] GetMessageBytes()
@@ -142,6 +142,6 @@ public abstract record TlsRecord
             result.AddRange(handshakeExtension.GetBytes());
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 }

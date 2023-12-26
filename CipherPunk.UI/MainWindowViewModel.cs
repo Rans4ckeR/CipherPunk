@@ -44,14 +44,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
         CloseMessageCommand = new RelayCommand(ExecuteCloseMessageCommand);
 
-        StrongReferenceMessenger.Default.Register<UserMessageValueChangedMessage>(this, (r, m) =>
-        {
-            ((MainWindowViewModel)r).UserMessage = m.Value.Message;
-        });
-        StrongReferenceMessenger.Default.Register<ActiveViewValueChangedMessage>(this, (r, m) =>
-        {
-            ((MainWindowViewModel)r).ActiveView = m.Value;
-        });
+        StrongReferenceMessenger.Default.Register<UserMessageValueChangedMessage>(this, (r, m) => ((MainWindowViewModel)r).UserMessage = m.Value.Message);
+        StrongReferenceMessenger.Default.Register<ActiveViewValueChangedMessage>(this, (r, m) => ((MainWindowViewModel)r).ActiveView = m.Value);
         UpdateCanExecuteDefaultCommand();
     }
 
@@ -81,17 +75,17 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public double MainContentOpacity
     {
-        get => mainContentOpacity; set { _ = SetProperty(ref mainContentOpacity, value); }
+        get => mainContentOpacity; set => _ = SetProperty(ref mainContentOpacity, value);
     }
 
     public bool MainContentIsHitTestVisible
     {
-        get => mainContentIsHitTestVisible; set { _ = SetProperty(ref mainContentIsHitTestVisible, value); }
+        get => mainContentIsHitTestVisible; set => _ = SetProperty(ref mainContentIsHitTestVisible, value);
     }
 
     public int MessageZIndex
     {
-        get => messageZIndex; set { _ = SetProperty(ref messageZIndex, value); }
+        get => messageZIndex; set => _ = SetProperty(ref messageZIndex, value);
     }
 
     public string? UserMessage
@@ -138,8 +132,5 @@ internal sealed class MainWindowViewModel : BaseViewModel
             Clipboard.Clear();
     }
 
-    private void ExecuteCloseMessageCommand()
-    {
-        UserMessage = null;
-    }
+    private void ExecuteCloseMessageCommand() => UserMessage = null;
 }

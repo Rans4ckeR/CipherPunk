@@ -10,7 +10,7 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
         => windowsDocumentationEllipticCurveConfigurations ??= BuildWindowsDocumentationEllipticCurveConfigurations();
 
     public List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsSchannelVersion windowsSchannelVersion)
-        => GetWindowsDocumentationEllipticCurveConfigurations().Any(q => q.Key >= windowsSchannelVersion) ? GetWindowsDocumentationEllipticCurveConfigurations().FirstOrDefault(q => q.Key >= windowsSchannelVersion).Value : new();
+        => GetWindowsDocumentationEllipticCurveConfigurations().Any(q => q.Key >= windowsSchannelVersion) ? GetWindowsDocumentationEllipticCurveConfigurations().FirstOrDefault(q => q.Key >= windowsSchannelVersion).Value : [];
 
     private Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
     {

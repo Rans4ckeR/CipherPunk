@@ -8,7 +8,7 @@ public sealed record SignedCertificateTimestampHandshakeExtension : HandshakeExt
     public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.signed_certificate_timestamp));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength { get => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0)); } // length 0
+    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0)); // length 0
 
     public override byte[] GetBytes()
     {
@@ -17,6 +17,6 @@ public sealed record SignedCertificateTimestampHandshakeExtension : HandshakeExt
         result.AddRange(ExtensionType);
         result.AddRange(ExtensionTypeLength);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

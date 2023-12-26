@@ -33,7 +33,7 @@ internal sealed class LoggingViewModel : BaseViewModel
     {
         AdminMessage = null;
 
-        List<SchannelLog> schannelLogs = new();
+        List<SchannelLog> schannelLogs = [];
 
         try
         {

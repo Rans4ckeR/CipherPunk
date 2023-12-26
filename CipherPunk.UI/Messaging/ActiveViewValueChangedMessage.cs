@@ -1,4 +1,4 @@
-namespace CipherPunk.UI;
+﻿namespace CipherPunk.UI;
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging.Messages;

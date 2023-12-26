@@ -9,7 +9,7 @@ public sealed record Ssl2ClientHelloRecord
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));
         CipherSpecs = sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((uint)q)).Skip(1)).ToArray();
-        SessionId = Array.Empty<byte>();
+        SessionId = [];
         Challenge = new byte[16];
 
         new Random().NextBytes(Challenge);
@@ -82,6 +82,6 @@ public sealed record Ssl2ClientHelloRecord
         result.AddRange(SessionId);
         result.AddRange(Challenge);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

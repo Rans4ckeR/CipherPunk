@@ -189,7 +189,7 @@ internal sealed class EllipticCurveService(
                                     }
 
                                     // todo search strings in certutil.exe: CurveType, EccCurveFlags
-                                    var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwBitLength, null, null, new(), null);
+                                    var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwBitLength, null, null, [], null);
 
                                     curveConfigurations.Add(windowsEllipticCurveInfo);
                                 }
@@ -239,7 +239,7 @@ internal sealed class EllipticCurveService(
                                 if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                     pwszCNGExtraAlgid = null;
 
-                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, new() { pwszCNGAlgid! }, pwszCNGExtraAlgid);
+                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, [pwszCNGAlgid!], pwszCNGExtraAlgid);
 
                                 curveConfigurations.Add(windowsEllipticCurveInfo);
                             }
@@ -276,7 +276,7 @@ internal sealed class EllipticCurveService(
     public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
-        string[] activeEllipticCurves = (string[]?)registryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? Array.Empty<string>();
+        string[] activeEllipticCurves = (string[]?)registryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
         List<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
 
         return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => activeEllipticCurves.Contains(q.pwszName, StringComparer.OrdinalIgnoreCase)).ToList();
@@ -318,8 +318,5 @@ internal sealed class EllipticCurveService(
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateEllipticCurveOrder(BCRYPT_ECC_CURVE[] ellipticCurves)
-    {
-        UpdateEllipticCurveOrder(ellipticCurves.Select(q => q.ToString()).ToArray());
-    }
+    public void UpdateEllipticCurveOrder(BCRYPT_ECC_CURVE[] ellipticCurves) => UpdateEllipticCurveOrder(ellipticCurves.Select(q => q.ToString()).ToArray());
 }

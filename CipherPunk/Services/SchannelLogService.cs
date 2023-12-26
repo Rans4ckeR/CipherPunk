@@ -1,8 +1,10 @@
 ﻿namespace CipherPunk;
 
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Versioning;
+using Windows.Win32.Foundation;
 
 internal sealed class SchannelLogService : ISchannelLogService
 {
@@ -64,7 +66,16 @@ internal sealed class SchannelLogService : ISchannelLogService
             {
                 string processCurrentName = process.ProcessName;
                 string processMainWindowTitle = process.MainWindowTitle;
-                string? processMainModuleFileName = process.MainModule?.FileName;
+                string? processMainModuleFileName;
+
+                try
+                {
+                    processMainModuleFileName = process.MainModule?.FileName;
+                }
+                catch (Win32Exception ex) when (ex.NativeErrorCode is (int)WIN32_ERROR.ERROR_ACCESS_DENIED)
+                {
+                    processMainModuleFileName = FormattableString.CurrentCulture($"Error: {ex.Message}");
+                }
 
                 result.AddRange(schannelEventLogEntries.Where(q => q.ProcessId == processId).Select(q => q.SchannelLog with
                 {

@@ -50,10 +50,7 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
         private set => _ = SetProperty(ref remoteServerTestResults, value);
     }
 
-    protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     protected override void BaseViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -71,7 +68,8 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     private async Task ExecuteRunTestCommandAsync(CancellationToken cancellationToken)
     {
-        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
+        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites =
+            await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
         var uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
             q.TlsVersion,
             q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuite)r.CipherSuiteId).ToString() : ((TlsCipherSuite)r.CipherSuiteId).ToString(),
@@ -81,8 +79,5 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
         RemoteServerTestResults = new(uiRemoteServerTestResults);
     }
 
-    private bool CanExecuteRunTestCommand()
-    {
-        return !string.IsNullOrWhiteSpace(HostName) && Port.HasValue;
-    }
+    private bool CanExecuteRunTestCommand() => !string.IsNullOrWhiteSpace(HostName) && Port.HasValue;
 }

@@ -78,11 +78,9 @@ internal sealed partial class App
     }
 
     private static void SetUiCulture()
-    {
-        FrameworkElement.LanguageProperty.OverrideMetadata(
+        => FrameworkElement.LanguageProperty.OverrideMetadata(
             typeof(FrameworkElement),
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
-    }
 
     private void AppDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {

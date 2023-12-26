@@ -1,3 +1,3 @@
-namespace CipherPunk.UI;
+﻿namespace CipherPunk.UI;
 
 internal readonly record struct UserMessage(string Message);

@@ -11,14 +11,15 @@ internal sealed class CipherSuitesGroupPolicySettingsViewModel : BaseViewModel
     private readonly IUacIconService uacIconService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
+    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? activeGroupPolicyCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? defaultGroupPolicyCipherSuiteConfigurations;
     private BitmapSource? uacIcon;
     private bool fetchOnlineInfo = true;
     private string? adminMessage;
 
-    public CipherSuitesGroupPolicySettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
+    public CipherSuitesGroupPolicySettingsViewModel(
+        ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
         : base(logger)
     {
         this.cipherSuiteService = cipherSuiteService;
@@ -35,10 +36,7 @@ internal sealed class CipherSuitesGroupPolicySettingsViewModel : BaseViewModel
         private set => _ = SetProperty(ref adminMessage, value);
     }
 
-    public BitmapSource UacIcon
-    {
-        get => uacIcon ??= uacIconService.GetUacShieldIcon();
-    }
+    public BitmapSource UacIcon => uacIcon ??= uacIconService.GetUacShieldIcon();
 
     public bool FetchOnlineInfo
     {
@@ -61,7 +59,7 @@ internal sealed class CipherSuitesGroupPolicySettingsViewModel : BaseViewModel
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
         string[] windowsDefaultGroupPolicyCipherSuiteConfigurationsStrings = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        string[] windowsActiveGroupPolicyCipherSuiteConfigurationsStrings = Array.Empty<string>();
+        string[] windowsActiveGroupPolicyCipherSuiteConfigurationsStrings = [];
 
         AdminMessage = null;
 

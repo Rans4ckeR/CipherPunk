@@ -10,7 +10,7 @@ internal sealed class CipherSuitesOsSettingsViewModel : BaseViewModel
     private readonly ICipherSuiteService cipherSuiteService;
     private readonly IUacIconService uacIconService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
+    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? osDefaultCipherSuiteConfigurations;
     private BitmapSource? uacIcon;
@@ -26,10 +26,7 @@ internal sealed class CipherSuitesOsSettingsViewModel : BaseViewModel
         UpdateCanExecuteDefaultCommand();
     }
 
-    public BitmapSource UacIcon
-    {
-        get => uacIcon ??= uacIconService.GetUacShieldIcon();
-    }
+    public BitmapSource UacIcon => uacIcon ??= uacIconService.GetUacShieldIcon();
 
     public bool FetchOnlineInfo
     {

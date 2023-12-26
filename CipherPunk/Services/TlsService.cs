@@ -114,9 +114,7 @@ internal sealed class TlsService : ITlsService
 
     private static async ValueTask<List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>> GetRemoteServerCipherSuitesAsync(EndPoint endpoint, string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken)
     {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
         TlsCompressionMethodIdentifier[] tlsCompressionMethodIdentifiers = [TlsCompressionMethodIdentifier.NULL];
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
         TlsEllipticCurvesPointFormat[] tlsEllipticCurvesPointFormats = Enum.GetValues<TlsEllipticCurvesPointFormat>();
         TlsSignatureScheme[] tlsSignatureSchemes = Enum.GetValues<TlsSignatureScheme>();
         TlsSupportedGroup[] tlsSupportedGroups = Enum.GetValues<TlsSupportedGroup>();
@@ -248,12 +246,9 @@ internal sealed class TlsService : ITlsService
         }
     }
 
-    private static bool IsSsl2Response(Memory<byte> responseBytes)
-    {
-        // https://www.rfc-editor.org/rfc/rfc2246#appendix-E
-        // E.1. Version 2 client hello
-        return (responseBytes.Span[0] & 0x80) is 0x80;
-    }
+    // https://www.rfc-editor.org/rfc/rfc2246#appendix-E
+    // E.1. Version 2 client hello
+    private static bool IsSsl2Response(Memory<byte> responseBytes) => (responseBytes.Span[0] & 0x80) is 0x80;
 
     private static async ValueTask<Memory<byte>> SendClientHelloAsync(Memory<byte> clientHelloBytes, EndPoint endPoint, CancellationToken cancellationToken)
     {

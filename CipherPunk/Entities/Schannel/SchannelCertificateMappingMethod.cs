@@ -11,7 +11,7 @@
 namespace CipherPunk;
 
 [Flags]
-public enum CertificateMappingMethod
+public enum SchannelCertificateMappingMethod
 {
     Subject_Issuer = 0x0001,
     IssuerCertificate = 0x0002,

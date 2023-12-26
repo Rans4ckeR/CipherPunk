@@ -72,17 +72,14 @@ internal sealed class SchannelService : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public List<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
     {
         var result = new List<SchannelKeyExchangeAlgorithmSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelKeyExchangeAlgorithmsPath);
-        string[] subKeyNames = key?.GetSubKeyNames() ?? Array.Empty<string>();
+        string[] subKeyNames = key?.GetSubKeyNames() ?? [];
 
         foreach (string subKeyName in subKeyNames)
         {
@@ -106,17 +103,14 @@ internal sealed class SchannelService : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public List<SchannelHashSettings> GetSchannelHashSettings()
     {
         var result = new List<SchannelHashSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelHashesPath);
-        string[] subKeyNames = key?.GetSubKeyNames() ?? Array.Empty<string>();
+        string[] subKeyNames = key?.GetSubKeyNames() ?? [];
 
         foreach (string subKeyName in subKeyNames)
         {
@@ -146,17 +140,14 @@ internal sealed class SchannelService : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public List<SchannelCipherSettings> GetSchannelCipherSettings()
     {
         var result = new List<SchannelCipherSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelCiphersPath);
-        string[] subKeyNames = key?.GetSubKeyNames() ?? Array.Empty<string>();
+        string[] subKeyNames = key?.GetSubKeyNames() ?? [];
 
         foreach (string subKeyName in subKeyNames)
         {
@@ -186,17 +177,14 @@ internal sealed class SchannelService : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public SchannelSettings GetSchannelSettings()
     {
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelPath);
         var logLevel = (SchannelLogLevel?)(int?)key?.GetValue(EventLogging);
-        var certificateMappingMethods = (CertificateMappingMethod?)(int?)key?.GetValue(CertificateMappingMethods);
+        var certificateMappingMethods = (SchannelCertificateMappingMethod?)(int?)key?.GetValue(CertificateMappingMethods);
         int? clientCacheTime = (int?)key?.GetValue(ClientCacheTime); // in milliseconds
         int? enableOcspStaplingForSni = (int?)key?.GetValue(EnableOcspStaplingForSni);
         int? fipsAlgorithmPolicy = (int?)key?.GetValue(FipsAlgorithmPolicy);

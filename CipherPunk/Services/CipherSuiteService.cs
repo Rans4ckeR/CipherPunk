@@ -303,25 +303,20 @@ internal sealed class CipherSuiteService(
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public void RemoveCipherSuite(SslProviderCipherSuiteId cipherSuite)
-    {
-        RemoveCipherSuite(cipherSuite.ToString());
-    }
+    public void RemoveCipherSuite(SslProviderCipherSuiteId cipherSuite) => RemoveCipherSuite(cipherSuite.ToString());
 
     [SupportedOSPlatform("windows6.0.6000")]
     public void AddCipherSuite(string cipherSuite, bool top = true)
     {
-        NTSTATUS status = PInvoke.BCryptAddContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipherSuite, (uint)(top ? PriorityListPosition.CRYPT_PRIORITY_TOP : PriorityListPosition.CRYPT_PRIORITY_BOTTOM));
+        NTSTATUS status = PInvoke.BCryptAddContextFunction(
+            BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipherSuite, (uint)(top ? PriorityListPosition.CRYPT_PRIORITY_TOP : PriorityListPosition.CRYPT_PRIORITY_BOTTOM));
 
         if (status.SeverityCode is not NTSTATUS.Severity.Success)
             throw new Win32Exception(status);
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public void AddCipherSuite(SslProviderCipherSuiteId cipherSuite)
-    {
-        AddCipherSuite(cipherSuite.ToString());
-    }
+    public void AddCipherSuite(SslProviderCipherSuiteId cipherSuite) => AddCipherSuite(cipherSuite.ToString());
 
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(string[] cipherSuites)
@@ -340,8 +335,5 @@ internal sealed class CipherSuiteService(
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites)
-    {
-        UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()).ToArray());
-    }
+    public void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites) => UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()).ToArray());
 }

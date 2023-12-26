@@ -4,7 +4,6 @@ using Windows.Win32;
 
 internal static class Windows10V1903CipherSuiteDocumentationService
 {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
     public static (WindowsSchannelVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations) GetConfiguration()
         => (WindowsSchannelVersion.Windows10V1903, [.. GetDefaultEnabledConfiguration(), .. GetDefaultDisabledConfiguration(), .. GetPreSharedKeyConfiguration()]);
 
@@ -67,5 +66,4 @@ internal static class Windows10V1903CipherSuiteDocumentationService
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true)
         };
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 }

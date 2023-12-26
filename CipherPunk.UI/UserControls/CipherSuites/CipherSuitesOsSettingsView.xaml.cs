@@ -2,8 +2,5 @@
 
 internal sealed partial class CipherSuitesOsSettingsView
 {
-    public CipherSuitesOsSettingsView()
-    {
-        InitializeComponent();
-    }
+    public CipherSuitesOsSettingsView() => InitializeComponent();
 }

@@ -17,6 +17,6 @@ public sealed record ExtendedMasterSecretExtension : HandshakeExtension
         result.AddRange(ExtensionType);
         result.AddRange(ExtensionTypeLength);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

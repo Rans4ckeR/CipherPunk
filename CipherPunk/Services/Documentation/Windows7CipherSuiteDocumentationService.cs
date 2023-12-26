@@ -4,7 +4,6 @@ using Windows.Win32;
 
 internal static class Windows7CipherSuiteDocumentationService
 {
-#pragma warning disable SA1010 // Opening square brackets should be spaced correctly
     public static (WindowsSchannelVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations) GetConfiguration()
         => (WindowsSchannelVersion.Windows7OrServer2008R2, [.. GetDefaultEnabledConfiguration(), .. GetDefaultDisabledConfiguration()]);
 
@@ -76,5 +75,4 @@ internal static class Windows7CipherSuiteDocumentationService
             new(SslProviderCipherSuiteId.SSL_CK_DES_64_CBC_WITH_MD5, true, false, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION])
         };
-#pragma warning restore SA1010 // Opening square brackets should be spaced correctly
 }

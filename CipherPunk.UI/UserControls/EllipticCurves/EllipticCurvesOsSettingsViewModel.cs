@@ -21,10 +21,7 @@ internal sealed class EllipticCurvesOsSettingsViewModel : BaseViewModel
         UpdateCanExecuteDefaultCommand();
     }
 
-    public BitmapSource UacIcon
-    {
-        get => uacIcon ??= uacIconService.GetUacShieldIcon();
-    }
+    public BitmapSource UacIcon => uacIcon ??= uacIconService.GetUacShieldIcon();
 
     public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? ActiveEllipticCurveConfigurations
     {

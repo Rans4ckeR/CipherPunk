@@ -9,19 +9,12 @@ internal sealed class EllipticCurveIdentifierService : IEllipticCurveIdentifierS
     public Dictionary<BCRYPT_ECC_CURVE, string?> GetEllipticCurveIdentifiers()
         => ellipticCurveIdentifiers ??= BuildEllipticCurveIdentifiers();
 
-    public string? GetIdentifier(string code)
-    {
-        return GetIdentifier(Enum.Parse<BCRYPT_ECC_CURVE>(code, true));
-    }
+    public string? GetIdentifier(string code) => GetIdentifier(Enum.Parse<BCRYPT_ECC_CURVE>(code, true));
 
-    public string? GetIdentifier(BCRYPT_ECC_CURVE code)
-    {
-        return GetEllipticCurveIdentifiers()[code];
-    }
+    public string? GetIdentifier(BCRYPT_ECC_CURVE code) => GetEllipticCurveIdentifiers()[code];
 
     private static Dictionary<BCRYPT_ECC_CURVE, string?> BuildEllipticCurveIdentifiers()
-    {
-        return new()
+        => new()
         {
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_25519, null },
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP160R1, PInvoke.szOID_ECC_CURVE_BRAINPOOLP160R1 },
@@ -66,5 +59,4 @@ internal sealed class EllipticCurveIdentifierService : IEllipticCurveIdentifierS
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_X962P239V3, PInvoke.szOID_ECC_CURVE_X962P239V3 },
             { BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_X962P256V1, PInvoke.szOID_ECC_CURVE_X962P256V1 }
         };
-    }
 }
