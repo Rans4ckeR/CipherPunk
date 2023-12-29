@@ -35,7 +35,7 @@ internal sealed class EllipticCurveService(
                 HRESULT sslEnumProtocolProvidersStatus = PInvoke.SslEnumProtocolProviders(out uint pdwProviderCount, out ppProviderList);
 
                 if (sslEnumProtocolProvidersStatus.Failed)
-                    throw Marshal.GetExceptionForHR(sslEnumProtocolProvidersStatus)!;
+                    throw new Win32Exception(sslEnumProtocolProvidersStatus);
 
                 for (uint i = uint.MinValue; i < pdwProviderCount; i++)
                 {
@@ -46,8 +46,8 @@ internal sealed class EllipticCurveService(
 
                     using (phSslProvider)
                     {
-                        if (!sslOpenProviderResult.Succeeded)
-                            throw Marshal.GetExceptionForHR(sslOpenProviderResult)!;
+                        if (sslOpenProviderResult.Failed)
+                            throw new Win32Exception(sslOpenProviderResult);
                     }
 
                     uint pcbBuffer = 0U;
@@ -196,25 +196,25 @@ internal sealed class EllipticCurveService(
                             }
                             else
                             {
-                                // The CRYPT_*_ALG_OID_GROUP_ID's have an Algid. The CRYPT_RDN_ATTR_OID_GROUP_ID
-                                // has a dwLength. The CRYPT_EXT_OR_ATTR_OID_GROUP_ID,
-                                // CRYPT_ENHKEY_USAGE_OID_GROUP_ID, CRYPT_POLICY_OID_GROUP_ID or
-                                // CRYPT_TEMPLATE_OID_GROUP_ID don't have a dwValue.
-                                //
-                                // CRYPT_PUBKEY_ALG_OID_GROUP_ID has the following optional ExtraInfo:
-                                //  DWORD[0] - Flags. CRYPT_OID_INHIBIT_SIGNATURE_FORMAT_FLAG can be set to
-                                //             inhibit the reformatting of the signature before
-                                //             CryptVerifySignature is called or after CryptSignHash
-                                //             is called. CRYPT_OID_USE_PUBKEY_PARA_FOR_PKCS7_FLAG can
-                                //             be set to include the public key algorithm's parameters
-                                //             in the PKCS7's digestEncryptionAlgorithm's parameters.
-                                //             CRYPT_OID_NO_NULL_ALGORITHM_PARA_FLAG can be set to omit
-                                //             NULL parameters when encoding.
-                                //
-                                // For the ECC named curve public keys
-                                //  DWORD[1] - BCRYPT_ECCKEY_BLOB dwMagic field value
-                                //  DWORD[2] - dwBitLength. Where BCRYPT_ECCKEY_BLOB's
-                                //             cbKey = dwBitLength / 8 + ((dwBitLength % 8) ? 1 : 0)
+                                //// The CRYPT_*_ALG_OID_GROUP_ID's have an Algid. The CRYPT_RDN_ATTR_OID_GROUP_ID
+                                //// has a dwLength. The CRYPT_EXT_OR_ATTR_OID_GROUP_ID,
+                                //// CRYPT_ENHKEY_USAGE_OID_GROUP_ID, CRYPT_POLICY_OID_GROUP_ID or
+                                //// CRYPT_TEMPLATE_OID_GROUP_ID don't have a dwValue.
+                                ////
+                                //// CRYPT_PUBKEY_ALG_OID_GROUP_ID has the following optional ExtraInfo:
+                                ////  DWORD[0] - Flags. CRYPT_OID_INHIBIT_SIGNATURE_FORMAT_FLAG can be set to
+                                ////             inhibit the reformatting of the signature before
+                                ////             CryptVerifySignature is called or after CryptSignHash
+                                ////             is called. CRYPT_OID_USE_PUBKEY_PARA_FOR_PKCS7_FLAG can
+                                ////             be set to include the public key algorithm's parameters
+                                ////             in the PKCS7's digestEncryptionAlgorithm's parameters.
+                                ////
+                                ////             NULL parameters when encoding.
+                                ////
+                                //// For the ECC named curve public keys
+                                ////  DWORD[1] - BCRYPT_ECCKEY_BLOB dwMagic field value
+                                ////  DWORD[2] - dwBitLength. Where BCRYPT_ECCKEY_BLOB's
+                                ////             cbKey = dwBitLength / 8 + ((dwBitLength % 8) ? 1 : 0)
                                 CRYPT_OID_INFO cryptOidInfo = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_OID_INFO>(cryptOidInfoPointer), 1)[0];
                                 uint cbSize = cryptOidInfo.cbSize;
                                 string? pszOid = cryptOidInfo.pszOID.ToString();
@@ -225,13 +225,13 @@ internal sealed class EllipticCurveService(
                                 var algId = (CALG)anonymous.Algid; // The CRYPT_*_ALG_OID_GROUP_ID's have an Algid
                                 var flags = (CRYPT_OID_FLAG)extraInfo.cbData;
 
-                                // if (extraInfo.pbData is not null)
-                                // {
+                                //// if (extraInfo.pbData is not null)
+                                //// {
                                 BCRYPT_ECCKEY_BLOB eccKeyStruct = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<BCRYPT_ECCKEY_BLOB>(extraInfo.pbData), 1)[0];
                                 uint dwMagic = eccKeyStruct.dwMagic;
                                 var bcryptMagic = (BCRYPT_MAGIC)eccKeyStruct.cbKey;
                                 uint dwBitLength = (uint)Marshal.ReadInt32((nint)extraInfo.pbData, sizeof(BCRYPT_ECCKEY_BLOB));
-                                // }
+                                //// }
 
                                 string? pwszCNGAlgid = Marshal.PtrToStringAuto(cryptOidInfo.pwszCNGAlgid);
                                 string? pwszCNGExtraAlgid = Marshal.PtrToStringAuto(cryptOidInfo.pwszCNGExtraAlgid); // CRYPT_OID_INFO_ECC_PARAMETERS_ALGORITHM = "CryptOIDInfoECCParameters"
@@ -256,8 +256,7 @@ internal sealed class EllipticCurveService(
                 if (ppProviderList is not null)
                     _ = PInvoke.SslFreeBuffer(ppProviderList);
 
-                if (ppBuffer is not null)
-                    PInvoke.BCryptFreeBuffer(ppBuffer);
+                PInvoke.BCryptFreeBuffer(ppBuffer);
             }
         }
 

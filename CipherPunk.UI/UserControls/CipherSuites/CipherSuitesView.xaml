@@ -16,7 +16,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="Active Cipher Suites">
+            <Expander Header="Active Cipher Suite Configuration (OS Settings + Group Policy)">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

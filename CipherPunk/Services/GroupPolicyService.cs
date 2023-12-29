@@ -2,7 +2,6 @@
 
 using System.ComponentModel;
 using System.Globalization;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Xml;
 using System.Xml.Linq;
@@ -99,12 +98,12 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             HRESULT coInitializeExResult = PInvoke.CoInitializeEx(COINIT.COINIT_APARTMENTTHREADED);
 
             if (coInitializeExResult.Failed)
-                throw Marshal.GetExceptionForHR(coInitializeExResult)!;
+                throw new Win32Exception(coInitializeExResult);
 
             HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
 
             if (coCreateInstanceResult.Failed)
-                throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
+                throw new Win32Exception(coCreateInstanceResult);
 
             ppv.OpenLocalMachineGPO(GPO_OPEN_FLAGS.GPO_OPEN_LOAD_REGISTRY);
 
@@ -159,12 +158,12 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             HRESULT coInitializeExResult = PInvoke.CoInitializeEx(COINIT.COINIT_APARTMENTTHREADED);
 
             if (coInitializeExResult.Failed)
-                throw Marshal.GetExceptionForHR(coInitializeExResult)!;
+                throw new Win32Exception(coInitializeExResult);
 
             HRESULT coCreateInstanceResult = PInvoke.CoCreateInstance(PInvoke.CLSID_GroupPolicyObject, null, CLSCTX.CLSCTX_INPROC_SERVER, out IGroupPolicyObject ppv);
 
             if (coCreateInstanceResult.Failed)
-                throw Marshal.GetExceptionForHR(coCreateInstanceResult)!;
+                throw new Win32Exception(coCreateInstanceResult);
 
             ppv.OpenLocalMachineGPO(GPO_OPEN_FLAGS.GPO_OPEN_LOAD_REGISTRY);
 

@@ -75,8 +75,6 @@ public abstract record TlsRecord
 
     public List<HandshakeExtension> HandshakeExtensions { get; protected set; }
 
-    protected abstract byte[] GetRecordTypeBytes();
-
     public static TlsRecord Parse(ReadOnlySpan<byte> data)
     {
         var tlsRecordHeader = new TlsRecordHeader(data);
@@ -144,4 +142,6 @@ public abstract record TlsRecord
 
         return [.. result];
     }
+
+    protected abstract byte[] GetRecordTypeBytes();
 }

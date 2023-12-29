@@ -73,7 +73,7 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         if (tlsCertificateCompressionAlgorithms?.Length > 0)
             HandshakeExtensions.Add(new CompressCertificateHandshakeExtension(tlsCertificateCompressionAlgorithms));
 
-        // "psk_key_exchange_modes" is REQUIRED for PSK key agreement.
+        //// "psk_key_exchange_modes" is REQUIRED for PSK key agreement.
 
         var padding = new PaddingHandshakeExtension(512 - (1 + HandshakeMessageLength.Length + HandshakeMessageNumberOfBytes)); // + 1 for size of TlsHandshakeHeaderMessageType
 

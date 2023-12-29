@@ -24,8 +24,8 @@ internal sealed class UacIconService : IUacIconService
         {
             HRESULT shGetStockIconInfoResult = PInvoke.SHGetStockIconInfo(SHSTOCKICONID.SIID_SHIELD, SHGSI_FLAGS.SHGSI_ICON | SHGSI_FLAGS.SHGSI_SMALLICON, ref psii);
 
-            if (!shGetStockIconInfoResult.Succeeded)
-                throw Marshal.GetExceptionForHR(shGetStockIconInfoResult)!;
+            if (shGetStockIconInfoResult.Failed)
+                throw new Win32Exception(shGetStockIconInfoResult);
 
             bitmapSource = Imaging.CreateBitmapSourceFromHIcon(psii.hIcon, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
         }
@@ -35,9 +35,6 @@ internal sealed class UacIconService : IUacIconService
                 destroyIconResult = PInvoke.DestroyIcon(psii.hIcon);
         }
 
-        if (destroyIconResult.Value is 0)
-            throw new Win32Exception(Marshal.GetLastWin32Error());
-
-        return bitmapSource;
+        return destroyIconResult.Value is 0 ? throw new Win32Exception(Marshal.GetLastWin32Error()) : bitmapSource;
     }
 }

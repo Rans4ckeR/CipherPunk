@@ -49,7 +49,7 @@ internal sealed class EllipticCurvesOsSettingsViewModel : BaseViewModel
         List<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
         List<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
 
-        ushort priority = 0;
+        ushort priority = ushort.MinValue;
         var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
             ++priority,
             q.pszOid,
@@ -64,7 +64,7 @@ internal sealed class EllipticCurvesOsSettingsViewModel : BaseViewModel
             q.dwBitLength,
             string.Join(",", q.CngAlgorithms))).ToList();
 
-        priority = 0;
+        priority = ushort.MinValue;
 
         var uiWindowsDocumentationEllipticCurveConfiguration = windowsDocumentationEllipticCurveConfiguration.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
             ++priority,

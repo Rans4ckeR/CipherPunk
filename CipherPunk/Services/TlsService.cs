@@ -129,7 +129,7 @@ internal sealed class TlsService : ITlsService
             ? Enum.GetValuesAsUnderlyingType<SslCipherSuite>().Cast<uint>().ToArray()
             : Enum.GetValuesAsUnderlyingType<TlsCipherSuite>().Cast<ushort>().Select(Convert.ToUInt32).ToArray();
 
-        return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, tlsCertificateCompressionAlgorithms, q, cancellationToken).AsTask()))).ToList();
+        return [.. await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, tlsCertificateCompressionAlgorithms, q, cancellationToken).AsTask()))];
     }
 
     private static async ValueTask<(uint CipherSuiteId, bool Supported, string? ErrorReason)> SendClientHelloAsync(
@@ -258,13 +258,14 @@ internal sealed class TlsService : ITlsService
         // https://tls12.xargs.org/
         // https://wiki.osdev.org/TLS_Handshake
         using var socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-        CancellationToken timeoutCancellationToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, new CancellationTokenSource(10000).Token).Token;
+        using var timeoutCancellationTokenSource = new CancellationTokenSource(10000);
+        using var linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCancellationTokenSource.Token);
 
-        await socket.ConnectAsync(endPoint, timeoutCancellationToken);
+        await socket.ConnectAsync(endPoint, linkedCancellationTokenSource.Token);
 
-        _ = await socket.SendAsync(clientHelloBytes, timeoutCancellationToken);
+        _ = await socket.SendAsync(clientHelloBytes, linkedCancellationTokenSource.Token);
 
-        int receivedBytes = await socket.ReceiveAsync(buffer, timeoutCancellationToken);
+        int receivedBytes = await socket.ReceiveAsync(buffer, linkedCancellationTokenSource.Token);
 
         return buffer[..receivedBytes];
     }

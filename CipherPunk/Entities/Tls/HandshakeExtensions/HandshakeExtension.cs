@@ -14,7 +14,7 @@ public abstract record HandshakeExtension
     {
         var handshakeExtensions = new List<HandshakeExtension>();
         int index = 0;
-        //ushort handshakeExtensionsLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
+        ////ushort handshakeExtensionsLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
 
         while (index < data.Length)
         {
@@ -37,7 +37,7 @@ public abstract record HandshakeExtension
                         keyShares.Add(new(tlsSupportedGroup, publicKey));
                     }
 
-                    handshakeExtensions.Add(new KeyShareExtension(keyShares.ToArray()));
+                    handshakeExtensions.Add(new KeyShareExtension([.. keyShares]));
                     break;
                 case TlsExtensionType.supported_versions:
                     extensionEndIndex = index + tlsExtensionLength;
@@ -50,7 +50,7 @@ public abstract record HandshakeExtension
                         tlsVersions.Add(tlsVersion);
                     }
 
-                    handshakeExtensions.Add(new SupportedVersionsExtension(tlsVersions.ToArray()));
+                    handshakeExtensions.Add(new SupportedVersionsExtension([.. tlsVersions]));
                     break;
                 default:
                     index += tlsExtensionLength;

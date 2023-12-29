@@ -23,6 +23,7 @@
     <FileVersion>0.0.0.1</FileVersion>
     <InformationalVersion>0.0.0.1</InformationalVersion>
     <Platforms>AnyCPU</Platforms>
+    <EnableSourceControlManagerQueries Condition="$(Configuration) == 'Debug'">true</EnableSourceControlManagerQueries> <!--https://github.com/dotnet/sdk/issues/36666-->
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.556">

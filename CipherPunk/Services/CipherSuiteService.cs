@@ -44,8 +44,7 @@ internal sealed class CipherSuiteService(
             }
             finally
             {
-                if (ppBuffer is not null)
-                    PInvoke.BCryptFreeBuffer(ppBuffer);
+                PInvoke.BCryptFreeBuffer(ppBuffer);
             }
         }
 
@@ -87,16 +86,12 @@ internal sealed class CipherSuiteService(
                 for (uint i = uint.MinValue; i < cryptContextFunctions.cFunctions; i++)
                 {
                     string? function = cryptContextFunctions.rgpszFunctions[i].ToString();
-                    WindowsApiCipherSuiteConfiguration? cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
+                    WindowsApiCipherSuiteConfiguration cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
 
-                    if (cipherSuite is null)
-                    {
-                        // todo
-                    }
+                    if (cipherSuite == default)
+                        throw new(function);
                     else
-                    {
-                        cipherSuiteConfigurations.Add(cipherSuite.Value);
-                    }
+                        cipherSuiteConfigurations.Add(cipherSuite);
                 }
 
                 return cipherSuiteConfigurations;
@@ -119,6 +114,7 @@ internal sealed class CipherSuiteService(
             NCRYPT_SSL_CIPHER_SUITE* ppCipherSuite = null;
             void* ppEnumState = null;
             CRYPT_PROVIDER_REFS* ppBuffer = null;
+            NCryptFreeObjectSafeHandle? phSslProvider = null;
 
             try
             {
@@ -146,116 +142,112 @@ internal sealed class CipherSuiteService(
 
                 ppBuffer = null;
 
-                HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszProvider!);
+                HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out phSslProvider, pszProvider!);
 
-                if (sslOpenProviderResult.Succeeded)
+                if (sslOpenProviderResult.Failed)
+                    throw new Win32Exception(sslOpenProviderResult);
+
+                HRESULT? sslEnumCipherSuitesResult = null;
+
+                while (sslEnumCipherSuitesResult?.Value != HRESULT.NTE_NO_MORE_ITEMS)
                 {
-                    HRESULT? sslEnumCipherSuitesResult = null;
+                    sslEnumCipherSuitesResult = PInvoke.SslEnumCipherSuites(phSslProvider, null, out ppCipherSuite, ref ppEnumState);
 
-                    while (sslEnumCipherSuitesResult?.Value != HRESULT.NTE_NO_MORE_ITEMS)
+                    if (sslEnumCipherSuitesResult.Value.Succeeded)
                     {
-                        sslEnumCipherSuitesResult = PInvoke.SslEnumCipherSuites(phSslProvider, null, out ppCipherSuite, ref ppEnumState);
+                        NCRYPT_SSL_CIPHER_SUITE ncryptSslCipherSuite = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<NCRYPT_SSL_CIPHER_SUITE>(ppCipherSuite), 1)[0];
+                        SslProviderCipherSuiteId dwCipherSuite = ncryptSslCipherSuite.dwCipherSuite;
+                        SslProviderProtocolId dwProtocol = ncryptSslCipherSuite.dwProtocol;
+                        WindowsApiCipherSuiteConfiguration? windowsApiCipherSuiteConfiguration = cipherSuiteConfigurations.SingleOrDefault(q => q!.Value.CipherSuite == dwCipherSuite, null);
 
-                        if (sslEnumCipherSuitesResult.Value.Succeeded)
+                        if (windowsApiCipherSuiteConfiguration.HasValue)
                         {
-                            NCRYPT_SSL_CIPHER_SUITE ncryptSslCipherSuite = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<NCRYPT_SSL_CIPHER_SUITE>(ppCipherSuite), 1)[0];
-                            SslProviderCipherSuiteId dwCipherSuite = ncryptSslCipherSuite.dwCipherSuite;
-                            SslProviderProtocolId dwProtocol = ncryptSslCipherSuite.dwProtocol;
-                            WindowsApiCipherSuiteConfiguration? windowsApiCipherSuiteConfiguration = cipherSuiteConfigurations.SingleOrDefault(q => q!.Value.CipherSuite == dwCipherSuite, null);
+                            windowsApiCipherSuiteConfiguration.Value.Protocols.Add(dwProtocol);
 
-                            if (windowsApiCipherSuiteConfiguration.HasValue)
-                            {
-                                windowsApiCipherSuiteConfiguration.Value.Protocols.Add(dwProtocol);
-
-                                continue;
-                            }
-
-                            var providerProtocolIds = new List<SslProviderProtocolId> { ncryptSslCipherSuite.dwProtocol };
-                            string? keyExchangeAlgorithm = null;
-                            uint? minimumKeyExchangeKeyLengthBits = null;
-                            uint? maximumKeyExchangeKeyLengthBits = null;
-                            string? hash = null;
-                            uint? hashLengthBytes = null;
-                            string? serverCertificateKeyType = null;
-                            SslProviderKeyTypeId? keyType = null;
-                            string? szExchange = ncryptSslCipherSuite.szExchange.ToString();
-
-                            if (!string.IsNullOrWhiteSpace(szExchange))
-                            {
-                                keyExchangeAlgorithm = szExchange;
-                                minimumKeyExchangeKeyLengthBits = ncryptSslCipherSuite.dwMinExchangeLen;
-                                maximumKeyExchangeKeyLengthBits = ncryptSslCipherSuite.dwMaxExchangeLen;
-                            }
-
-                            string? szHash = ncryptSslCipherSuite.szHash.ToString();
-
-                            if (!string.IsNullOrWhiteSpace(szHash))
-                            {
-                                hash = szHash;
-                                hashLengthBytes = ncryptSslCipherSuite.dwHashLen;
-                            }
-
-                            string? szCertificate = ncryptSslCipherSuite.szCertificate.ToString();
-
-                            if (!string.IsNullOrWhiteSpace(szCertificate))
-                                serverCertificateKeyType = szCertificate;
-
-                            SslProviderKeyTypeId dwKeyType = ncryptSslCipherSuite.dwKeyType;
-
-                            if (dwKeyType is not 0)
-                                keyType = dwKeyType;
-
-                            var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
-                            {
-                                Protocols = providerProtocolIds,
-                                BaseCipherSuite = ncryptSslCipherSuite.dwBaseCipherSuite,
-                                Certificate = serverCertificateKeyType,
-                                Cipher = ncryptSslCipherSuite.szCipher.ToString(),
-                                CipherBlockLength = ncryptSslCipherSuite.dwCipherBlockLen,
-                                CipherLength = ncryptSslCipherSuite.dwCipherLen,
-                                CipherSuite = dwCipherSuite,
-                                Exchange = keyExchangeAlgorithm,
-                                Hash = hash,
-                                HashLength = hashLengthBytes,
-                                Image = pszImage,
-                                KeyType = keyType,
-                                MaximumExchangeLength = maximumKeyExchangeKeyLengthBits,
-                                MinimumExchangeLength = minimumKeyExchangeKeyLengthBits,
-                                Provider = pszProvider,
-                                CipherSuiteName = ncryptSslCipherSuite.szCipherSuite.ToString()
-                            };
-
-                            cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
-
-                            if (ppCipherSuite is not null)
-                            {
-                                HRESULT sslFreeBufferResult = PInvoke.SslFreeBuffer(ppCipherSuite);
-
-                                ppCipherSuite = null;
-
-                                if (sslFreeBufferResult.Failed)
-                                    throw Marshal.GetExceptionForHR(sslFreeBufferResult)!;
-                            }
+                            continue;
                         }
-                        else if (sslEnumCipherSuitesResult.Value.Value != HRESULT.NTE_NO_MORE_ITEMS)
+
+                        var providerProtocolIds = new List<SslProviderProtocolId> { ncryptSslCipherSuite.dwProtocol };
+                        string? keyExchangeAlgorithm = null;
+                        uint? minimumKeyExchangeKeyLengthBits = null;
+                        uint? maximumKeyExchangeKeyLengthBits = null;
+                        string? hash = null;
+                        uint? hashLengthBytes = null;
+                        string? serverCertificateKeyType = null;
+                        SslProviderKeyTypeId? keyType = null;
+                        string? szExchange = ncryptSslCipherSuite.szExchange.ToString();
+
+                        if (!string.IsNullOrWhiteSpace(szExchange))
                         {
-                            throw Marshal.GetExceptionForHR(sslEnumCipherSuitesResult.Value)!;
+                            keyExchangeAlgorithm = szExchange;
+                            minimumKeyExchangeKeyLengthBits = ncryptSslCipherSuite.dwMinExchangeLen;
+                            maximumKeyExchangeKeyLengthBits = ncryptSslCipherSuite.dwMaxExchangeLen;
+                        }
+
+                        string? szHash = ncryptSslCipherSuite.szHash.ToString();
+
+                        if (!string.IsNullOrWhiteSpace(szHash))
+                        {
+                            hash = szHash;
+                            hashLengthBytes = ncryptSslCipherSuite.dwHashLen;
+                        }
+
+                        string? szCertificate = ncryptSslCipherSuite.szCertificate.ToString();
+
+                        if (!string.IsNullOrWhiteSpace(szCertificate))
+                            serverCertificateKeyType = szCertificate;
+
+                        SslProviderKeyTypeId dwKeyType = ncryptSslCipherSuite.dwKeyType;
+
+                        if (dwKeyType is not 0)
+                            keyType = dwKeyType;
+
+                        var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
+                        {
+                            Protocols = providerProtocolIds,
+                            BaseCipherSuite = ncryptSslCipherSuite.dwBaseCipherSuite,
+                            Certificate = serverCertificateKeyType,
+                            Cipher = ncryptSslCipherSuite.szCipher.ToString(),
+                            CipherBlockLength = ncryptSslCipherSuite.dwCipherBlockLen,
+                            CipherLength = ncryptSslCipherSuite.dwCipherLen,
+                            CipherSuite = dwCipherSuite,
+                            Exchange = keyExchangeAlgorithm,
+                            Hash = hash,
+                            HashLength = hashLengthBytes,
+                            Image = pszImage,
+                            KeyType = keyType,
+                            MaximumExchangeLength = maximumKeyExchangeKeyLengthBits,
+                            MinimumExchangeLength = minimumKeyExchangeKeyLengthBits,
+                            Provider = pszProvider,
+                            CipherSuiteName = ncryptSslCipherSuite.szCipherSuite.ToString()
+                        };
+
+                        cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
+
+                        if (ppCipherSuite is not null)
+                        {
+                            HRESULT sslFreeBufferResult = PInvoke.SslFreeBuffer(ppCipherSuite);
+
+                            ppCipherSuite = null;
+
+                            if (sslFreeBufferResult.Failed)
+                                throw new Win32Exception(sslFreeBufferResult);
                         }
                     }
-
-                    if (ppEnumState is not null)
+                    else if (sslEnumCipherSuitesResult != HRESULT.NTE_NO_MORE_ITEMS)
                     {
-                        HRESULT sslFreeBufferResult = PInvoke.SslFreeBuffer(ppEnumState);
-
-                        ppEnumState = null;
-
-                        if (sslFreeBufferResult.Failed)
-                            throw Marshal.GetExceptionForHR(sslFreeBufferResult)!;
+                        throw new Win32Exception(sslEnumCipherSuitesResult.Value);
                     }
                 }
-                else
+
+                if (ppEnumState is not null)
                 {
-                    throw Marshal.GetExceptionForHR(sslOpenProviderResult)!;
+                    HRESULT sslFreeBufferResult = PInvoke.SslFreeBuffer(ppEnumState);
+
+                    ppEnumState = null;
+
+                    if (sslFreeBufferResult.Failed)
+                        throw new Win32Exception(sslFreeBufferResult);
                 }
             }
             finally
@@ -268,6 +260,8 @@ internal sealed class CipherSuiteService(
 
                 if (ppEnumState is not null)
                     _ = PInvoke.SslFreeBuffer(ppEnumState);
+
+                phSslProvider?.Dispose();
             }
         }
 
@@ -298,6 +292,9 @@ internal sealed class CipherSuiteService(
     {
         NTSTATUS status = PInvoke.BCryptRemoveContextFunction(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipherSuite);
 
+        if (status == NTSTATUS.STATUS_ACCESS_DENIED)
+            throw new UnauthorizedAccessException();
+
         if (status.SeverityCode is not NTSTATUS.Severity.Success)
             throw new Win32Exception(status);
     }
@@ -310,6 +307,9 @@ internal sealed class CipherSuiteService(
     {
         NTSTATUS status = PInvoke.BCryptAddContextFunction(
             BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, cipherSuite, (uint)(top ? PriorityListPosition.CRYPT_PRIORITY_TOP : PriorityListPosition.CRYPT_PRIORITY_BOTTOM));
+
+        if (status == NTSTATUS.STATUS_ACCESS_DENIED)
+            throw new UnauthorizedAccessException();
 
         if (status.SeverityCode is not NTSTATUS.Severity.Success)
             throw new Win32Exception(status);

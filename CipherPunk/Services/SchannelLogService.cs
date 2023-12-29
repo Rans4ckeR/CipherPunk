@@ -86,6 +86,6 @@ internal sealed class SchannelLogService : ISchannelLogService
             }
         }
 
-        return schannelEventLogEntries.Where(q => !result.Select(r => r.ProcessId).Contains(q.ProcessId)).Select(q => q.SchannelLog).Concat(result).OrderByDescending(q => q.TimeGenerated).ToList();
+        return [.. schannelEventLogEntries.Where(q => !result.Select(r => r.ProcessId).Contains(q.ProcessId)).Select(q => q.SchannelLog).Concat(result).OrderByDescending(q => q.TimeGenerated)];
     }
 }

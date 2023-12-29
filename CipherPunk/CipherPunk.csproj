@@ -34,6 +34,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <EnablePackageValidation>true</EnablePackageValidation>
     <Platforms>AnyCPU</Platforms>
+    <EnableSourceControlManagerQueries Condition="$(Configuration) == 'Debug'">true</EnableSourceControlManagerQueries> <!--https://github.com/dotnet/sdk/issues/36666-->
   </PropertyGroup>
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
