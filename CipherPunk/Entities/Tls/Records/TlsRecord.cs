@@ -1,6 +1,7 @@
 ﻿namespace CipherPunk;
 
 using System.Buffers.Binary;
+using System.Security.Cryptography;
 
 public abstract record TlsRecord
 {
@@ -39,14 +40,8 @@ public abstract record TlsRecord
             tlsVersion = TlsVersion.TLS1_2_PROTOCOL_VERSION;
 
         HandshakeClientVersion = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)tlsVersion));
-        HandshakeClientRandom = new byte[32];
-
-        new Random().NextBytes(HandshakeClientRandom);
-
-        HandshakeSessionId = new byte[32];
-
-        new Random().NextBytes(HandshakeSessionId);
-
+        HandshakeClientRandom = RandomNumberGenerator.GetBytes(32);
+        HandshakeSessionId = RandomNumberGenerator.GetBytes(32);
         HandshakeExtensions = [];
     }
 

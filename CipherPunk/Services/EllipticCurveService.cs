@@ -28,7 +28,6 @@ internal sealed class EllipticCurveService(
         unsafe
         {
             NCryptProviderName* ppProviderList = null;
-            CRYPT_PROVIDER_REFS* ppBuffer = null;
 
             try
             {
@@ -44,35 +43,39 @@ internal sealed class EllipticCurveService(
                     string? pszComment = nCryptProviderName.pszComment.ToString();
                     HRESULT sslOpenProviderResult = PInvoke.SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, pszName);
 
-                    using (phSslProvider)
-                    {
-                        if (sslOpenProviderResult.Failed)
-                            throw new Win32Exception(sslOpenProviderResult);
-                    }
+                    phSslProvider.Dispose();
+
+                    if (sslOpenProviderResult.Failed)
+                        throw new Win32Exception(sslOpenProviderResult);
 
                     uint pcbBuffer = 0U;
-                    NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, &ppBuffer);
+                    CRYPT_PROVIDER_REFS* ppBuffer = null;
 
-                    if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
-                        throw new Win32Exception(bCryptResolveProvidersStatus);
+                    try
+                    {
+                        NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, &ppBuffer);
 
-                    CRYPT_PROVIDER_REFS cryptProviderRefs = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REFS>(ppBuffer), 1)[0];
+                        if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
+                            throw new Win32Exception(bCryptResolveProvidersStatus);
 
-                    if (cryptProviderRefs.cProviders is not 1U)
-                        throw new SchannelServiceException(FormattableString.Invariant($"Found {cryptProviderRefs.cProviders} providers, expected 1."));
+                        CRYPT_PROVIDER_REFS cryptProviderRefs = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REFS>(ppBuffer), 1)[0];
 
-                    CRYPT_PROVIDER_REF cryptProviderRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REF>(cryptProviderRefs.rgpProviders[0]), 1)[0];
-                    string? pszProvider = cryptProviderRef.pszProvider.ToString();
-                    string? pszFunction = cryptProviderRef.pszFunction.ToString();
-                    uint cProperties = cryptProviderRef.cProperties;
-                    uint dwInterface = cryptProviderRef.dwInterface;
-                    CRYPT_IMAGE_REF userModeCryptImageRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_IMAGE_REF>(cryptProviderRef.pUM), 1)[0];
-                    string? pszImage = userModeCryptImageRef.pszImage.ToString();
-                    CRYPT_IMAGE_REF_FLAGS dwFlags = userModeCryptImageRef.dwFlags;
+                        if (cryptProviderRefs.cProviders is not 1U)
+                            throw new SchannelServiceException(FormattableString.Invariant($"Found {cryptProviderRefs.cProviders} providers, expected 1."));
 
-                    PInvoke.BCryptFreeBuffer(ppBuffer);
-
-                    ppBuffer = null;
+                        CRYPT_PROVIDER_REF cryptProviderRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REF>(cryptProviderRefs.rgpProviders[0]), 1)[0];
+                        string? pszProvider = cryptProviderRef.pszProvider.ToString();
+                        string? pszFunction = cryptProviderRef.pszFunction.ToString();
+                        uint cProperties = cryptProviderRef.cProperties;
+                        uint dwInterface = cryptProviderRef.dwInterface;
+                        CRYPT_IMAGE_REF userModeCryptImageRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_IMAGE_REF>(cryptProviderRef.pUM), 1)[0];
+                        string? pszImage = userModeCryptImageRef.pszImage.ToString();
+                        CRYPT_IMAGE_REF_FLAGS dwFlags = userModeCryptImageRef.dwFlags;
+                    }
+                    finally
+                    {
+                        PInvoke.BCryptFreeBuffer(ppBuffer);
+                    }
 
                     BCRYPT_ALG_HANDLE phAlgorithm = default;
 
@@ -101,7 +104,7 @@ internal sealed class EllipticCurveService(
 
                         foreach (PWSTR eccCurveName in eccCurveNames)
                         {
-                            string eccCurveNameString = eccCurveName.ToString();
+                            string? eccCurveNameString = eccCurveName.ToString();
                             CRYPT_OID_INFO* cryptOidInfoPointer = PInvoke.CryptFindOIDInfo((uint)CRYPT_OID_INFO_KEY.CRYPT_OID_INFO_NAME_KEY, eccCurveName, (uint)(CRYPT_OID_GROUP_FLAG.CRYPT_OID_PREFER_CNG_ALGID_FLAG | (CRYPT_OID_GROUP_FLAG)CRYPT_OID_GROUP_ID.CRYPT_PUBKEY_ALG_OID_GROUP_ID));
 
                             if (cryptOidInfoPointer is null)
@@ -255,8 +258,6 @@ internal sealed class EllipticCurveService(
             {
                 if (ppProviderList is not null)
                     _ = PInvoke.SslFreeBuffer(ppProviderList);
-
-                PInvoke.BCryptFreeBuffer(ppBuffer);
             }
         }
 
@@ -303,15 +304,18 @@ internal sealed class EllipticCurveService(
         {
             WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, NcryptSchannelInterfaceSslKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
-            if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
-                throw new Win32Exception((int)regCreateKeyExResult);
-
-            fixed (char* lpData = ellipticCurvesString)
+            using (phkResult)
             {
-                WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, CurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
+                if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                    throw new Win32Exception((int)regCreateKeyExResult);
 
-                if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
-                    throw new Win32Exception((int)regSetKeyValueResult);
+                fixed (char* lpData = ellipticCurvesString)
+                {
+                    WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, CurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
+
+                    if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                        throw new Win32Exception((int)regSetKeyValueResult);
+                }
             }
         }
     }

@@ -57,8 +57,6 @@ internal abstract class BaseCipherSuitesSettingsViewModel : BaseViewModel
         set => _ = SetProperty(ref fetchOnlineInfo, value);
     }
 
-    protected ICipherSuiteService CipherSuiteService { get; }
-
     public ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? ModifiedCipherSuiteConfigurations
     {
         get => modifiedCipherSuiteConfigurations;
@@ -70,6 +68,8 @@ internal abstract class BaseCipherSuitesSettingsViewModel : BaseViewModel
         get => defaultCipherSuiteConfigurations;
         private set => _ = SetProperty(ref defaultCipherSuiteConfigurations, value);
     }
+
+    protected ICipherSuiteService CipherSuiteService { get; }
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {

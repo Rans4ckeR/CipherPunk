@@ -55,7 +55,7 @@
                             <Button Command="{Binding ResetCipherSuitesCommand}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="{Binding UacIcon}"/>
-                                    <TextBlock Text="Reset Default" Margin="5,0,0,0"/>
+                                    <TextBlock Text="Clear" Margin="5,0,0,0"/>
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -64,7 +64,7 @@
             </Expander>
         </Border>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
-            <Expander Header="Default Group Policy Cipher Suite Configuration">
+            <Expander Header="Default OS Cipher Suite Configuration">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

@@ -1286,7 +1286,7 @@ csharp_style_var_when_type_is_apparent = true:warning
 csharp_prefer_braces = when_multiline:warning
 
 # SA1305: Field names should not use Hungarian notation
-dotnet_diagnostic.SA1305.severity = warning
+dotnet_diagnostic.SA1305.severity = silent
 
 # SA1412: Store files as UTF-8 with byte order mark
 dotnet_diagnostic.SA1412.severity = warning

@@ -28,8 +28,6 @@ public sealed record TlsRecordHeader
         GetTlsRecordLength = () => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsRecord.GetMessageBytes().Length));
     }
 
-    private Func<byte[]> GetTlsRecordLength { get; }
-
     public static int Size => 5;
 
     public byte TlsRecordContentType { get; }
@@ -41,6 +39,8 @@ public sealed record TlsRecordHeader
     public byte[] TlsRecordLength => GetTlsRecordLength();
 
     public TlsRecord? TlsRecord { get; }
+
+    private Func<byte[]> GetTlsRecordLength { get; }
 
     public byte[] GetBytes()
     {

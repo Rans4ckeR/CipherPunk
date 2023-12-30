@@ -5,7 +5,7 @@ public interface ICipherSuiteInfoApiService
     internal const string HttpClientName = nameof(ICipherSuiteInfoApiService);
 
     /// <summary>
-    /// Retrieve online information for <see cref="cipherSuiteName"/> as a <see cref="CipherSuite"/> instance.
+    /// Retrieve online information for <paramref name="cipherSuiteName"/> as a <see cref="CipherSuite"/> instance.
     /// </summary>
     /// <param name="cipherSuiteName">The name of the cipher suite to retrieve the online information for.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to cancel the operation.</param>

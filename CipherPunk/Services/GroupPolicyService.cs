@@ -117,25 +117,28 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             {
                 WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SslConfigurationPolicyKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
 
-                if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
-                    throw new Win32Exception((int)regCreateKeyExResult);
-
-                if (!string.IsNullOrWhiteSpace(valueData))
+                using (phkResult)
                 {
-                    fixed (char* lpData = valueData)
+                    if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                        throw new Win32Exception((int)regCreateKeyExResult);
+
+                    if (!string.IsNullOrWhiteSpace(valueData))
                     {
-                        WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, valueName, (uint)valueType, lpData, (uint)(sizeof(char) * valueData.Length));
+                        fixed (char* lpData = valueData)
+                        {
+                            WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, valueName, (uint)valueType, lpData, (uint)(sizeof(char) * valueData.Length));
 
-                        if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
-                            throw new Win32Exception((int)regSetKeyValueResult);
+                            if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                                throw new Win32Exception((int)regSetKeyValueResult);
+                        }
                     }
-                }
-                else
-                {
-                    WIN32_ERROR regDeleteValueResult = PInvoke.RegDeleteValue(hKey, valueName);
+                    else
+                    {
+                        WIN32_ERROR regDeleteValueResult = PInvoke.RegDeleteValue(hKey, valueName);
 
-                    if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS)
-                        throw new Win32Exception((int)regDeleteValueResult);
+                        if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                            throw new Win32Exception((int)regDeleteValueResult);
+                    }
                 }
             }
 
@@ -174,26 +177,29 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             using var hKey = new SafeRegistryHandle(machineKey, true);
             WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);
 
-            if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
-                throw new Win32Exception((int)regOpenKeyExResult);
-
-            char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
-            uint pcbData = ListMaximumCharacters * sizeof(char);
-
-            unsafe
+            using (phkResult)
             {
-                fixed (char* pvData = buffer)
+                if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                    throw new Win32Exception((int)regOpenKeyExResult);
+
+                char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
+                uint pcbData = ListMaximumCharacters * sizeof(char);
+
+                unsafe
                 {
-                    REG_VALUE_TYPE* pdwType = null;
-                    WIN32_ERROR regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, pdwType, pvData, &pcbData);
+                    fixed (char* pvData = buffer)
+                    {
+                        REG_VALUE_TYPE* pdwType = null;
+                        WIN32_ERROR regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, pdwType, pvData, &pcbData);
 
-                    if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
-                        throw new Win32Exception((int)regGetValueResult);
+                        if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                            throw new Win32Exception((int)regGetValueResult);
 
-                    if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
-                        return null;
+                        if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                            return null;
 
-                    return new(buffer[..(int)(pcbData / sizeof(char))]);
+                        return new(buffer[..(int)(pcbData / sizeof(char))]);
+                    }
                 }
             }
         }

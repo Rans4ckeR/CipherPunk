@@ -4,6 +4,7 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 
 internal sealed class TlsService : ITlsService
 {
@@ -120,10 +121,7 @@ internal sealed class TlsService : ITlsService
         TlsSupportedGroup[] tlsSupportedGroups = Enum.GetValues<TlsSupportedGroup>();
         TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes = Enum.GetValues<TlsPreSharedKeysKeyExchangeMode>();
         TlsCertificateCompressionAlgorithm[] tlsCertificateCompressionAlgorithms = Enum.GetValues<TlsCertificateCompressionAlgorithm>();
-        byte[] clientPublicKey = new byte[32];
-
-        new Random().NextBytes(clientPublicKey);
-
+        byte[] clientPublicKey = RandomNumberGenerator.GetBytes(32);
         var keyShares = new KeyShare[] { new(TlsSupportedGroup.x25519, clientPublicKey) };
         uint[] sslProviderCipherSuiteIds = tlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION
             ? Enum.GetValuesAsUnderlyingType<SslCipherSuite>().Cast<uint>().ToArray()
