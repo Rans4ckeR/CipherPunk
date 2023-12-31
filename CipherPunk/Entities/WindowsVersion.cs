@@ -1,6 +1,6 @@
 ﻿namespace CipherPunk;
 
-public enum WindowsSchannelVersion
+public enum WindowsVersion
 {
     WindowsVistaOrServer2008,
 
@@ -20,13 +20,29 @@ public enum WindowsSchannelVersion
 
     Windows10V1709,
 
+    Windows10V1803,
+
+    Windows10V1809OrServer2019,
+
     Windows10V1903,
+
+    Windows10V1909,
+
+    Windows10V2004,
+
+    Windows10V20H2,
+
+    Windows10V21H1,
+
+    Windows10V21H2,
 
     Windows10V22H2,
 
     WindowsServer2022,
 
-    Windows11,
+    Windows11V21H2,
 
-    Windows11V22H2
+    Windows11V22H2,
+
+    Windows11V23H2
 }

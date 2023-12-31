@@ -76,7 +76,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEccCurveOrderPolicy(string[] ellipticCurves)
     {
-        string ellipticCurvesString = string.Join('\0', ellipticCurves);
+        string ellipticCurvesString = FormattableString.Invariant($"{string.Join('\0', ellipticCurves)}\0\0");
 
         UpdateOrderPolicy(ellipticCurvesString, SslCurveOrderValueName, REG_VALUE_TYPE.REG_MULTI_SZ);
     }

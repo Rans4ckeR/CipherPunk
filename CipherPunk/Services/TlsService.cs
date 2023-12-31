@@ -8,73 +8,73 @@ using System.Security.Cryptography;
 
 internal sealed class TlsService : ITlsService
 {
-    public WindowsSchannelVersion GetWindowsSchannelVersion()
+    public WindowsVersion GetWindowsVersion()
     {
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22631)) // Windows11v23H2
-            return WindowsSchannelVersion.Windows11V22H2;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22631))
+            return WindowsVersion.Windows11V23H2;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621)) // Windows11v22H2
-            return WindowsSchannelVersion.Windows11V22H2;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22621))
+            return WindowsVersion.Windows11V22H2;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000)) // Windows11v21H2
-            return WindowsSchannelVersion.Windows11;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22000))
+            return WindowsVersion.Windows11V21H2;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 20348)) // WindowsServer2022
-            return WindowsSchannelVersion.WindowsServer2022;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 20348))
+            return WindowsVersion.WindowsServer2022;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19045)) // Windows10v22H2
-            return WindowsSchannelVersion.Windows10V22H2;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19045))
+            return WindowsVersion.Windows10V22H2;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19044)) // Windows10v21H2
-            return WindowsSchannelVersion.Windows10V1903;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19044))
+            return WindowsVersion.Windows10V21H2;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19043)) // Windows10v21H1
-            return WindowsSchannelVersion.Windows10V1903;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19043))
+            return WindowsVersion.Windows10V21H1;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19042)) // Windows10v20H2
-            return WindowsSchannelVersion.Windows10V1903;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19042))
+            return WindowsVersion.Windows10V20H2;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041)) // Windows10v2004
-            return WindowsSchannelVersion.Windows10V1903;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041))
+            return WindowsVersion.Windows10V2004;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18363)) // Windows10v1909
-            return WindowsSchannelVersion.Windows10V1903;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18363))
+            return WindowsVersion.Windows10V1909;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362)) // Windows10v1903
-            return WindowsSchannelVersion.Windows10V1903;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362))
+            return WindowsVersion.Windows10V1903;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763)) // Windows10v1809OrServer2019
-            return WindowsSchannelVersion.Windows10V1709;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
+            return WindowsVersion.Windows10V1809OrServer2019;
 
-        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134)) // Windows10v1803
-            return WindowsSchannelVersion.Windows10V1709;
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134))
+            return WindowsVersion.Windows10V1803;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 16299))
-            return WindowsSchannelVersion.Windows10V1709;
+            return WindowsVersion.Windows10V1709;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 15063))
-            return WindowsSchannelVersion.Windows10V1703;
+            return WindowsVersion.Windows10V1703;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 14393))
-            return WindowsSchannelVersion.Windows10V1607OrServer2016;
+            return WindowsVersion.Windows10V1607OrServer2016;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 10586))
-            return WindowsSchannelVersion.Windows10V1511;
+            return WindowsVersion.Windows10V1511;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10))
-            return WindowsSchannelVersion.Windows10V1507;
+            return WindowsVersion.Windows10V1507;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(6, 3))
-            return WindowsSchannelVersion.Windows81OrServer2012R2;
+            return WindowsVersion.Windows81OrServer2012R2;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(6, 2))
-            return WindowsSchannelVersion.Windows8OrServer2012;
+            return WindowsVersion.Windows8OrServer2012;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(6, 1))
-            return WindowsSchannelVersion.Windows7OrServer2008R2;
+            return WindowsVersion.Windows7OrServer2008R2;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(6))
-            return WindowsSchannelVersion.WindowsVistaOrServer2008;
+            return WindowsVersion.WindowsVistaOrServer2008;
 
         throw new SchannelServiceException(FormattableString.Invariant($"Unknown Windows version {Environment.OSVersion.Version}."));
     }
@@ -144,7 +144,7 @@ internal sealed class TlsService : ITlsService
         uint sslProviderCipherSuiteId,
         CancellationToken cancellationToken)
     {
-        await Task.Delay(Random.Shared.Next(1, 10000), cancellationToken);
+        await Task.Delay(RandomNumberGenerator.GetInt32(1, 10000), cancellationToken);
 
         byte[] clientHelloBytes;
 

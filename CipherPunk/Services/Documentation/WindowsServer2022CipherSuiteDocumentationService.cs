@@ -4,12 +4,12 @@ using Windows.Win32;
 
 internal static class WindowsServer2022CipherSuiteDocumentationService
 {
-    public static (WindowsSchannelVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations) GetConfiguration()
-        => (WindowsSchannelVersion.WindowsServer2022, [.. GetDefaultEnabledConfiguration(), .. GetDefaultDisabledConfiguration(), .. GetPreSharedKeyConfiguration()]);
+    public static (WindowsVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations) GetConfiguration()
+        => (WindowsVersion.WindowsServer2022, [.. GetDefaultEnabledConfiguration(), .. GetDefaultDisabledConfiguration(), .. GetPreSharedKeyConfiguration()]);
 
     private static List<WindowsDocumentationCipherSuiteConfiguration> GetDefaultEnabledConfiguration()
-        => new()
-        {
+        =>
+        [
             new(SslProviderCipherSuiteId.TLS_AES_256_GCM_SHA384, true, true, [SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_AES_128_GCM_SHA256, true, true, [SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
@@ -35,11 +35,11 @@ internal static class WindowsServer2022CipherSuiteDocumentationService
             new(SslProviderCipherSuiteId.TLS_RSA_WITH_3DES_EDE_CBC_SHA, false, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_RSA_WITH_NULL_SHA256, false, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_RSA_WITH_NULL_SHA, false, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION], true)
-        };
+        ];
 
     private static List<WindowsDocumentationCipherSuiteConfiguration> GetDefaultDisabledConfiguration()
-        => new()
-        {
+        =>
+        [
             new(SslProviderCipherSuiteId.TLS_CHACHA20_POLY1305_SHA256, true, false, [SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_DHE_RSA_WITH_AES_256_CBC_SHA, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_DHE_RSA_WITH_AES_128_CBC_SHA, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION]),
@@ -57,16 +57,16 @@ internal static class WindowsServer2022CipherSuiteDocumentationService
             new(SslProviderCipherSuiteId.TLS_RSA_EXPORT1024_WITH_RC4_56_SHA, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_RSA_EXPORT_WITH_RC4_40_MD5, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
             new(SslProviderCipherSuiteId.TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION])
-        };
+        ];
 
     private static List<WindowsDocumentationCipherSuiteConfiguration> GetPreSharedKeyConfiguration()
-        => new()
-        {
+        =>
+        [
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_AES_256_GCM_SHA384, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_AES_128_GCM_SHA256, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_AES_256_CBC_SHA384, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_AES_128_CBC_SHA256, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA384, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
             new(SslProviderCipherSuiteId.TLS_PSK_WITH_NULL_SHA256, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true)
-        };
+        ];
 }

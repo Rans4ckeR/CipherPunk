@@ -2,7 +2,7 @@
 
 internal interface IWindowsEllipticCurveDocumentationService
 {
-    Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations();
+    Dictionary<WindowsVersion, List<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations();
 
-    List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsSchannelVersion windowsSchannelVersion);
+    List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion);
 }

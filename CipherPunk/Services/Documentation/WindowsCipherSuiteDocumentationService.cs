@@ -4,19 +4,19 @@ using System.Collections.ObjectModel;
 
 internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSuiteDocumentationService
 {
-    private ReadOnlyDictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
+    private ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
 
-    public ReadOnlyDictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
+    public ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
         => windowsDocumentationCipherSuiteConfigurations ??= BuildWindowsDocumentationCipherSuiteConfigurations();
 
-    public List<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsSchannelVersion windowsSchannelVersion)
-        => GetWindowsDocumentationCipherSuiteConfigurations().Single(q => q.Key >= windowsSchannelVersion).Value;
+    public List<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion windowsVersion)
+        => GetWindowsDocumentationCipherSuiteConfigurations().First(q => q.Key <= windowsVersion).Value;
 
-    private static ReadOnlyDictionary<WindowsSchannelVersion, List<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations() =>
-        new List<(WindowsSchannelVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations)>
+    private static ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations() =>
+        new List<(WindowsVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations)>
         {
             Windows11V22H2CipherSuiteDocumentationService.GetConfiguration(),
-            Windows11CipherSuiteDocumentationService.GetConfiguration(),
+            Windows11V21H2CipherSuiteDocumentationService.GetConfiguration(),
             WindowsServer2022CipherSuiteDocumentationService.GetConfiguration(),
             Windows10V22H2CipherSuiteDocumentationService.GetConfiguration(),
             Windows10V1903CipherSuiteDocumentationService.GetConfiguration(),

@@ -35,24 +35,24 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="ModifiedCipherSuiteConfigurations" ItemsSource="{Binding ModifiedCipherSuiteConfigurations}">
+                        <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="ModifiedSettingConfigurations" ItemsSource="{Binding ModifiedSettingConfigurations}">
                             <DataGrid.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGreen"/>
                             </DataGrid.Resources>
                         </ui:NoScrollDataGrid>
                         <StackPanel Grid.Row="0" Grid.Column="1">
-                            <Button Content="Up" Command="{Binding MoveCipherSuiteUpCommand}" CommandParameter="{Binding ElementName=ModifiedCipherSuiteConfigurations, Path=SelectedItem}"/>
-                            <Button Content="Down" Command="{Binding MoveCipherSuiteDownCommand}" CommandParameter="{Binding ElementName=ModifiedCipherSuiteConfigurations, Path=SelectedItem}"/>
-                            <Button Content="Delete" Command="{Binding DeleteCipherSuiteCommand}" CommandParameter="{Binding ElementName=ModifiedCipherSuiteConfigurations, Path=SelectedItem}"/>
-                            <Button Content="Cancel" Command="{Binding CancelCipherSuitesCommand}"/>
-                            <Button Command="{Binding SaveCipherSuitesCommand}">
+                            <Button Content="Up" Command="{Binding MoveSettingUpCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
+                            <Button Content="Down" Command="{Binding MoveSettingDownCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
+                            <Button Content="Delete" Command="{Binding DeleteSettingCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
+                            <Button Content="Cancel" Command="{Binding CancelSettingsCommand}"/>
+                            <Button Command="{Binding SaveSettingsCommand}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="{Binding UacIcon}"/>
                                     <TextBlock Text="Save" Margin="5,0,0,0"/>
                                 </StackPanel>
                             </Button>
-                            <Button Command="{Binding ResetCipherSuitesCommand}">
+                            <Button Command="{Binding ResetSettingsCommand}">
                                 <StackPanel Orientation="Horizontal">
                                     <Image Source="{Binding UacIcon}"/>
                                     <TextBlock Text="Clear" Margin="5,0,0,0"/>
@@ -73,14 +73,14 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="DefaultCipherSuiteConfigurations" ItemsSource="{Binding DefaultCipherSuiteConfigurations}">
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="DefaultSettingConfigurations" ItemsSource="{Binding DefaultSettingConfigurations}">
                         <DataGrid.Resources>
                             <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
                             <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGreen"/>
                         </DataGrid.Resources>
                     </ui:NoScrollDataGrid>
                     <StackPanel Grid.Row="0" Grid.Column="1">
-                        <Button Content="Add" Command="{Binding AddCipherSuiteCommand}" CommandParameter="{Binding ElementName=DefaultCipherSuiteConfigurations, Path=SelectedItem}"/>
+                        <Button Content="Add" Command="{Binding AddSettingCommand}" CommandParameter="{Binding ElementName=DefaultSettingConfigurations, Path=SelectedItem}"/>
                     </StackPanel>
                 </Grid>
             </Expander>

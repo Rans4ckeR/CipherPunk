@@ -1,4 +1,6 @@
+
 # CipherPunk
+
 Library & UI for Windows Schannel CipherSuite and Elliptic Curve configuration and remote server probing.
 Inspired by [IISCrypto](https://www.nartac.com/Products/IISCrypto/)
 
@@ -16,11 +18,13 @@ Available as a standalone Windows application ([UI](#cipherpunkui)) and as a NuG
 Note: not all applications use Schannel, most browsers for example require separate configuration.
 
 ## CipherPunk.UI
+
 A Windows .NET WPF application for x86, x64 and ARM64.
 
 * [Releases](https://github.com/Rans4ckeR/CipherPunk/releases)
 
 ## CipherPunk
+
 A NuGet package to manage Windows Schannel.
 
 * [NuGet](https://www.nuget.org/packages/CipherPunk)

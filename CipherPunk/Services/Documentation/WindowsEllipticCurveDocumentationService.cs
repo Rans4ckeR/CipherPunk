@@ -4,15 +4,15 @@ using Windows.Win32;
 
 internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIdentifierService ellipticCurveIdentifierService) : IWindowsEllipticCurveDocumentationService
 {
-    private Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>>? windowsDocumentationEllipticCurveConfigurations;
+    private Dictionary<WindowsVersion, List<WindowsDocumentationEllipticCurveConfiguration>>? windowsDocumentationEllipticCurveConfigurations;
 
-    public Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations()
+    public Dictionary<WindowsVersion, List<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations()
         => windowsDocumentationEllipticCurveConfigurations ??= BuildWindowsDocumentationEllipticCurveConfigurations();
 
-    public List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsSchannelVersion windowsSchannelVersion)
-        => GetWindowsDocumentationEllipticCurveConfigurations().Any(q => q.Key >= windowsSchannelVersion) ? GetWindowsDocumentationEllipticCurveConfigurations().FirstOrDefault(q => q.Key >= windowsSchannelVersion).Value : [];
+    public List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion)
+        => GetWindowsDocumentationEllipticCurveConfigurations().FirstOrDefault(q => q.Key <= windowsVersion).Value ?? [];
 
-    private Dictionary<WindowsSchannelVersion, List<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
+    private Dictionary<WindowsVersion, List<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
     {
         var windows10V1607OrServer2016 = new List<WindowsDocumentationEllipticCurveConfiguration>
         {
@@ -60,8 +60,8 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
 
         return new()
         {
-            { WindowsSchannelVersion.Windows10V1607OrServer2016, windows10V1607OrServer2016 },
-            { WindowsSchannelVersion.Windows10V1507, windows10V1507 }
+            { WindowsVersion.Windows10V1607OrServer2016, windows10V1607OrServer2016 },
+            { WindowsVersion.Windows10V1507, windows10V1507 }
         };
     }
 }

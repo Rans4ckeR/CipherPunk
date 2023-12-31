@@ -54,9 +54,9 @@ internal sealed class CipherSuiteService(
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList()
     {
-        WindowsSchannelVersion windowsSchannelVersion = tlsService.GetWindowsSchannelVersion();
+        WindowsVersion windowsVersion = tlsService.GetWindowsVersion();
 
-        return windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(windowsSchannelVersion);
+        return windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(windowsVersion);
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
@@ -262,14 +262,14 @@ internal sealed class CipherSuiteService(
     public void ResetCipherSuiteListToOperatingSystemDefault()
     {
         List<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
-        List<WindowsApiCipherSuiteConfiguration> defaultCipherSuites = GetOperatingSystemDefaultCipherSuiteList();
+        IEnumerable<WindowsDocumentationCipherSuiteConfiguration> defaultCipherSuites = GetOperatingSystemDocumentationDefaultCipherSuiteList().Where(q => q.EnabledByDefault);
 
         foreach (string cipher in activeCipherSuites.Select(q => q.CipherSuiteName))
         {
             RemoveCipherSuite(cipher);
         }
 
-        foreach (string cipher in defaultCipherSuites.Select(q => q.CipherSuiteName))
+        foreach (string cipher in defaultCipherSuites.Select(q => q.CipherSuite.ToString()))
         {
             AddCipherSuite(cipher, false);
         }

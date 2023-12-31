@@ -1,55 +1,13 @@
 ﻿namespace CipherPunk.UI;
 
-using System.Collections.ObjectModel;
-using System.Windows.Media.Imaging;
 using CipherPunk.CipherSuiteInfoApi;
-using CommunityToolkit.Mvvm.Input;
 using Windows.Win32;
 
-internal abstract class BaseCipherSuitesSettingsViewModel : BaseViewModel
+internal abstract class BaseCipherSuitesSettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    : BaseSettingsViewModel<WindowsApiCipherSuiteConfiguration, UiWindowsApiCipherSuiteConfiguration, UiWindowsDocumentationCipherSuiteConfiguration, UiWindowsDocumentationCipherSuiteConfiguration>(logger, uacIconService)
 {
-    private readonly IUacIconService uacIconService;
-    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
-    private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
-    private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? modifiedCipherSuiteConfigurations;
-    private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? defaultCipherSuiteConfigurations;
-    private BitmapSource? uacIcon;
     private bool fetchOnlineInfo = true;
-
-    protected BaseCipherSuitesSettingsViewModel(
-        ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
-        : base(logger)
-    {
-        MoveCipherSuiteUpCommand = new RelayCommand<UiWindowsApiCipherSuiteConfiguration?>(ExecuteMoveCipherSuiteUpCommand, CanExecuteMoveCipherSuiteUpCommand);
-        MoveCipherSuiteDownCommand = new RelayCommand<UiWindowsApiCipherSuiteConfiguration?>(ExecuteMoveCipherSuiteDownCommand, CanExecuteMoveCipherSuiteDownCommand);
-        DeleteCipherSuiteCommand = new RelayCommand<UiWindowsApiCipherSuiteConfiguration?>(ExecuteDeleteCipherSuiteCommand, CanExecuteDeleteCipherSuiteCommand);
-        AddCipherSuiteCommand = new RelayCommand<UiWindowsDocumentationCipherSuiteConfiguration?>(ExecuteAddCipherSuiteCommand, CanExecuteAddCipherSuiteCommand);
-        SaveCipherSuitesCommand = new AsyncRelayCommand(ExecuteSaveCipherSuitesCommandAsync, CanExecuteSaveCipherSuitesCommand);
-        CancelCipherSuitesCommand = new RelayCommand(ExecuteCancelCipherSuitesCommand, CanExecuteCancelCipherSuitesCommand);
-        ResetCipherSuitesCommand = new AsyncRelayCommand(ExecuteResetCipherSuitesCommandAsync, CanExecuteResetCipherSuitesCommand);
-        CipherSuiteService = cipherSuiteService;
-        this.uacIconService = uacIconService;
-        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
-
-        UpdateCanExecuteDefaultCommand();
-    }
-
-    public IRelayCommand MoveCipherSuiteUpCommand { get; }
-
-    public IRelayCommand MoveCipherSuiteDownCommand { get; }
-
-    public IRelayCommand DeleteCipherSuiteCommand { get; }
-
-    public IRelayCommand AddCipherSuiteCommand { get; }
-
-    public IAsyncRelayCommand SaveCipherSuitesCommand { get; }
-
-    public IRelayCommand CancelCipherSuitesCommand { get; }
-
-    public IAsyncRelayCommand ResetCipherSuitesCommand { get; }
-
-    public BitmapSource UacIcon => uacIcon ??= uacIconService.GetUacShieldIcon();
 
     public bool FetchOnlineInfo
     {
@@ -57,24 +15,12 @@ internal abstract class BaseCipherSuitesSettingsViewModel : BaseViewModel
         set => _ = SetProperty(ref fetchOnlineInfo, value);
     }
 
-    public ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? ModifiedCipherSuiteConfigurations
-    {
-        get => modifiedCipherSuiteConfigurations;
-        private set => _ = SetProperty(ref modifiedCipherSuiteConfigurations, value);
-    }
-
-    public ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? DefaultCipherSuiteConfigurations
-    {
-        get => defaultCipherSuiteConfigurations;
-        private set => _ = SetProperty(ref defaultCipherSuiteConfigurations, value);
-    }
-
-    protected ICipherSuiteService CipherSuiteService { get; }
+    protected ICipherSuiteService CipherSuiteService { get; } = cipherSuiteService;
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        IList<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = CipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
-        IEnumerable<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = GetActiveCipherSuiteConfiguration();
+        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = CipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
+        IEnumerable<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = GetActiveSettingConfiguration();
 
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
@@ -118,74 +64,20 @@ internal abstract class BaseCipherSuitesSettingsViewModel : BaseViewModel
             q.PreWindows10EllipticCurve,
             onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
 
-        DefaultCipherSuiteConfigurations = new(defaultUiWindowsDocumentationCipherSuiteConfigurations);
-        activeCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
-        ModifiedCipherSuiteConfigurations = new(activeCipherSuiteConfigurations);
+        DefaultSettingConfigurations = new(defaultUiWindowsDocumentationCipherSuiteConfigurations);
+        ActiveSettingConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
+        ModifiedSettingConfigurations = new(ActiveSettingConfigurations);
     }
 
-    protected abstract IEnumerable<WindowsApiCipherSuiteConfiguration> GetActiveCipherSuiteConfiguration();
+    protected override bool CompareSetting(UiWindowsApiCipherSuiteConfiguration uiApiSettingConfiguration, UiWindowsDocumentationCipherSuiteConfiguration uiDocumentationSettingConfiguration)
+        => uiApiSettingConfiguration.Id == uiDocumentationSettingConfiguration.CipherSuite;
 
-    protected abstract void DoExecuteSaveCipherSuitesCommand();
-
-    protected abstract void DoExecuteResetCipherSuitesCommand();
-
-    protected virtual bool CanExecuteMoveCipherSuiteUpCommand(UiWindowsApiCipherSuiteConfiguration? uiWindowsApiCipherSuiteConfiguration)
-        => uiWindowsApiCipherSuiteConfiguration is not null && ModifiedCipherSuiteConfigurations!.IndexOf(uiWindowsApiCipherSuiteConfiguration.Value) > 0;
-
-    protected virtual bool CanExecuteMoveCipherSuiteDownCommand(UiWindowsApiCipherSuiteConfiguration? uiWindowsApiCipherSuiteConfiguration)
-        => uiWindowsApiCipherSuiteConfiguration is not null && ModifiedCipherSuiteConfigurations!.IndexOf(uiWindowsApiCipherSuiteConfiguration.Value) < ModifiedCipherSuiteConfigurations.Count - 1;
-
-    protected virtual bool CanExecuteDeleteCipherSuiteCommand(UiWindowsApiCipherSuiteConfiguration? uiWindowsApiCipherSuiteConfiguration)
-        => uiWindowsApiCipherSuiteConfiguration is not null;
-
-    protected virtual bool CanExecuteSaveCipherSuitesCommand()
-        => !(activeCipherSuiteConfigurations?.SequenceEqual(ModifiedCipherSuiteConfigurations ?? []) ?? false);
-
-    protected virtual bool CanExecuteCancelCipherSuitesCommand()
-        => !(activeCipherSuiteConfigurations?.SequenceEqual(ModifiedCipherSuiteConfigurations ?? []) ?? false);
-
-    protected virtual bool CanExecuteAddCipherSuiteCommand(UiWindowsDocumentationCipherSuiteConfiguration? uiWindowsDocumentationCipherSuiteConfiguration)
-        => uiWindowsDocumentationCipherSuiteConfiguration is not null && ModifiedCipherSuiteConfigurations!.All(q => q.Id != uiWindowsDocumentationCipherSuiteConfiguration.Value.CipherSuite);
-
-    protected virtual bool CanExecuteResetCipherSuitesCommand()
-        => true;
-
-    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
+    protected override UiWindowsApiCipherSuiteConfiguration ConvertSettingCommand(UiWindowsDocumentationCipherSuiteConfiguration availableSettingConfiguration)
     {
-        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.CipherSuite.ToString(), cancellationToken).AsTask()));
+        WindowsApiCipherSuiteConfiguration windowsApiCipherSuiteConfiguration = CipherSuiteService.GetOperatingSystemDefaultCipherSuiteList().Single(q => q.CipherSuite == availableSettingConfiguration.CipherSuite);
 
-        onlineCipherSuiteInfos.Clear();
-        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
-    }
-
-    private void ExecuteMoveCipherSuiteUpCommand(UiWindowsApiCipherSuiteConfiguration? uiWindowsApiCipherSuiteConfiguration)
-    {
-        int index = ModifiedCipherSuiteConfigurations!.IndexOf(uiWindowsApiCipherSuiteConfiguration!.Value);
-
-        ModifiedCipherSuiteConfigurations.Move(index, --index);
-        NotifyCanExecuteChanged();
-    }
-
-    private void ExecuteMoveCipherSuiteDownCommand(UiWindowsApiCipherSuiteConfiguration? uiWindowsApiCipherSuiteConfiguration)
-    {
-        int index = ModifiedCipherSuiteConfigurations!.IndexOf(uiWindowsApiCipherSuiteConfiguration!.Value);
-
-        ModifiedCipherSuiteConfigurations.Move(index, ++index);
-        NotifyCanExecuteChanged();
-    }
-
-    private void ExecuteDeleteCipherSuiteCommand(UiWindowsApiCipherSuiteConfiguration? uiWindowsApiCipherSuiteConfiguration)
-    {
-        _ = ModifiedCipherSuiteConfigurations!.Remove(uiWindowsApiCipherSuiteConfiguration!.Value);
-        NotifyCanExecuteChanged();
-    }
-
-    private void ExecuteAddCipherSuiteCommand(UiWindowsDocumentationCipherSuiteConfiguration? uiWindowsDocumentationCipherSuiteConfiguration)
-    {
-        WindowsApiCipherSuiteConfiguration windowsApiCipherSuiteConfiguration = CipherSuiteService.GetOperatingSystemDefaultCipherSuiteList().Single(q => q.CipherSuite == uiWindowsDocumentationCipherSuiteConfiguration!.Value.CipherSuite);
-
-        ModifiedCipherSuiteConfigurations!.Add(new(
-            (ushort)(ModifiedCipherSuiteConfigurations.Count + 1),
+        return new(
+            (ushort)(ModifiedSettingConfigurations!.Count + 1),
             windowsApiCipherSuiteConfiguration.CipherSuite,
             windowsApiCipherSuiteConfiguration.Protocols.Contains(SslProviderProtocolId.SSL2_PROTOCOL_VERSION),
             windowsApiCipherSuiteConfiguration.Protocols.Contains(SslProviderProtocolId.SSL3_PROTOCOL_VERSION),
@@ -203,38 +95,14 @@ internal abstract class BaseCipherSuitesSettingsViewModel : BaseViewModel
             windowsApiCipherSuiteConfiguration.CipherBlockLength,
             windowsApiCipherSuiteConfiguration.CipherLength,
             windowsApiCipherSuiteConfiguration.Cipher,
-            onlineCipherSuiteInfos.SingleOrDefault(r => windowsApiCipherSuiteConfiguration.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security));
-        NotifyCanExecuteChanged();
+            onlineCipherSuiteInfos.SingleOrDefault(r => windowsApiCipherSuiteConfiguration.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security);
     }
 
-    private async Task ExecuteSaveCipherSuitesCommandAsync()
+    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
     {
-        DoExecuteSaveCipherSuitesCommand();
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
-        NotifyCanExecuteChanged();
-    }
+        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => q.CipherSuite).Distinct().Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.ToString(), cancellationToken).AsTask()));
 
-    private void ExecuteCancelCipherSuitesCommand()
-    {
-        ModifiedCipherSuiteConfigurations = new(activeCipherSuiteConfigurations!);
-
-        NotifyCanExecuteChanged();
-    }
-
-    private async Task ExecuteResetCipherSuitesCommandAsync()
-    {
-        DoExecuteResetCipherSuitesCommand();
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
-        NotifyCanExecuteChanged();
-    }
-
-    private void NotifyCanExecuteChanged()
-    {
-        MoveCipherSuiteUpCommand.NotifyCanExecuteChanged();
-        MoveCipherSuiteDownCommand.NotifyCanExecuteChanged();
-        SaveCipherSuitesCommand.NotifyCanExecuteChanged();
-        CancelCipherSuitesCommand.NotifyCanExecuteChanged();
-        AddCipherSuiteCommand.NotifyCanExecuteChanged();
-        ResetCipherSuitesCommand.NotifyCanExecuteChanged();
+        onlineCipherSuiteInfos.Clear();
+        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
     }
 }

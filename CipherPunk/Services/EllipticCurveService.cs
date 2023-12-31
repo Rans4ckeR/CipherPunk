@@ -267,9 +267,9 @@ internal sealed class EllipticCurveService(
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList()
     {
-        WindowsSchannelVersion windowsSchannelVersion = tlsService.GetWindowsSchannelVersion();
+        WindowsVersion windowsVersion = tlsService.GetWindowsVersion();
 
-        return windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(windowsSchannelVersion);
+        return windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(windowsVersion);
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
@@ -285,15 +285,15 @@ internal sealed class EllipticCurveService(
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetEllipticCurveListToOperatingSystemDefault()
     {
-        List<WindowsDocumentationEllipticCurveConfiguration> defaultEllipticCurves = GetOperatingSystemDefaultEllipticCurveList();
+        IEnumerable<WindowsDocumentationEllipticCurveConfiguration> defaultEllipticCurves = GetOperatingSystemDefaultEllipticCurveList().Where(q => q.EnabledByDefault);
 
-        UpdateEllipticCurveOrder(defaultEllipticCurves.Select(q => q.Code).ToArray());
+        UpdateEllipticCurveOrder(defaultEllipticCurves.Select(q => q.Name).ToArray());
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEllipticCurveOrder(string[] ellipticCurves)
     {
-        string ellipticCurvesString = string.Join('\n', ellipticCurves);
+        string ellipticCurvesString = FormattableString.Invariant($"{string.Join('\0', ellipticCurves)}\0\0");
 
         if (ellipticCurvesString.Length > ListMaximumCharacters)
             throw new GroupPolicyServiceException(FormattableString.Invariant($"Maximum list length exceeded ({ellipticCurvesString.Length}), the maximum is {ListMaximumCharacters}."));

@@ -13,13 +13,12 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="Active OS Elliptic Curves">
+            <Expander Header="Active OS Elliptic Curve Configuration">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -27,25 +26,66 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
+                    <Grid Grid.Row="0" Grid.Column="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="ModifiedSettingConfigurations" ItemsSource="{Binding ModifiedSettingConfigurations}">
+                            <DataGrid.Resources>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
+                                <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGreen"/>
+                            </DataGrid.Resources>
+                        </ui:NoScrollDataGrid>
+                        <StackPanel Grid.Row="0" Grid.Column="1">
+                            <Button Content="Up" Command="{Binding MoveSettingUpCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
+                            <Button Content="Down" Command="{Binding MoveSettingDownCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
+                            <Button Content="Delete" Command="{Binding DeleteSettingCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
+                            <Button Content="Cancel" Command="{Binding CancelSettingsCommand}"/>
+                            <Button Command="{Binding SaveSettingsCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding UacIcon}"/>
+                                    <TextBlock Text="Save" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ResetSettingsCommand}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding UacIcon}"/>
+                                    <TextBlock Text="Reset Default" Margin="5,0,0,0"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
                 </Grid>
             </Expander>
         </Border>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
-            <Expander Header="Available Elliptic Curves">
+            <Expander Header="Available OS Elliptic Curves">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding AvailableEllipticCurveConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="AvailableSettingConfigurations" ItemsSource="{Binding AvailableSettingConfigurations}">
+                        <DataGrid.Resources>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
+                            <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGreen"/>
+                        </DataGrid.Resources>
+                    </ui:NoScrollDataGrid>
+                    <StackPanel Grid.Row="0" Grid.Column="1">
+                        <Button Content="Add" Command="{Binding AddSettingCommand}" CommandParameter="{Binding ElementName=AvailableSettingConfigurations, Path=SelectedItem}"/>
+                    </StackPanel>
                 </Grid>
             </Expander>
         </Border>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="2" Grid.Column="0">
-            <Expander Header="OS Default Elliptic Curves">
+            <Expander Header="Default OS Elliptic Curve Configuration">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -53,18 +93,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding OsDefaultEllipticCurveConfigurations}"/>
+                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding DefaultSettingConfigurations}"/>
                 </Grid>
-            </Expander>
-        </Border>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="3" Grid.Column="0">
-            <Expander Header="Reset to OS Defaults">
-                <Button>
-                    <StackPanel>
-                        <Image Source="{Binding UacIcon}"/>
-                        <TextBlock>Admin Action</TextBlock>
-                    </StackPanel>
-                </Button>
             </Expander>
         </Border>
     </Grid>
