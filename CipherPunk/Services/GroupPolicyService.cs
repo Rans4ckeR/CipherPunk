@@ -3,6 +3,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.Versioning;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using Microsoft.Win32.SafeHandles;
@@ -14,7 +15,6 @@ using Windows.Win32.System.Registry;
 
 internal sealed class GroupPolicyService : IGroupPolicyService
 {
-    private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = @"{0}\PolicyDefinitions\{1}\CipherSuiteOrder.adml";
     private const string MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFileXmlNamespace = "http://schemas.microsoft.com/GroupPolicy/2006/07/PolicyDefinitions";
     private const string SslConfigurationPolicyKey = @"SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002";
     private const string SslCipherSuiteOrderValueName = "Functions";
@@ -22,6 +22,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     private const ushort ListMaximumCharacters = 1023;
 
     private static readonly Guid CipherPunkGuid = new(0x929aa20, 0xaa5d, 0x4fd5, 0x83, 0x10, 0x85, 0x7a, 0x10, 0xf2, 0x45, 0xa9);
+    private static readonly CompositeFormat MicrosoftPoliciesCipherStrengthPolicyDefinitionResourcesFile = CompositeFormat.Parse(@"{0}\PolicyDefinitions\{1}\CipherSuiteOrder.adml");
 
     [SupportedOSPlatform("windows")]
     public async ValueTask<string[]> GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default)
@@ -68,7 +69,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateSslCipherSuiteOrderPolicy(string[] cipherSuites)
     {
-        string cipherSuitesString = string.Join(',', cipherSuites);
+        string cipherSuitesString = FormattableString.Invariant($"{string.Join(',', cipherSuites)}\0");
 
         UpdateOrderPolicy(cipherSuitesString, SslCipherSuiteOrderValueName, REG_VALUE_TYPE.REG_SZ);
     }
@@ -82,7 +83,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public string[] GetSslCipherSuiteOrderPolicy() => GetOrderPolicy(SslCipherSuiteOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_SZ)?.Split(',') ?? [];
+    public string[] GetSslCipherSuiteOrderPolicy() => GetOrderPolicy(SslCipherSuiteOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_SZ)?[..^"\0".Length]?.Split(',') ?? [];
 
     [SupportedOSPlatform("windows6.0.6000")]
     public string[] GetEccCurveOrderPolicy() => GetOrderPolicy(SslCurveOrderValueName, REG_ROUTINE_FLAGS.RRF_RT_REG_MULTI_SZ)?.Split('\0', StringSplitOptions.RemoveEmptyEntries) ?? [];
@@ -122,7 +123,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                     if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
                         throw new Win32Exception((int)regCreateKeyExResult);
 
-                    if (!string.IsNullOrWhiteSpace(valueData))
+                    if (!string.IsNullOrWhiteSpace(valueData.Replace("\0", null, StringComparison.OrdinalIgnoreCase)))
                     {
                         fixed (char* lpData = valueData)
                         {
@@ -134,9 +135,9 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                     }
                     else
                     {
-                        WIN32_ERROR regDeleteValueResult = PInvoke.RegDeleteValue(hKey, valueName);
+                        WIN32_ERROR regDeleteValueResult = PInvoke.RegDeleteValue(phkResult, valueName);
 
-                        if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                        if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
                             throw new Win32Exception((int)regDeleteValueResult);
                     }
                 }
@@ -176,32 +177,34 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
             using var hKey = new SafeRegistryHandle(machineKey, true);
             WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);
+            uint pcbData;
+            char[] buffer;
+            WIN32_ERROR regGetValueResult;
 
             using (phkResult)
             {
                 if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regOpenKeyExResult);
 
-                char[] buffer = new char[ListMaximumCharacters * sizeof(char)];
-                uint pcbData = ListMaximumCharacters * sizeof(char);
+                pcbData = ListMaximumCharacters * sizeof(char);
+                buffer = new char[pcbData];
 
                 unsafe
                 {
                     fixed (char* pvData = buffer)
                     {
-                        REG_VALUE_TYPE* pdwType = null;
-                        WIN32_ERROR regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, pdwType, pvData, &pcbData);
-
-                        if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
-                            throw new Win32Exception((int)regGetValueResult);
-
-                        if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
-                            return null;
-
-                        return new(buffer[..(int)(pcbData / sizeof(char))]);
+                        regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, null, pvData, &pcbData);
                     }
                 }
             }
+
+            if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                return null;
+
+            if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                throw new Win32Exception((int)regGetValueResult);
+
+            return new(buffer[..(int)(pcbData / sizeof(char))]);
         }
         finally
         {

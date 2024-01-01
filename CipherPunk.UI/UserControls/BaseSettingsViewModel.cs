@@ -1,20 +1,16 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
-using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 
 internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailable, TDefault> : BaseViewModel
 {
-    private readonly IUacIconService uacIconService;
     private ObservableCollection<TUserInterface>? activeSettingConfigurations;
     private ObservableCollection<TUserInterface>? modifiedSettingConfigurations;
     private ObservableCollection<TDefault>? defaultSettingConfigurations;
-    private BitmapSource? uacIcon;
-    private string? adminMessage;
 
-    protected BaseSettingsViewModel(ILogger logger, IUacIconService uacIconService)
-        : base(logger)
+    protected BaseSettingsViewModel(ILogger logger, IUacService uacService)
+        : base(logger, uacService)
     {
         MoveSettingUpCommand = new RelayCommand<TUserInterface?>(ExecuteMoveSettingUpCommand, CanExecuteMoveSettingUpCommand);
         MoveSettingDownCommand = new RelayCommand<TUserInterface?>(ExecuteMoveSettingDownCommand, CanExecuteMoveSettingDownCommand);
@@ -23,15 +19,8 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
         SaveSettingsCommand = new AsyncRelayCommand(ExecuteSaveSettingsCommandAsync, CanExecuteSaveSettingsCommand);
         CancelSettingsCommand = new RelayCommand(ExecuteCancelSettingsCommand, CanExecuteCancelSettingsCommand);
         ResetSettingsCommand = new AsyncRelayCommand(ExecuteResetSettingsCommandAsync, CanExecuteResetSettingsCommand);
-        this.uacIconService = uacIconService;
 
         UpdateCanExecuteDefaultCommand();
-    }
-
-    public string? AdminMessage
-    {
-        get => adminMessage;
-        protected set => _ = SetProperty(ref adminMessage, value);
     }
 
     public IRelayCommand MoveSettingUpCommand { get; }
@@ -47,8 +36,6 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
     public IRelayCommand CancelSettingsCommand { get; }
 
     public IAsyncRelayCommand ResetSettingsCommand { get; }
-
-    public BitmapSource UacIcon => uacIcon ??= uacIconService.GetUacShieldIcon();
 
     public ObservableCollection<TUserInterface>? ModifiedSettingConfigurations
     {
@@ -79,25 +66,25 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
     protected abstract TUserInterface ConvertSettingCommand(TAvailable availableSettingConfiguration);
 
     private bool CanExecuteMoveSettingUpCommand(TUserInterface? userInterfaceSettingConfiguration)
-        => string.IsNullOrWhiteSpace(AdminMessage) && userInterfaceSettingConfiguration is not null && ModifiedSettingConfigurations!.IndexOf(userInterfaceSettingConfiguration) > 0;
+        => Elevated && userInterfaceSettingConfiguration is not null && ModifiedSettingConfigurations!.IndexOf(userInterfaceSettingConfiguration) > 0;
 
     private bool CanExecuteMoveSettingDownCommand(TUserInterface? userInterfaceSettingConfiguration)
-        => string.IsNullOrWhiteSpace(AdminMessage) && userInterfaceSettingConfiguration is not null && ModifiedSettingConfigurations!.IndexOf(userInterfaceSettingConfiguration) < ModifiedSettingConfigurations.Count - 1;
+        => Elevated && userInterfaceSettingConfiguration is not null && ModifiedSettingConfigurations!.IndexOf(userInterfaceSettingConfiguration) < ModifiedSettingConfigurations.Count - 1;
 
     private bool CanExecuteDeleteSettingCommand(TUserInterface? userInterfaceSettingConfiguration)
-        => string.IsNullOrWhiteSpace(AdminMessage) && userInterfaceSettingConfiguration is not null;
+        => Elevated && userInterfaceSettingConfiguration is not null;
 
     private bool CanExecuteSaveSettingsCommand()
-        => string.IsNullOrWhiteSpace(AdminMessage) && !(activeSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
+        => Elevated && !(activeSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
 
     private bool CanExecuteCancelSettingsCommand()
-        => string.IsNullOrWhiteSpace(AdminMessage) && !(activeSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
+        => Elevated && !(activeSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
 
     private bool CanExecuteAddSettingCommand(TAvailable? availableSettingConfiguration)
-        => string.IsNullOrWhiteSpace(AdminMessage) && availableSettingConfiguration is not null && ModifiedSettingConfigurations!.All(q => !CompareSetting(q, availableSettingConfiguration));
+        => Elevated && availableSettingConfiguration is not null && ModifiedSettingConfigurations!.All(q => !CompareSetting(q, availableSettingConfiguration));
 
     private bool CanExecuteResetSettingsCommand()
-        => string.IsNullOrWhiteSpace(AdminMessage);
+        => Elevated;
 
     private void ExecuteMoveSettingUpCommand(TUserInterface? userInterfaceSettingConfiguration)
     {

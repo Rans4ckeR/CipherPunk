@@ -23,8 +23,15 @@ internal sealed class OverviewViewModel : BaseViewModel
     private string? groupPolicyCipherSuiteMessage;
     private string? groupPolicyEllipticCurveMessage;
 
-    public OverviewViewModel(ILogger logger, ISchannelService schannelService, ICipherSuiteService cipherSuiteService, IEllipticCurveService ellipticCurveService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
-        : base(logger)
+    public OverviewViewModel(
+        ILogger logger,
+        ISchannelService schannelService,
+        ICipherSuiteService cipherSuiteService,
+        IEllipticCurveService ellipticCurveService,
+        ICipherSuiteInfoApiService cipherSuiteInfoApiService,
+        IGroupPolicyService groupPolicyService,
+        IUacService uacService)
+        : base(logger, uacService)
     {
         this.schannelService = schannelService;
         this.cipherSuiteService = cipherSuiteService;
@@ -115,7 +122,7 @@ internal sealed class OverviewViewModel : BaseViewModel
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
-        ushort priority = 0;
+        ushort priority = ushort.MinValue;
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             ++priority,
             q.CipherSuite,
@@ -141,14 +148,14 @@ internal sealed class OverviewViewModel : BaseViewModel
 
         List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
 
-        priority = 0;
+        priority = ushort.MinValue;
 
         var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
             ++priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
-            string.Join(",", q.CngAlgorithms))).ToList();
+            string.Join(',', q.CngAlgorithms))).ToList();
 
         ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
 
@@ -160,22 +167,22 @@ internal sealed class OverviewViewModel : BaseViewModel
         GroupPolicyCipherSuiteMessage = null;
         GroupPolicyEllipticCurveMessage = null;
 
-        try
-        {
-            string[] cipherSuiteOrderPolicy = groupPolicyService.GetSslCipherSuiteOrderPolicy();
-            string[] eccCurveOrderPolicy = groupPolicyService.GetEccCurveOrderPolicy();
-
-            if (cipherSuiteOrderPolicy.Length > 0)
-                GroupPolicyCipherSuiteMessage = "Current Cipher Suite settings are set by Group Policy.";
-
-            if (eccCurveOrderPolicy.Length > 0)
-                GroupPolicyEllipticCurveMessage = "Current Elliptic Curve settings are set by Group Policy.";
-        }
-        catch (UnauthorizedAccessException)
+        if (!Elevated)
         {
             GroupPolicyCipherSuiteMessage = "Current Cipher Suite settings might be set by Group Policy. Run as Administrator to verify.";
             GroupPolicyEllipticCurveMessage = "Current Elliptic Curve settings might be set by Group Policy. Run as Administrator to verify.";
+
+            return;
         }
+
+        string[] cipherSuiteOrderPolicy = groupPolicyService.GetSslCipherSuiteOrderPolicy();
+        string[] eccCurveOrderPolicy = groupPolicyService.GetEccCurveOrderPolicy();
+
+        if (cipherSuiteOrderPolicy.Length > 0)
+            GroupPolicyCipherSuiteMessage = "Current Cipher Suite settings are set by Group Policy.";
+
+        if (eccCurveOrderPolicy.Length > 0)
+            GroupPolicyEllipticCurveMessage = "Current Elliptic Curve settings are set by Group Policy.";
     }
 
     private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)

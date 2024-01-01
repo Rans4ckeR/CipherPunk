@@ -25,7 +25,7 @@ internal sealed partial class App
             {
                 IServiceCollection unused = services
                     .AddSingleton<ILogger, UserInterfaceLogService>()
-                    .AddSingleton<IUacIconService, UacIconService>()
+                    .AddSingleton<IUacService, UacService>()
                     .AddSingleton<MainWindow>()
                     .AddSingleton<MainWindowViewModel>()
                     .AddSingleton<OverviewViewModel>()

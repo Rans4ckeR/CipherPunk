@@ -12,8 +12,8 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private bool fetchOnlineInfo = true;
 
-    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
-        : base(logger)
+    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.cipherSuiteService = cipherSuiteService;
         this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
@@ -41,7 +41,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
-        ushort priority = 0;
+        ushort priority = ushort.MinValue;
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             ++priority,
             q.CipherSuite,

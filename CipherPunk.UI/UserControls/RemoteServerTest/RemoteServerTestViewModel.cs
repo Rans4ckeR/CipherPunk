@@ -12,8 +12,8 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
     private ushort? port;
     private ObservableCollection<UiRemoteServerTestResult>? remoteServerTestResults;
 
-    public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService)
-        : base(logger)
+    public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.tlsService = tlsService;
         RunTestCommand = new AsyncRelayCommand(ExecuteRunTestCommandAsync, CanExecuteRunTestCommand);

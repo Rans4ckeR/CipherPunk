@@ -7,8 +7,8 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
     private readonly IEllipticCurveService ellipticCurveService;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
 
-    public EllipticCurvesViewModel(ILogger logger, IEllipticCurveService ellipticCurveService)
-        : base(logger)
+    public EllipticCurvesViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.ellipticCurveService = ellipticCurveService;
 
@@ -21,20 +21,20 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
         private set => _ = SetProperty(ref activeEllipticCurveConfigurations, value);
     }
 
-    protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
+    protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        await Task.CompletedTask;
-
         List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
 
-        ushort priority = 0;
+        ushort priority = ushort.MinValue;
         var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
             ++priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
-            string.Join(",", q.CngAlgorithms))).ToList();
+            string.Join(',', q.CngAlgorithms))).ToList();
 
         ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
+
+        return Task.CompletedTask;
     }
 }

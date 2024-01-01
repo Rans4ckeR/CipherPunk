@@ -28,18 +28,20 @@
                     <Grid Grid.Row="0" Grid.Column="0">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" x:Name="ModifiedSettingConfigurations" ItemsSource="{Binding ModifiedSettingConfigurations}">
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding AdminMessage}" Foreground="Orange" />
+                        <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" x:Name="ModifiedSettingConfigurations" ItemsSource="{Binding ModifiedSettingConfigurations}">
                             <DataGrid.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.InactiveSelectionHighlightBrushKey}" Color="LightGreen"/>
                             </DataGrid.Resources>
                         </ui:NoScrollDataGrid>
-                        <StackPanel Grid.Row="0" Grid.Column="1">
+                        <StackPanel Grid.Row="1" Grid.Column="1">
                             <Button Content="Up" Command="{Binding MoveSettingUpCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
                             <Button Content="Down" Command="{Binding MoveSettingDownCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>
                             <Button Content="Delete" Command="{Binding DeleteSettingCommand}" CommandParameter="{Binding ElementName=ModifiedSettingConfigurations, Path=SelectedItem}"/>

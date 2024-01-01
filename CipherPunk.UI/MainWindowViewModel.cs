@@ -20,6 +20,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public MainWindowViewModel(
         ILogger logger,
+        IUacService uacService,
         OverviewViewModel overviewViewModel,
         CipherSuitesViewModel cipherSuitesViewModel,
         CipherSuitesOsSettingsViewModel cipherSuitesOsSettingsViewModel,
@@ -29,7 +30,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel ellipticCurvesGroupPolicySettingsViewModel,
         RemoteServerTestViewModel remoteServerTestViewModel,
         LoggingViewModel loggingViewModel)
-        : base(logger)
+        : base(logger, uacService)
     {
         IsActive = true;
         OverviewViewModel = overviewViewModel;

@@ -27,20 +27,20 @@ jobs:
       uses: gittools/actions/gitversion/execute@main
     - name: Publish
       run: |
-        dotnet publish CipherPunk.UI/CipherPunk.UI.csproj --configuration Release --no-self-contained --framework net7.0-windows --runtime win-x86 -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true -p:PublishSingleFile=true -p:DebugType=embedded -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
-        dotnet publish CipherPunk.UI/CipherPunk.UI.csproj --configuration Release --no-self-contained --framework net7.0-windows --runtime win-x64 -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true -p:PublishSingleFile=true -p:DebugType=embedded -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
-        dotnet publish CipherPunk.UI/CipherPunk.UI.csproj --configuration Release --no-self-contained --framework net7.0-windows --runtime win-arm64 -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true -p:PublishSingleFile=true -p:DebugType=embedded -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+        dotnet publish CipherPunk.UI/CipherPunk.UI.csproj --no-self-contained --framework net8.0-windows --runtime win-x86 -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true -p:PublishSingleFile=true -p:DebugType=embedded -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+        dotnet publish CipherPunk.UI/CipherPunk.UI.csproj --no-self-contained --framework net8.0-windows --runtime win-x64 -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true -p:PublishSingleFile=true -p:DebugType=embedded -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
+        dotnet publish CipherPunk.UI/CipherPunk.UI.csproj --no-self-contained --framework net8.0-windows --runtime win-arm64 -p:PublishReadyToRun=true -p:PublishReadyToRunComposite=true -p:PublishSingleFile=true -p:DebugType=embedded -p:AssemblyVersion=$env:GitVersion_AssemblySemVer -p:FileVersion=$env:GitVersion_AssemblySemFileVer -p:InformationalVersion=$env:GitVersion_InformationalVersion
     - name: Zip
       run: |
-        7z a -r "${{ format('CipherPunk-v{0}-net7.0-windows-x86.zip', env.GitVersion_SemVer) }}" "./CipherPunk.UI/bin/Release/net7.0-windows/win-x86/publish/*.*" "-x!*.xml"
-        7z a -r "${{ format('CipherPunk-v{0}-net7.0-windows-x64.zip', env.GitVersion_SemVer) }}" "./CipherPunk.UI/bin/Release/net7.0-windows/win-x64/publish" "-x!*.xml"
-        7z a -r "${{ format('CipherPunk-v{0}-net7.0-windows-ARM64.zip', env.GitVersion_SemVer) }}" "./CipherPunk.UI/bin/Release/net7.0-windows/win-arm64/publish/*.*" "-x!*.xml"
+        7z a -r "${{ format('CipherPunk-v{0}-net8.0-windows-x86.zip', env.GitVersion_SemVer) }}" "./CipherPunk.UI/bin/Release/net8.0-windows/win-x86/publish/*.*" "-x!*.xml"
+        7z a -r "${{ format('CipherPunk-v{0}-net8.0-windows-x64.zip', env.GitVersion_SemVer) }}" "./CipherPunk.UI/bin/Release/net8.0-windows/win-x64/publish/*.*" "-x!*.xml"
+        7z a -r "${{ format('CipherPunk-v{0}-net8.0-windows-ARM64.zip', env.GitVersion_SemVer) }}" "./CipherPunk.UI/bin/Release/net8.0-windows/win-arm64/publish/*.*" "-x!*.xml"
     - name: Release
       run: gh release create v${{ env.GitVersion_SemVer }} (get-item *.zip) --generate-notes --target ${{ github.sha }} ${{ env.PreReleaseTag != '' && '--prerelease' || '' }}
       env:
         GH_TOKEN: ${{ github.token }}
     - name: Package
-      run: dotnet pack CipherPunk/CipherPunk.csproj --no-restore --configuration Release -p:PackageVersion=$env:GitVersion_NuGetVersionV2
+      run: dotnet pack CipherPunk/CipherPunk.csproj --no-restore -p:PackageVersion=$env:GitVersion_NuGetVersionV2
     - name: NuGet Push
       run: dotnet nuget push ${{ format('CipherPunk/bin/Release/CipherPunk.{0}.nupkg', env.GitVersion_NuGetVersionV2) }} --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
     - name: GitHub Push

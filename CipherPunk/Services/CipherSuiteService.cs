@@ -2,18 +2,20 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using Microsoft.Win32;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 
-internal sealed class CipherSuiteService(
-    IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
+internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
     : ICipherSuiteService
 {
     private const string LocalCngSslContextName = "SSL";
+    private const string NcryptSchannelInterfaceSslKey = @"SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002";
+    private const string SslCipherSuiteOrderValueName = "Functions";
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public string[] GetLocalCngConfigurationContextIdentifiers()
     {
@@ -31,7 +33,7 @@ internal sealed class CipherSuiteService(
                 if (status.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(status);
 
-                CRYPT_CONTEXTS cryptContexts = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_CONTEXTS>(ppBuffer), 1)[0];
+                ref CRYPT_CONTEXTS cryptContexts = ref Unsafe.AsRef<CRYPT_CONTEXTS>(ppBuffer);
 
                 contexts = new string[cryptContexts.cContexts];
 
@@ -51,6 +53,7 @@ internal sealed class CipherSuiteService(
         return contexts;
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList()
     {
@@ -59,6 +62,18 @@ internal sealed class CipherSuiteService(
         return windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(windowsVersion);
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
+    [SupportedOSPlatform("windows6.0.6000")]
+    public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList()
+    {
+        using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
+        string[] configuredCipherSuites = (string[]?)registryKey?.GetValue(SslCipherSuiteOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
+        List<WindowsApiCipherSuiteConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+
+        return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => configuredCipherSuites.Contains(q.CipherSuite.ToString(), StringComparer.OrdinalIgnoreCase)).ToList();
+    }
+
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList()
     {
@@ -81,7 +96,7 @@ internal sealed class CipherSuiteService(
 
                 List<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
                 var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
-                CRYPT_CONTEXT_FUNCTIONS cryptContextFunctions = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_CONTEXT_FUNCTIONS>(ppBuffer), 1)[0];
+                ref CRYPT_CONTEXT_FUNCTIONS cryptContextFunctions = ref Unsafe.AsRef<CRYPT_CONTEXT_FUNCTIONS>(ppBuffer);
 
                 for (uint i = uint.MinValue; i < cryptContextFunctions.cFunctions; i++)
                 {
@@ -89,7 +104,7 @@ internal sealed class CipherSuiteService(
                     WindowsApiCipherSuiteConfiguration cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
 
                     if (cipherSuite == default)
-                        throw new(function);
+                        throw new SchannelServiceException(function);
                     else
                         cipherSuiteConfigurations.Add(cipherSuite);
                 }
@@ -104,6 +119,7 @@ internal sealed class CipherSuiteService(
         }
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
     {
@@ -123,17 +139,17 @@ internal sealed class CipherSuiteService(
                 if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptResolveProvidersStatus);
 
-                CRYPT_PROVIDER_REFS cryptProviderRefs = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REFS>(ppBuffer), 1)[0];
+                ref CRYPT_PROVIDER_REFS cryptProviderRefs = ref Unsafe.AsRef<CRYPT_PROVIDER_REFS>(ppBuffer);
 
                 if (cryptProviderRefs.cProviders is not 1U)
                     throw new SchannelServiceException(FormattableString.Invariant($"Found {cryptProviderRefs.cProviders} providers, expected 1."));
 
-                CRYPT_PROVIDER_REF cryptProviderRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_PROVIDER_REF>(cryptProviderRefs.rgpProviders[0]), 1)[0];
+                ref CRYPT_PROVIDER_REF cryptProviderRef = ref Unsafe.AsRef<CRYPT_PROVIDER_REF>(cryptProviderRefs.rgpProviders[0]);
                 pszProvider = cryptProviderRef.pszProvider.ToString();
                 string? pszFunction = cryptProviderRef.pszFunction.ToString();
                 uint cProperties = cryptProviderRef.cProperties;
                 uint dwInterface = cryptProviderRef.dwInterface;
-                CRYPT_IMAGE_REF userModeCryptImageRef = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<CRYPT_IMAGE_REF>(cryptProviderRef.pUM), 1)[0];
+                ref CRYPT_IMAGE_REF userModeCryptImageRef = ref Unsafe.AsRef<CRYPT_IMAGE_REF>(cryptProviderRef.pUM);
                 pszImage = userModeCryptImageRef.pszImage.ToString();
                 CRYPT_IMAGE_REF_FLAGS dwFlags = userModeCryptImageRef.dwFlags;
             }
@@ -164,7 +180,7 @@ internal sealed class CipherSuiteService(
 
                             if (sslEnumCipherSuitesResult.Value.Succeeded)
                             {
-                                NCRYPT_SSL_CIPHER_SUITE ncryptSslCipherSuite = MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef<NCRYPT_SSL_CIPHER_SUITE>(ppCipherSuite), 1)[0];
+                                ref NCRYPT_SSL_CIPHER_SUITE ncryptSslCipherSuite = ref Unsafe.AsRef<NCRYPT_SSL_CIPHER_SUITE>(ppCipherSuite);
                                 SslProviderCipherSuiteId dwCipherSuite = ncryptSslCipherSuite.dwCipherSuite;
                                 SslProviderProtocolId dwProtocol = ncryptSslCipherSuite.dwProtocol;
                                 WindowsApiCipherSuiteConfiguration? windowsApiCipherSuiteConfiguration = cipherSuiteConfigurations.SingleOrDefault(q => q!.Value.CipherSuite == dwCipherSuite, null);
@@ -258,6 +274,7 @@ internal sealed class CipherSuiteService(
         return cipherSuiteConfigurations.Select(q => q!.Value).ToList();
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetCipherSuiteListToOperatingSystemDefault()
     {
@@ -275,6 +292,7 @@ internal sealed class CipherSuiteService(
         }
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void RemoveCipherSuite(string cipherSuite)
     {
@@ -287,9 +305,11 @@ internal sealed class CipherSuiteService(
             throw new Win32Exception(status);
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void RemoveCipherSuite(SslProviderCipherSuiteId cipherSuite) => RemoveCipherSuite(cipherSuite.ToString());
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void AddCipherSuite(string cipherSuite, bool top = true)
     {
@@ -303,9 +323,11 @@ internal sealed class CipherSuiteService(
             throw new Win32Exception(status);
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void AddCipherSuite(SslProviderCipherSuiteId cipherSuite) => AddCipherSuite(cipherSuite.ToString());
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(string[] cipherSuites)
     {
@@ -322,6 +344,7 @@ internal sealed class CipherSuiteService(
         }
     }
 
+    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites) => UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()).ToArray());
 }

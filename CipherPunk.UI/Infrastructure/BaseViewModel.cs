@@ -1,6 +1,7 @@
 ﻿namespace CipherPunk.UI;
 
 using System.ComponentModel;
+using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -8,12 +9,16 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 internal abstract class BaseViewModel : ObservableRecipient
 {
+    private readonly IUacService uacService;
     private bool defaultCommandActive;
     private bool canExecuteDefaultCommand;
+    private BitmapSource? uacIcon;
+    private bool? elevated;
 
-    protected BaseViewModel(ILogger logger)
+    protected BaseViewModel(ILogger logger, IUacService uacService)
         : base(StrongReferenceMessenger.Default)
     {
+        this.uacService = uacService;
         IsActive = true;
         Logger = logger;
         DefaultCommand = new AsyncRelayCommand<bool?>(ExecuteDefaultCommandAsync, _ => CanExecuteDefaultCommand);
@@ -33,6 +38,10 @@ internal abstract class BaseViewModel : ObservableRecipient
                 DefaultCommand.NotifyCanExecuteChanged();
         }
     }
+
+    public BitmapSource UacIcon => uacIcon ??= uacService.GetShieldIcon();
+
+    public bool Elevated => elevated ??= uacService.GetIntegrityLevel().Elevated;
 
     protected ILogger Logger { get; }
 

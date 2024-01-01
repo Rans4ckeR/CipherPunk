@@ -9,8 +9,8 @@ internal sealed class LoggingViewModel : BaseViewModel
     private ObservableCollection<SchannelLog>? logs;
     private string? adminMessage;
 
-    public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService)
-        : base(logger)
+    public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.schannelLogService = schannelLogService;
 

@@ -2,10 +2,12 @@
 
 using CipherPunk.CipherSuiteInfoApi;
 
-internal sealed class CipherSuitesOsSettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
-    : BaseCipherSuitesSettingsViewModel(logger, cipherSuiteService, uacIconService, cipherSuiteInfoApiService)
+internal sealed class CipherSuitesOsSettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    : BaseCipherSuitesSettingsViewModel(logger, cipherSuiteService, uacService, cipherSuiteInfoApiService)
 {
-    protected override IEnumerable<WindowsApiCipherSuiteConfiguration> GetActiveSettingConfiguration() => CipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
+    public string? AdminMessage => Elevated ? null : "Run as Administrator to modify the OS settings.";
+
+    protected override IEnumerable<WindowsApiCipherSuiteConfiguration> GetActiveSettingConfiguration() => CipherSuiteService.GetOperatingSystemConfiguredCipherSuiteList();
 
     protected override void DoExecuteSaveSettingsCommand() => CipherSuiteService.UpdateCipherSuiteOrder(ModifiedSettingConfigurations!.Select(q => q.Id).ToArray());
 
