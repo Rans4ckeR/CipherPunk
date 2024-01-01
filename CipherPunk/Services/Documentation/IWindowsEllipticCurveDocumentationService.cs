@@ -1,6 +1,6 @@
 ﻿namespace CipherPunk;
 
-internal interface IWindowsEllipticCurveDocumentationService
+public interface IWindowsEllipticCurveDocumentationService
 {
     Dictionary<WindowsVersion, List<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations();
 

@@ -97,5 +97,11 @@
         <DataTemplate DataType="{x:Type ui:LoggingViewModel}">
             <ui:LoggingView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:DefaultCipherSuitesViewModel}">
+            <ui:DefaultCipherSuitesView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:DefaultEllipticCurvesViewModel}">
+            <ui:DefaultEllipticCurvesView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

@@ -37,6 +37,8 @@ internal sealed partial class App
                     .AddSingleton<EllipticCurvesGroupPolicySettingsViewModel>()
                     .AddSingleton<RemoteServerTestViewModel>()
                     .AddSingleton<LoggingViewModel>()
+                    .AddSingleton<DefaultCipherSuitesViewModel>()
+                    .AddSingleton<DefaultEllipticCurvesViewModel>()
                     .AddCipherPunk()
                     .AddCipherSuiteInfoApi();
             }).Build();

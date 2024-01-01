@@ -29,7 +29,9 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesOsSettingsViewModel ellipticCurvesOsSettingsViewModel,
         EllipticCurvesGroupPolicySettingsViewModel ellipticCurvesGroupPolicySettingsViewModel,
         RemoteServerTestViewModel remoteServerTestViewModel,
-        LoggingViewModel loggingViewModel)
+        LoggingViewModel loggingViewModel,
+        DefaultCipherSuitesViewModel defaultCipherSuitesViewModel,
+        DefaultEllipticCurvesViewModel defaultEllipticCurvesViewModel)
         : base(logger, uacService)
     {
         IsActive = true;
@@ -42,6 +44,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel = ellipticCurvesGroupPolicySettingsViewModel;
         RemoteServerTestViewModel = remoteServerTestViewModel;
         LoggingViewModel = loggingViewModel;
+        DefaultCipherSuitesViewModel = defaultCipherSuitesViewModel;
+        DefaultEllipticCurvesViewModel = defaultEllipticCurvesViewModel;
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
         CloseMessageCommand = new RelayCommand(ExecuteCloseMessageCommand);
 
@@ -73,6 +77,10 @@ internal sealed class MainWindowViewModel : BaseViewModel
     public RemoteServerTestViewModel RemoteServerTestViewModel { get; }
 
     public LoggingViewModel LoggingViewModel { get; }
+
+    public DefaultCipherSuitesViewModel DefaultCipherSuitesViewModel { get; }
+
+    public DefaultEllipticCurvesViewModel DefaultEllipticCurvesViewModel { get; }
 
     public double MainContentOpacity
     {

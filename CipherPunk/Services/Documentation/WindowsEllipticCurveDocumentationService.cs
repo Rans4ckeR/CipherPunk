@@ -39,6 +39,8 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
         };
         var windows10V1507 = new List<WindowsDocumentationEllipticCurveConfiguration>
         {
+            new(PInvoke.BCRYPT_ECC_CURVE_NISTP256, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP256), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP256, TlsSupportedGroup.secp256r1, true, true),
+            new(PInvoke.BCRYPT_ECC_CURVE_NISTP384, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP384), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP384, TlsSupportedGroup.secp384r1, true, true),
             new(PInvoke.BCRYPT_ECC_CURVE_BRAINPOOLP256R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP256R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP256R1, TlsSupportedGroup.brainpoolP256r1, false, false),
             new(PInvoke.BCRYPT_ECC_CURVE_BRAINPOOLP384R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP384R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP384R1, TlsSupportedGroup.brainpoolP384r1, false, false),
             new(PInvoke.BCRYPT_ECC_CURVE_BRAINPOOLP512R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP512R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_BRAINPOOLP512R1, TlsSupportedGroup.brainpoolP512r1, false, false),
