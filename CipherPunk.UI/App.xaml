@@ -103,5 +103,8 @@
         <DataTemplate DataType="{x:Type ui:DefaultEllipticCurvesViewModel}">
             <ui:DefaultEllipticCurvesView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:ElevationViewModel}">
+            <ui:ElevationView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

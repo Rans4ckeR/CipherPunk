@@ -39,6 +39,7 @@ internal sealed partial class App
                     .AddSingleton<LoggingViewModel>()
                     .AddSingleton<DefaultCipherSuitesViewModel>()
                     .AddSingleton<DefaultEllipticCurvesViewModel>()
+                    .AddSingleton<ElevationViewModel>()
                     .AddCipherPunk()
                     .AddCipherSuiteInfoApi();
             }).Build();

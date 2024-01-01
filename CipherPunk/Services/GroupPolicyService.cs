@@ -183,6 +183,9 @@ internal sealed class GroupPolicyService : IGroupPolicyService
 
             using (phkResult)
             {
+                if (regOpenKeyExResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                    return null;
+
                 if (regOpenKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
                     throw new Win32Exception((int)regOpenKeyExResult);
 

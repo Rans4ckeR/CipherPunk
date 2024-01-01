@@ -76,6 +76,9 @@
                         <RibbonGroup>
                             <RibbonButton Label="Windows Default Elliptic Curves" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding DefaultEllipticCurvesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
+                        <RibbonGroup>
+                            <RibbonButton Label="UAC Elevation" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding ElevationViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
                     </RibbonTab>
                 </Ribbon>
                 <ScrollViewer Grid.Row="1" Grid.Column="0" Background="{StaticResource WindowBackgroundSolidColorBrush}" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">

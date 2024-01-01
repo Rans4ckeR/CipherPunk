@@ -9,7 +9,6 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 internal abstract class BaseViewModel : ObservableRecipient
 {
-    private readonly IUacService uacService;
     private bool defaultCommandActive;
     private bool canExecuteDefaultCommand;
     private BitmapSource? uacIcon;
@@ -18,7 +17,7 @@ internal abstract class BaseViewModel : ObservableRecipient
     protected BaseViewModel(ILogger logger, IUacService uacService)
         : base(StrongReferenceMessenger.Default)
     {
-        this.uacService = uacService;
+        UacService = uacService;
         IsActive = true;
         Logger = logger;
         DefaultCommand = new AsyncRelayCommand<bool?>(ExecuteDefaultCommandAsync, _ => CanExecuteDefaultCommand);
@@ -39,11 +38,13 @@ internal abstract class BaseViewModel : ObservableRecipient
         }
     }
 
-    public BitmapSource UacIcon => uacIcon ??= uacService.GetShieldIcon();
+    public BitmapSource UacIcon => uacIcon ??= UacService.GetShieldIcon();
 
-    public bool Elevated => elevated ??= uacService.GetIntegrityLevel().Elevated;
+    public bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
 
     protected ILogger Logger { get; }
+
+    protected IUacService UacService { get; }
 
     protected bool CanExecuteDefaultCommand
     {
