@@ -2,7 +2,7 @@
 
 public readonly record struct SchannelSettings(
     SchannelLogLevel? LogLevel,
-    CertificateMappingMethod? CertificateMappingMethods,
+    SchannelCertificateMappingMethod? CertificateMappingMethods,
     int? ClientCacheTime,
     bool? EnableOcspStaplingForSni,
     bool? FipsAlgorithmPolicy,

@@ -1,2 +1,8 @@
 ﻿DestroyIcon
+GetSidSubAuthority
+GetSidSubAuthorityCount
+GetTokenInformation
+SECURITY_MANDATORY_*
 SHGetStockIconInfo
+TOKEN_MANDATORY_LABEL
+WIN32_ERROR

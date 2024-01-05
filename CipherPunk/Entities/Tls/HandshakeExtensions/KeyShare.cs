@@ -26,6 +26,6 @@ public sealed record KeyShare
         result.AddRange(PublicKeyLength);
         result.AddRange(PublicKey);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

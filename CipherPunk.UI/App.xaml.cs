@@ -5,9 +5,9 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
 using System.Windows.Threading;
+using CipherPunk.CipherSuiteInfoApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed partial class App
 {
@@ -25,7 +25,7 @@ internal sealed partial class App
             {
                 IServiceCollection unused = services
                     .AddSingleton<ILogger, UserInterfaceLogService>()
-                    .AddSingleton<IUacIconService, UacIconService>()
+                    .AddSingleton<IUacService, UacService>()
                     .AddSingleton<MainWindow>()
                     .AddSingleton<MainWindowViewModel>()
                     .AddSingleton<OverviewViewModel>()
@@ -37,6 +37,9 @@ internal sealed partial class App
                     .AddSingleton<EllipticCurvesGroupPolicySettingsViewModel>()
                     .AddSingleton<RemoteServerTestViewModel>()
                     .AddSingleton<LoggingViewModel>()
+                    .AddSingleton<DefaultCipherSuitesViewModel>()
+                    .AddSingleton<DefaultEllipticCurvesViewModel>()
+                    .AddSingleton<ElevationViewModel>()
                     .AddCipherPunk()
                     .AddCipherSuiteInfoApi();
             }).Build();
@@ -78,11 +81,9 @@ internal sealed partial class App
     }
 
     private static void SetUiCulture()
-    {
-        FrameworkElement.LanguageProperty.OverrideMetadata(
+        => FrameworkElement.LanguageProperty.OverrideMetadata(
             typeof(FrameworkElement),
             new FrameworkPropertyMetadata(XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag)));
-    }
 
     private void AppDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {

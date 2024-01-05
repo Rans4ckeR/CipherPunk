@@ -4,10 +4,7 @@ using System.Buffers.Binary;
 
 public sealed record SupportedVersionsExtension : HandshakeExtension
 {
-    public SupportedVersionsExtension(TlsVersion[] tlsVersions)
-    {
-        SupportedVersions = tlsVersions.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
-    }
+    public SupportedVersionsExtension(TlsVersion[] tlsVersions) => SupportedVersions = tlsVersions.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
 
     // 2 bytes
     public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.supported_versions));
@@ -29,6 +26,6 @@ public sealed record SupportedVersionsExtension : HandshakeExtension
         result.Add(SupportedVersionsLength);
         result.AddRange(SupportedVersions);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

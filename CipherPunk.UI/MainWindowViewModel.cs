@@ -20,6 +20,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public MainWindowViewModel(
         ILogger logger,
+        IUacService uacService,
         OverviewViewModel overviewViewModel,
         CipherSuitesViewModel cipherSuitesViewModel,
         CipherSuitesOsSettingsViewModel cipherSuitesOsSettingsViewModel,
@@ -28,8 +29,11 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesOsSettingsViewModel ellipticCurvesOsSettingsViewModel,
         EllipticCurvesGroupPolicySettingsViewModel ellipticCurvesGroupPolicySettingsViewModel,
         RemoteServerTestViewModel remoteServerTestViewModel,
-        LoggingViewModel loggingViewModel)
-        : base(logger)
+        LoggingViewModel loggingViewModel,
+        DefaultCipherSuitesViewModel defaultCipherSuitesViewModel,
+        DefaultEllipticCurvesViewModel defaultEllipticCurvesViewModel,
+        ElevationViewModel elevationViewModel)
+        : base(logger, uacService)
     {
         IsActive = true;
         OverviewViewModel = overviewViewModel;
@@ -41,17 +45,14 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel = ellipticCurvesGroupPolicySettingsViewModel;
         RemoteServerTestViewModel = remoteServerTestViewModel;
         LoggingViewModel = loggingViewModel;
+        DefaultCipherSuitesViewModel = defaultCipherSuitesViewModel;
+        DefaultEllipticCurvesViewModel = defaultEllipticCurvesViewModel;
+        ElevationViewModel = elevationViewModel;
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
         CloseMessageCommand = new RelayCommand(ExecuteCloseMessageCommand);
 
-        StrongReferenceMessenger.Default.Register<UserMessageValueChangedMessage>(this, (r, m) =>
-        {
-            ((MainWindowViewModel)r).UserMessage = m.Value.Message;
-        });
-        StrongReferenceMessenger.Default.Register<ActiveViewValueChangedMessage>(this, (r, m) =>
-        {
-            ((MainWindowViewModel)r).ActiveView = m.Value;
-        });
+        StrongReferenceMessenger.Default.Register<UserMessageValueChangedMessage>(this, (r, m) => ((MainWindowViewModel)r).UserMessage = m.Value.Message);
+        StrongReferenceMessenger.Default.Register<ActiveViewValueChangedMessage>(this, (r, m) => ((MainWindowViewModel)r).ActiveView = m.Value);
         UpdateCanExecuteDefaultCommand();
     }
 
@@ -79,19 +80,25 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public LoggingViewModel LoggingViewModel { get; }
 
+    public DefaultCipherSuitesViewModel DefaultCipherSuitesViewModel { get; }
+
+    public DefaultEllipticCurvesViewModel DefaultEllipticCurvesViewModel { get; }
+
+    public ElevationViewModel ElevationViewModel { get; }
+
     public double MainContentOpacity
     {
-        get => mainContentOpacity; set { _ = SetProperty(ref mainContentOpacity, value); }
+        get => mainContentOpacity; set => _ = SetProperty(ref mainContentOpacity, value);
     }
 
     public bool MainContentIsHitTestVisible
     {
-        get => mainContentIsHitTestVisible; set { _ = SetProperty(ref mainContentIsHitTestVisible, value); }
+        get => mainContentIsHitTestVisible; set => _ = SetProperty(ref mainContentIsHitTestVisible, value);
     }
 
     public int MessageZIndex
     {
-        get => messageZIndex; set { _ = SetProperty(ref messageZIndex, value); }
+        get => messageZIndex; set => _ = SetProperty(ref messageZIndex, value);
     }
 
     public string? UserMessage
@@ -99,20 +106,20 @@ internal sealed class MainWindowViewModel : BaseViewModel
         get => userMessage;
         private set
         {
-            if (SetProperty(ref userMessage, value))
+            if (!SetProperty(ref userMessage, value))
+                return;
+
+            if (value is null)
             {
-                if (value is null)
-                {
-                    MessageZIndex = ZIndexNoOverlay;
-                    MainContentOpacity = OpacityNoOverlay;
-                    MainContentIsHitTestVisible = true;
-                }
-                else
-                {
-                    MessageZIndex = ZIndexOverlay;
-                    MainContentOpacity = OpacityOverlay;
-                    MainContentIsHitTestVisible = false;
-                }
+                MessageZIndex = ZIndexNoOverlay;
+                MainContentOpacity = OpacityNoOverlay;
+                MainContentIsHitTestVisible = true;
+            }
+            else
+            {
+                MessageZIndex = ZIndexOverlay;
+                MainContentOpacity = OpacityOverlay;
+                MainContentIsHitTestVisible = false;
             }
         }
     }
@@ -132,11 +139,11 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     private void ExecuteCopyMessageCommand()
     {
-        Clipboard.SetText(UserMessage);
+        if (UserMessage is not null)
+            Clipboard.SetText(UserMessage);
+        else
+            Clipboard.Clear();
     }
 
-    private void ExecuteCloseMessageCommand()
-    {
-        UserMessage = null;
-    }
+    private void ExecuteCloseMessageCommand() => UserMessage = null;
 }

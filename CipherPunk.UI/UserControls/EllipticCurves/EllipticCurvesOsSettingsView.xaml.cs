@@ -2,8 +2,5 @@
 
 internal sealed partial class EllipticCurvesOsSettingsView
 {
-    public EllipticCurvesOsSettingsView()
-    {
-        InitializeComponent();
-    }
+    public EllipticCurvesOsSettingsView() => InitializeComponent();
 }

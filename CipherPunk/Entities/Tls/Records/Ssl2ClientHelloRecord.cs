@@ -1,18 +1,17 @@
 ﻿namespace CipherPunk;
 
 using System.Buffers.Binary;
+using System.Security.Cryptography;
 
 public sealed record Ssl2ClientHelloRecord
 {
-    public Ssl2ClientHelloRecord(SslCipherSuites[] sslProviderCipherSuiteIds)
+    public Ssl2ClientHelloRecord(SslCipherSuite[] sslProviderCipherSuiteIds)
     {
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));
         CipherSpecs = sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((uint)q)).Skip(1)).ToArray();
-        SessionId = Array.Empty<byte>();
-        Challenge = new byte[16];
-
-        new Random().NextBytes(Challenge);
+        SessionId = [];
+        Challenge = RandomNumberGenerator.GetBytes(16);
     }
 
     /// <summary>
@@ -82,6 +81,6 @@ public sealed record Ssl2ClientHelloRecord
         result.AddRange(SessionId);
         result.AddRange(Challenge);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

@@ -5,9 +5,7 @@ using System.Buffers.Binary;
 public sealed record PreSharedKeysKeyExchangeModesExtension : HandshakeExtension
 {
     public PreSharedKeysKeyExchangeModesExtension(TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes)
-    {
-        PreSharedKeysKeyExchangeModes = tlsPreSharedKeysKeyExchangeModes.Cast<byte>().ToArray();
-    }
+        => PreSharedKeysKeyExchangeModes = tlsPreSharedKeysKeyExchangeModes.Cast<byte>().ToArray();
 
     // 2 bytes
     public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.psk_key_exchange_modes));
@@ -29,6 +27,6 @@ public sealed record PreSharedKeysKeyExchangeModesExtension : HandshakeExtension
         result.Add(PreSharedKeysKeyExchangeModesLength);
         result.AddRange(PreSharedKeysKeyExchangeModes);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

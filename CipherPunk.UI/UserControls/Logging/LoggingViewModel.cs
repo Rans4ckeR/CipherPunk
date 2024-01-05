@@ -1,27 +1,21 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
-using System.Security;
 
 internal sealed class LoggingViewModel : BaseViewModel
 {
     private readonly ISchannelLogService schannelLogService;
     private ObservableCollection<SchannelLog>? logs;
-    private string? adminMessage;
 
-    public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService)
-        : base(logger)
+    public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.schannelLogService = schannelLogService;
 
         UpdateCanExecuteDefaultCommand();
     }
 
-    public string? AdminMessage
-    {
-        get => adminMessage;
-        private set => _ = SetProperty(ref adminMessage, value);
-    }
+    public string? AdminMessage => Elevated ? null : "Run as Administrator to see the logs.";
 
     public ObservableCollection<SchannelLog>? Logs
     {
@@ -31,20 +25,7 @@ internal sealed class LoggingViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        AdminMessage = null;
-
-        List<SchannelLog> schannelLogs = new();
-
-        try
-        {
-            schannelLogs = schannelLogService.GetSchannelLogs();
-        }
-        catch (SecurityException)
-        {
-            AdminMessage = "Run as Administrator to see the logs.";
-        }
-
-        Logs = new(schannelLogs);
+        Logs = Elevated ? new(schannelLogService.GetSchannelLogs()) : [];
 
         return Task.CompletedTask;
     }

@@ -1,6 +1,7 @@
 ﻿namespace CipherPunk.UI;
 
 using System.ComponentModel;
+using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -10,19 +11,19 @@ internal abstract class BaseViewModel : ObservableRecipient
 {
     private bool defaultCommandActive;
     private bool canExecuteDefaultCommand;
+    private BitmapSource? uacIcon;
+    private bool? elevated;
 
-    protected BaseViewModel(ILogger logger)
+    protected BaseViewModel(ILogger logger, IUacService uacService)
         : base(StrongReferenceMessenger.Default)
     {
+        UacService = uacService;
         IsActive = true;
         Logger = logger;
         DefaultCommand = new AsyncRelayCommand<bool?>(ExecuteDefaultCommandAsync, _ => CanExecuteDefaultCommand);
         PropertyChanged += BaseViewModelPropertyChanged;
 
-        StrongReferenceMessenger.Default.Register<PropertyChangedMessage<bool>>(this, (r, m) =>
-        {
-            ((BaseViewModel)r).Receive(m);
-        });
+        StrongReferenceMessenger.Default.Register<PropertyChangedMessage<bool>>(this, (r, m) => ((BaseViewModel)r).Receive(m));
     }
 
     public IAsyncRelayCommand DefaultCommand { get; }
@@ -37,7 +38,13 @@ internal abstract class BaseViewModel : ObservableRecipient
         }
     }
 
+    public BitmapSource UacIcon => uacIcon ??= UacService.GetShieldIcon();
+
+    public bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
+
     protected ILogger Logger { get; }
+
+    protected IUacService UacService { get; }
 
     protected bool CanExecuteDefaultCommand
     {
@@ -67,15 +74,9 @@ internal abstract class BaseViewModel : ObservableRecipient
         }
     }
 
-    protected virtual bool GetCanExecuteDefaultCommand()
-    {
-        return !DefaultCommandActive;
-    }
+    protected virtual bool GetCanExecuteDefaultCommand() => !DefaultCommandActive;
 
-    protected void UpdateCanExecuteDefaultCommand()
-    {
-        CanExecuteDefaultCommand = GetCanExecuteDefaultCommand();
-    }
+    protected void UpdateCanExecuteDefaultCommand() => CanExecuteDefaultCommand = GetCanExecuteDefaultCommand();
 
     private async Task ExecuteDefaultCommandAsync(bool? showView, CancellationToken cancellationToken)
     {

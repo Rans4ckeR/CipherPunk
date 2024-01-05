@@ -2,8 +2,5 @@
 
 internal sealed partial class OverviewView
 {
-    public OverviewView()
-    {
-        InitializeComponent();
-    }
+    public OverviewView() => InitializeComponent();
 }

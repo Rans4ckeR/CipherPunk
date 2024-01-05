@@ -1,11 +1,16 @@
 ﻿namespace CipherPunk;
 
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Versioning;
+using Windows.Win32.Foundation;
 
 internal sealed class SchannelLogService : ISchannelLogService
 {
+    private const long TlsConnectionSchannelEventId = 36871L;
+    private const long NoCommonCipherSuiteClientServerSchannelEventId = 36874L;
+
     [SupportedOSPlatform("windows")]
     public List<SchannelLog> GetSchannelLogs()
     {
@@ -29,11 +34,11 @@ internal sealed class SchannelLogService : ISchannelLogService
             string? processType = null;
             string? errorCode = null;
 
-            if (eventLogEntry.InstanceId == 36874)
+            if (eventLogEntry.InstanceId is NoCommonCipherSuiteClientServerSchannelEventId)
             {
                 tlsVersion = eventLogEntry.ReplacementStrings[2];
             }
-            else if (eventLogEntry.InstanceId == 36871)
+            else if (eventLogEntry.InstanceId is TlsConnectionSchannelEventId)
             {
                 processType = eventLogEntry.ReplacementStrings[2];
                 errorCode = eventLogEntry.ReplacementStrings[3];
@@ -61,7 +66,16 @@ internal sealed class SchannelLogService : ISchannelLogService
             {
                 string processCurrentName = process.ProcessName;
                 string processMainWindowTitle = process.MainWindowTitle;
-                string? processMainModuleFileName = process.MainModule?.FileName;
+                string? processMainModuleFileName;
+
+                try
+                {
+                    processMainModuleFileName = process.MainModule?.FileName;
+                }
+                catch (Win32Exception ex) when (ex.NativeErrorCode is (int)WIN32_ERROR.ERROR_ACCESS_DENIED)
+                {
+                    processMainModuleFileName = FormattableString.CurrentCulture($"Error: {ex.Message}");
+                }
 
                 result.AddRange(schannelEventLogEntries.Where(q => q.ProcessId == processId).Select(q => q.SchannelLog with
                 {
@@ -72,6 +86,6 @@ internal sealed class SchannelLogService : ISchannelLogService
             }
         }
 
-        return schannelEventLogEntries.Where(q => !result.Select(r => r.ProcessId).Contains(q.ProcessId)).Select(q => q.SchannelLog).Concat(result).OrderByDescending(q => q.TimeGenerated).ToList();
+        return [.. schannelEventLogEntries.Where(q => !result.Select(r => r.ProcessId).Contains(q.ProcessId)).Select(q => q.SchannelLog).Concat(result).OrderByDescending(q => q.TimeGenerated)];
     }
 }

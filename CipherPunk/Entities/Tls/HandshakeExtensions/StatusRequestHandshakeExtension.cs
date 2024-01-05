@@ -8,7 +8,8 @@ public sealed record StatusRequestHandshakeExtension : HandshakeExtension
     public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.status_request));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength { get => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeStatusRequestResponderIdLength.Length + ExtensionTypeStatusRequestRequestExtensionLength.Length + 1))); } // + 1 for size of ExtensionTypeStatusRequestType
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeStatusRequestResponderIdLength.Length + ExtensionTypeStatusRequestRequestExtensionLength.Length + 1))); // + 1 for size of ExtensionTypeStatusRequestType
 
     public static byte ExtensionTypeStatusRequestType => 0x01; // 0x00: certificate status type OCSP
 
@@ -28,6 +29,6 @@ public sealed record StatusRequestHandshakeExtension : HandshakeExtension
         result.AddRange(ExtensionTypeStatusRequestResponderIdLength);
         result.AddRange(ExtensionTypeStatusRequestRequestExtensionLength);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

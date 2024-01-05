@@ -1,12 +1,13 @@
 ﻿namespace CipherPunk;
 
 using System.Buffers.Binary;
+using System.Security.Cryptography;
 
 public abstract record TlsRecord
 {
     protected TlsRecord(ReadOnlySpan<byte> data)
     {
-        TlsRecordHeader = new TlsRecordHeader(data);
+        TlsRecordHeader = new(data);
 
         int index = TlsRecordHeader.Size;
 
@@ -14,10 +15,10 @@ public abstract record TlsRecord
         {
             case TlsContentType.alert:
                 TlsHandshakeHeaderMessageType = byte.MinValue;
-                HandshakeClientVersion = Array.Empty<byte>();
-                HandshakeClientRandom = Array.Empty<byte>();
-                HandshakeSessionId = Array.Empty<byte>();
-                HandshakeExtensions = new();
+                HandshakeClientVersion = [];
+                HandshakeClientRandom = [];
+                HandshakeSessionId = [];
+                HandshakeExtensions = [];
                 return;
         }
 
@@ -27,27 +28,21 @@ public abstract record TlsRecord
         HandshakeClientRandom = data.TakeBytes(ref index, 32);
         byte handshakeSessionIdLength = data.TakeByte(ref index);
         HandshakeSessionId = data.TakeBytes(ref index, handshakeSessionIdLength);
-        HandshakeExtensions = new();
+        HandshakeExtensions = [];
     }
 
     protected TlsRecord(TlsVersion tlsVersion, TlsContentType tlsContentType, TlsHandshakeType tlsHandshakeType)
     {
-        TlsRecordHeader = new TlsRecordHeader(this, tlsVersion, tlsContentType);
+        TlsRecordHeader = new(this, tlsVersion, tlsContentType);
         TlsHandshakeHeaderMessageType = (byte)tlsHandshakeType;
 
         if (tlsVersion is TlsVersion.TLS1_3_PROTOCOL_VERSION)
             tlsVersion = TlsVersion.TLS1_2_PROTOCOL_VERSION;
 
         HandshakeClientVersion = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)tlsVersion));
-        HandshakeClientRandom = new byte[32];
-
-        new Random().NextBytes(HandshakeClientRandom);
-
-        HandshakeSessionId = new byte[32];
-
-        new Random().NextBytes(HandshakeSessionId);
-
-        HandshakeExtensions = new();
+        HandshakeClientRandom = RandomNumberGenerator.GetBytes(32);
+        HandshakeSessionId = RandomNumberGenerator.GetBytes(32);
+        HandshakeExtensions = [];
     }
 
     public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
@@ -75,8 +70,6 @@ public abstract record TlsRecord
 
     public List<HandshakeExtension> HandshakeExtensions { get; protected set; }
 
-    protected abstract byte[] GetRecordTypeBytes();
-
     public static TlsRecord Parse(ReadOnlySpan<byte> data)
     {
         var tlsRecordHeader = new TlsRecordHeader(data);
@@ -93,10 +86,10 @@ public abstract record TlsRecord
                 {
                     TlsHandshakeType.client_hello => new ClientHelloTlsRecord(data),
                     TlsHandshakeType.server_hello => new ServerHelloTlsRecord(data),
-                    _ => throw new ArgumentOutOfRangeException(nameof(tlsHandshakeHeaderMessageType), tlsHandshakeHeaderMessageType, null)
+                    _ => throw new ArgumentOutOfRangeException(nameof(tlsHandshakeHeaderMessageType), (TlsHandshakeType)tlsHandshakeHeaderMessageType, "Unexpected reply from server.")
                 };
             default:
-                throw new ArgumentOutOfRangeException(nameof(tlsRecordHeader.TlsRecordContentType), tlsRecordHeader.TlsRecordContentType, null);
+                throw new ArgumentOutOfRangeException(nameof(tlsRecordHeader.TlsRecordContentType), (TlsContentType)tlsRecordHeader.TlsRecordContentType, "Unexpected reply from server.");
         }
     }
 
@@ -119,7 +112,7 @@ public abstract record TlsRecord
             result.AddRange(handshakeExtension.GetBytes());
         }
 
-        return result.ToArray();
+        return [.. result];
     }
 
     public byte[] GetMessageBytes()
@@ -142,6 +135,8 @@ public abstract record TlsRecord
             result.AddRange(handshakeExtension.GetBytes());
         }
 
-        return result.ToArray();
+        return [.. result];
     }
+
+    protected abstract byte[] GetRecordTypeBytes();
 }

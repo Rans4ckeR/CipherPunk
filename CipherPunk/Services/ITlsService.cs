@@ -2,7 +2,7 @@
 
 public interface ITlsService
 {
-    WindowsSchannelVersion GetWindowsSchannelVersion();
+    WindowsVersion GetWindowsVersion();
 
     ValueTask<List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)>> GetRemoteServerCipherSuitesAsync(string hostName, ushort port, CancellationToken cancellationToken = default);
 

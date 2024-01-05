@@ -9,7 +9,7 @@
 
 namespace CipherPunk;
 
-public enum SslCipherSuites : uint
+public enum SslCipherSuite : uint
 {
     SSL_CK_RC4_128_WITH_MD5 = 0x010080,
     SSL_CK_RC4_128_EXPORT40_WITH_MD5 = 0x020080,

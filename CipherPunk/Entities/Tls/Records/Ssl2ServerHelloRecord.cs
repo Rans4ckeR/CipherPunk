@@ -61,6 +61,6 @@ public sealed record Ssl2ServerHelloRecord
         result.AddRange(CipherSpecs);
         result.AddRange(ConnectionId);
 
-        return result.ToArray();
+        return [.. result];
     }
 }

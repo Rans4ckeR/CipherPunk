@@ -7,15 +7,11 @@
 // </auto-generated>
 // ------------------------------------------------------------------------------
 
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
 namespace CipherPunk;
 
-[Flags]
-public enum CertificateMappingMethod
+public enum TlsCertificateCompressionAlgorithm : ushort
 {
-    Subject_Issuer = 0x0001,
-    IssuerCertificate = 0x0002,
-    UPN = 0x0004,
-    S4U2Self = 0x0008,
-    S4U2SelfExplicit = 0x0010
+    zlib = 1,
+    brotli = 2,
+    zstd = 3
 }

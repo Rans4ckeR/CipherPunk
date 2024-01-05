@@ -1,19 +1,19 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
-using Windows.Win32;
 using CipherPunk.CipherSuiteInfoApi;
+using Windows.Win32;
 
 internal sealed class CipherSuitesViewModel : BaseViewModel
 {
     private readonly ICipherSuiteService cipherSuiteService;
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
+    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private bool fetchOnlineInfo = true;
 
-    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
-        : base(logger)
+    public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.cipherSuiteService = cipherSuiteService;
         this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
@@ -41,7 +41,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
         if (FetchOnlineInfo)
             await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
 
-        ushort priority = 0;
+        ushort priority = ushort.MinValue;
         var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             ++priority,
             q.CipherSuite,

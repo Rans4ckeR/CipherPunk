@@ -71,10 +71,13 @@
                             <RibbonButton Label="Schannel logging" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding LoggingViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Windows Default Cipher Suites" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Windows Default Cipher Suites" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding DefaultCipherSuitesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Windows Default Elliptic Curves" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Windows Default Elliptic Curves" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding DefaultEllipticCurvesViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                        <RibbonGroup>
+                            <RibbonButton Label="UAC Elevation" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding ElevationViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                 </Ribbon>

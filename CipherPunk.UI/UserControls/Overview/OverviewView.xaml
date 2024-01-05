@@ -44,7 +44,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" />
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" Foreground="Orange" />
                     <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
@@ -59,7 +59,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" />
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" Foreground="Orange" />
                     <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
                 </Grid>
             </Expander>

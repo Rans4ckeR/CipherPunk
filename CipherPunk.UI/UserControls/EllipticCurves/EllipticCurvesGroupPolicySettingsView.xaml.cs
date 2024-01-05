@@ -2,8 +2,5 @@
 
 internal sealed partial class EllipticCurvesGroupPolicySettingsView
 {
-    public EllipticCurvesGroupPolicySettingsView()
-    {
-        InitializeComponent();
-    }
+    public EllipticCurvesGroupPolicySettingsView() => InitializeComponent();
 }

@@ -2,10 +2,4 @@
 
 using System;
 
-public sealed class SchannelServiceException : Exception
-{
-    public SchannelServiceException(string message)
-        : base(message)
-    {
-    }
-}
+public sealed class SchannelServiceException(string message) : Exception(message);

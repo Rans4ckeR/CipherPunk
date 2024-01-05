@@ -12,8 +12,8 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
     private ushort? port;
     private ObservableCollection<UiRemoteServerTestResult>? remoteServerTestResults;
 
-    public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService)
-        : base(logger)
+    public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService, IUacService uacService)
+        : base(logger, uacService)
     {
         this.tlsService = tlsService;
         RunTestCommand = new AsyncRelayCommand(ExecuteRunTestCommandAsync, CanExecuteRunTestCommand);
@@ -50,10 +50,7 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
         private set => _ = SetProperty(ref remoteServerTestResults, value);
     }
 
-    protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
-    }
+    protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken) => Task.CompletedTask;
 
     protected override void BaseViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
@@ -71,18 +68,16 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     private async Task ExecuteRunTestCommandAsync(CancellationToken cancellationToken)
     {
-        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
+        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites =
+            await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
         var uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
             q.TlsVersion,
-            q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuites)r.CipherSuiteId).ToString() : ((TlsCipherSuites)r.CipherSuiteId).ToString(),
+            q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuite)r.CipherSuiteId).ToString() : ((TlsCipherSuite)r.CipherSuiteId).ToString(),
             r.Supported,
             r.ErrorReason))).ToList();
 
         RemoteServerTestResults = new(uiRemoteServerTestResults);
     }
 
-    private bool CanExecuteRunTestCommand()
-    {
-        return !string.IsNullOrWhiteSpace(HostName) && Port.HasValue;
-    }
+    private bool CanExecuteRunTestCommand() => !string.IsNullOrWhiteSpace(HostName) && Port.HasValue;
 }

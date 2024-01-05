@@ -2,8 +2,5 @@
 
 internal sealed partial class LoggingView
 {
-    public LoggingView()
-    {
-        InitializeComponent();
-    }
+    public LoggingView() => InitializeComponent();
 }

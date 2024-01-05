@@ -15,10 +15,7 @@ public sealed record AlertTlsRecord : TlsRecord
 
     public byte Description { get; }
 
-    public static implicit operator TlsAlert(AlertTlsRecord alertTlsRecord)
-    {
-        return new((TlsAlertLevel)alertTlsRecord.Level, (TlsAlertDescription)alertTlsRecord.Description);
-    }
+    public static implicit operator TlsAlert(AlertTlsRecord alertTlsRecord) => new((TlsAlertLevel)alertTlsRecord.Level, (TlsAlertDescription)alertTlsRecord.Description);
 
     protected override byte[] GetRecordTypeBytes()
     {
@@ -28,6 +25,6 @@ public sealed record AlertTlsRecord : TlsRecord
             Description
         };
 
-        return result.ToArray();
+        return [.. result];
     }
 }

@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="CipherPunk.UI.ElevationView"
+             x:ClassModifier="internal"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:ui="clr-namespace:CipherPunk.UI"
+             d:DataContext="{d:DesignInstance Type=ui:ElevationViewModel}"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
+            <Expander Header="Current Process UAC Elevation Level">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ListBox Grid.Row="0" Grid.Column="0" ItemsSource="{Binding MandatoryLevels}" SelectedItem="{Binding MandatoryLevel, Mode=OneWay}" IsEnabled="False"/>
+                </Grid>
+            </Expander>
+        </Border>
+    </Grid>
+</UserControl>

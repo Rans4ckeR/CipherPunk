@@ -1,7 +1,7 @@
 ﻿namespace CipherPunk.UI;
 
-using Windows.Win32;
 using CipherPunk.CipherSuiteInfoApi;
+using Windows.Win32;
 
 internal readonly record struct UiWindowsDocumentationCipherSuiteConfiguration(
     ushort Priority,

@@ -2,8 +2,5 @@
 
 internal sealed partial class CipherSuitesGroupPolicySettingsView
 {
-    public CipherSuitesGroupPolicySettingsView()
-    {
-        InitializeComponent();
-    }
+    public CipherSuitesGroupPolicySettingsView() => InitializeComponent();
 }

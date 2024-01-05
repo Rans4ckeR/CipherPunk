@@ -1,129 +1,25 @@
 ﻿namespace CipherPunk.UI;
 
-using System.Collections.ObjectModel;
-using System.Windows.Media.Imaging;
-using Windows.Win32;
 using CipherPunk.CipherSuiteInfoApi;
 
-internal sealed class CipherSuitesGroupPolicySettingsViewModel : BaseViewModel
+internal sealed class CipherSuitesGroupPolicySettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
+    : BaseCipherSuitesSettingsViewModel(logger, cipherSuiteService, uacService, cipherSuiteInfoApiService)
 {
-    private readonly ICipherSuiteService cipherSuiteService;
-    private readonly IUacIconService uacIconService;
-    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
-    private readonly IGroupPolicyService groupPolicyService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = new();
-    private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? activeGroupPolicyCipherSuiteConfigurations;
-    private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? defaultGroupPolicyCipherSuiteConfigurations;
-    private BitmapSource? uacIcon;
-    private bool fetchOnlineInfo = true;
-    private string? adminMessage;
+    public string? AdminMessage => Elevated ? null : "Run as Administrator to view and modify the Group Policy settings.";
 
-    public CipherSuitesGroupPolicySettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacIconService uacIconService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IGroupPolicyService groupPolicyService)
-        : base(logger)
+    protected override IEnumerable<WindowsApiCipherSuiteConfiguration> GetActiveSettingConfiguration()
     {
-        this.cipherSuiteService = cipherSuiteService;
-        this.uacIconService = uacIconService;
-        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
-        this.groupPolicyService = groupPolicyService;
+        if (!Elevated)
+            return [];
 
-        UpdateCanExecuteDefaultCommand();
+        List<string> windowsActiveGroupPolicyCipherSuiteConfigurationsStrings = [.. groupPolicyService.GetSslCipherSuiteOrderPolicy()];
+
+        return CipherSuiteService.GetOperatingSystemActiveCipherSuiteList()
+            .Where(q => windowsActiveGroupPolicyCipherSuiteConfigurationsStrings.Contains(q.CipherSuite.ToString(), StringComparer.OrdinalIgnoreCase))
+            .OrderBy(q => windowsActiveGroupPolicyCipherSuiteConfigurationsStrings.IndexOf(q.CipherSuite.ToString()));
     }
 
-    public string? AdminMessage
-    {
-        get => adminMessage;
-        private set => _ = SetProperty(ref adminMessage, value);
-    }
+    protected override void DoExecuteSaveSettingsCommand() => groupPolicyService.UpdateSslCipherSuiteOrderPolicy(ModifiedSettingConfigurations!.Select(q => q.Id.ToString()).ToArray());
 
-    public BitmapSource UacIcon
-    {
-        get => uacIcon ??= uacIconService.GetUacShieldIcon();
-    }
-
-    public bool FetchOnlineInfo
-    {
-        get => fetchOnlineInfo;
-        set => _ = SetProperty(ref fetchOnlineInfo, value);
-    }
-
-    public ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? ActiveGroupPolicyCipherSuiteConfigurations
-    {
-        get => activeGroupPolicyCipherSuiteConfigurations;
-        private set => _ = SetProperty(ref activeGroupPolicyCipherSuiteConfigurations, value);
-    }
-
-    public ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? DefaultGroupPolicyCipherSuiteConfigurations
-    {
-        get => defaultGroupPolicyCipherSuiteConfigurations;
-        private set => _ = SetProperty(ref defaultGroupPolicyCipherSuiteConfigurations, value);
-    }
-
-    protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
-    {
-        string[] windowsDefaultGroupPolicyCipherSuiteConfigurationsStrings = await groupPolicyService.GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync(cancellationToken);
-        string[] windowsActiveGroupPolicyCipherSuiteConfigurationsStrings = Array.Empty<string>();
-
-        AdminMessage = null;
-
-        try
-        {
-            windowsActiveGroupPolicyCipherSuiteConfigurationsStrings = groupPolicyService.GetSslCipherSuiteOrderPolicy();
-        }
-        catch (UnauthorizedAccessException)
-        {
-            AdminMessage = "Run as Administrator to see the Group Policy settings.";
-        }
-
-        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
-
-        if (FetchOnlineInfo)
-            await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
-
-        IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDefaultGroupPolicyCipherSuiteConfigurations = windowsDocumentationCipherSuiteConfigurations.Where(q => windowsDefaultGroupPolicyCipherSuiteConfigurationsStrings.Contains(q.CipherSuite.ToString()));
-        IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsActiveGroupPolicyCipherSuiteConfigurations = windowsDocumentationCipherSuiteConfigurations.Where(q => windowsActiveGroupPolicyCipherSuiteConfigurationsStrings.Contains(q.CipherSuite.ToString()));
-
-        ushort priority = 0;
-        var uiWindowsActiveGroupPolicyCipherSuiteConfigurations = windowsActiveGroupPolicyCipherSuiteConfigurations.Select(q => new UiWindowsDocumentationCipherSuiteConfiguration(
-            ++priority,
-            q.CipherSuite,
-            q.AllowedByUseStrongCryptographyFlag,
-            q.EnabledByDefault,
-            q.Protocols.Contains(SslProviderProtocolId.SSL2_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.SSL3_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION),
-            q.ExplicitApplicationRequestOnly,
-            q.PreWindows10EllipticCurve,
-            onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
-
-        priority = 0;
-
-        var uiWindowsDefaultGroupPolicyCipherSuiteConfigurations = windowsDefaultGroupPolicyCipherSuiteConfigurations.Select(q => new UiWindowsDocumentationCipherSuiteConfiguration(
-            ++priority,
-            q.CipherSuite,
-            q.AllowedByUseStrongCryptographyFlag,
-            q.EnabledByDefault,
-            q.Protocols.Contains(SslProviderProtocolId.SSL2_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.SSL3_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION),
-            q.Protocols.Contains(SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION),
-            q.ExplicitApplicationRequestOnly,
-            q.PreWindows10EllipticCurve,
-            onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
-
-        ActiveGroupPolicyCipherSuiteConfigurations = new(uiWindowsActiveGroupPolicyCipherSuiteConfigurations);
-        DefaultGroupPolicyCipherSuiteConfigurations = new(uiWindowsDefaultGroupPolicyCipherSuiteConfigurations);
-    }
-
-    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
-    {
-        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.CipherSuite.ToString(), cancellationToken).AsTask()));
-
-        onlineCipherSuiteInfos.Clear();
-        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
-    }
+    protected override void DoExecuteResetSettingsCommand() => groupPolicyService.UpdateSslCipherSuiteOrderPolicy([]);
 }

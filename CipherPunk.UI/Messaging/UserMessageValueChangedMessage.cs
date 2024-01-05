@@ -1,11 +1,5 @@
-namespace CipherPunk.UI;
+﻿namespace CipherPunk.UI;
 
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
-internal sealed class UserMessageValueChangedMessage : ValueChangedMessage<UserMessage>
-{
-    public UserMessageValueChangedMessage(UserMessage userMessage)
-        : base(userMessage)
-    {
-    }
-}
+internal sealed class UserMessageValueChangedMessage(UserMessage userMessage) : ValueChangedMessage<UserMessage>(userMessage);

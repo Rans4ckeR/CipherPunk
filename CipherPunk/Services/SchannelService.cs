@@ -7,7 +7,7 @@ using Microsoft.Win32;
 internal sealed class SchannelService : ISchannelService
 {
     // https://learn.microsoft.com/en-us/windows-server/security/tls/tls-registry-settings
-    private const string SchannelPath = "SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\SCHANNEL\\";
+    private const string SchannelPath = @"SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\";
     private const string SchannelProtocolsPath = SchannelPath + "Protocols\\";
     private const string SchannelProtocolsClientPath = "\\Client";
     private const string SchannelProtocolsServerPath = "\\Server";
@@ -72,17 +72,14 @@ internal sealed class SchannelService : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public List<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
     {
         var result = new List<SchannelKeyExchangeAlgorithmSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelKeyExchangeAlgorithmsPath);
-        string[] subKeyNames = key?.GetSubKeyNames() ?? Array.Empty<string>();
+        string[] subKeyNames = key?.GetSubKeyNames() ?? [];
 
         foreach (string subKeyName in subKeyNames)
         {
@@ -96,27 +93,24 @@ internal sealed class SchannelService : ISchannelService
                 "Diffie-Hellman" => SchannelKeyExchangeAlgorithm.Diffie_Hellman,
                 "ECDH" => SchannelKeyExchangeAlgorithm.ECDH,
                 "PKCS" => SchannelKeyExchangeAlgorithm.PKCS,
-                _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled != 0));
+            result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled is not 0));
         }
 
         return result;
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public List<SchannelHashSettings> GetSchannelHashSettings()
     {
         var result = new List<SchannelHashSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelHashesPath);
-        string[] subKeyNames = key?.GetSubKeyNames() ?? Array.Empty<string>();
+        string[] subKeyNames = key?.GetSubKeyNames() ?? [];
 
         foreach (string subKeyName in subKeyNames)
         {
@@ -125,31 +119,35 @@ internal sealed class SchannelService : ISchannelService
             SchannelHash schannelHash = subKeyName switch
             {
                 "MD5" => SchannelHash.MD5,
-                "SHA" => SchannelHash.SHA,
+                "SHA" => SchannelHash.SHA1,
                 "SHA256" => SchannelHash.SHA256,
                 "SHA384" => SchannelHash.SHA384,
                 "SHA512" => SchannelHash.SHA512,
-                _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null),
+                "SHA3-256" => SchannelHash.SHA3_256,
+                "SHA3-384" => SchannelHash.SHA3_384,
+                "SHA3-512" => SchannelHash.SHA3_512,
+                "SHAKE128" => SchannelHash.SHAKE128,
+                "SHAKE256" => SchannelHash.SHAKE256,
+                "CSHAKE128" => SchannelHash.CSHAKE128,
+                "CSHAKE256" => SchannelHash.CSHAKE256,
+                _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            result.Add(new(schannelHash, enabled is null ? null : enabled != 0));
+            result.Add(new(schannelHash, enabled is null ? null : enabled is not 0));
         }
 
         return result;
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public List<SchannelCipherSettings> GetSchannelCipherSettings()
     {
         var result = new List<SchannelCipherSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelCiphersPath);
-        string[] subKeyNames = key?.GetSubKeyNames() ?? Array.Empty<string>();
+        string[] subKeyNames = key?.GetSubKeyNames() ?? [];
 
         foreach (string subKeyName in subKeyNames)
         {
@@ -169,27 +167,24 @@ internal sealed class SchannelService : ISchannelService
                 "RC4 56/128" => SchannelCipher.RC4_56,
                 "RC4 64/128" => SchannelCipher.RC4_64,
                 "Triple DES 168" => SchannelCipher.TRIPLE_DES_168,
-                _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null),
+                _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            result.Add(new(schannelCipher, enabled is null ? null : enabled != 0));
+            result.Add(new(schannelCipher, enabled is null ? null : enabled is not 0));
         }
 
         return result;
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings)
-    {
-        throw new NotImplementedException();
-    }
+    public void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public SchannelSettings GetSchannelSettings()
     {
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelPath);
         var logLevel = (SchannelLogLevel?)(int?)key?.GetValue(EventLogging);
-        var certificateMappingMethods = (CertificateMappingMethod?)(int?)key?.GetValue(CertificateMappingMethods);
+        var certificateMappingMethods = (SchannelCertificateMappingMethod?)(int?)key?.GetValue(CertificateMappingMethods);
         int? clientCacheTime = (int?)key?.GetValue(ClientCacheTime); // in milliseconds
         int? enableOcspStaplingForSni = (int?)key?.GetValue(EnableOcspStaplingForSni);
         int? fipsAlgorithmPolicy = (int?)key?.GetValue(FipsAlgorithmPolicy);
