@@ -11,10 +11,10 @@ public interface IGroupPolicyService
     ValueTask<string[]> GetSslCurveOrderPolicyWindowsDefaultsAsync(CancellationToken cancellationToken = default);
 
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateSslCipherSuiteOrderPolicy(string[] cipherSuites);
+    void UpdateSslCipherSuiteOrderPolicy(IEnumerable<string> cipherSuites);
 
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateEccCurveOrderPolicy(string[] ellipticCurves);
+    void UpdateEccCurveOrderPolicy(IEnumerable<string> ellipticCurves);
 
     [SupportedOSPlatform("windows6.0.6000")]
     string[] GetSslCipherSuiteOrderPolicy();

@@ -9,7 +9,7 @@ internal sealed class EllipticCurvesOsSettingsViewModel(ILogger logger, IUacServ
         => EllipticCurveService.GetOperatingSystemConfiguredEllipticCurveList();
 
     protected override void DoExecuteSaveSettingsCommand()
-        => EllipticCurveService.UpdateEllipticCurveOrder(ModifiedSettingConfigurations!.Select(q => q.Name).ToArray());
+        => EllipticCurveService.UpdateEllipticCurveOrder(ModifiedSettingConfigurations!.Select(q => q.Name));
 
     protected override void DoExecuteResetSettingsCommand()
         => EllipticCurveService.ResetEllipticCurveListToOperatingSystemDefault();

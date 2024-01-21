@@ -1,10 +1,10 @@
 ﻿namespace CipherPunk;
 
-using System.Collections.ObjectModel;
+using System.Collections.Frozen;
 
 public interface IWindowsCipherSuiteDocumentationService
 {
-    ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations();
+    FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations();
 
-    List<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion windowsVersion);
+    FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion windowsVersion);
 }

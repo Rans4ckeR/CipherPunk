@@ -3,6 +3,7 @@
 using Windows.Win32;
 
 public readonly record struct WindowsDocumentationCipherSuiteConfiguration(
+    ushort Priority,
     SslProviderCipherSuiteId CipherSuite,
     bool AllowedByUseStrongCryptographyFlag,
     bool EnabledByDefault,

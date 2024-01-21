@@ -22,4 +22,4 @@ internal readonly record struct UiWindowsApiCipherSuiteConfiguration(
     uint CipherBlockLength,
     uint CipherLength,
     string Cipher,
-    Security? Security = null);
+    CipherSuiteSecurity? Security = null);

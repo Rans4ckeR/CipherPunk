@@ -1,5 +1,6 @@
 ﻿namespace CipherPunk.UI;
 
+using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -68,13 +69,16 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     private async Task ExecuteRunTestCommandAsync(CancellationToken cancellationToken)
     {
-        List<(TlsVersion TlsVersion, List<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites =
+        FrozenSet<(TlsVersion TlsVersion, FrozenSet<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites =
             await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
-        var uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
+        IOrderedEnumerable<UiRemoteServerTestResult> uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
             q.TlsVersion,
             q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuite)r.CipherSuiteId).ToString() : ((TlsCipherSuite)r.CipherSuiteId).ToString(),
             r.Supported,
-            r.ErrorReason))).ToList();
+            r.ErrorReason)))
+            .OrderByDescending(q => q.Supported)
+            .ThenByDescending(q => q.TlsVersion)
+            .ThenBy(q => q.CipherSuiteId);
 
         RemoteServerTestResults = new(uiRemoteServerTestResults);
     }

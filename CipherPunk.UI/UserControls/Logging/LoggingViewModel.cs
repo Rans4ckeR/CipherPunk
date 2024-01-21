@@ -25,7 +25,7 @@ internal sealed class LoggingViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        Logs = Elevated ? new(schannelLogService.GetSchannelLogs()) : [];
+        Logs = Elevated ? new(schannelLogService.GetSchannelLogs().OrderByDescending(q => q.TimeGenerated)) : [];
 
         return Task.CompletedTask;
     }

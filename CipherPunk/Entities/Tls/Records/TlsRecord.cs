@@ -1,9 +1,10 @@
 ﻿namespace CipherPunk;
 
 using System.Buffers.Binary;
+using System.Collections.Frozen;
 using System.Security.Cryptography;
 
-public abstract record TlsRecord
+internal abstract record TlsRecord
 {
     protected TlsRecord(ReadOnlySpan<byte> data)
     {
@@ -18,7 +19,7 @@ public abstract record TlsRecord
                 HandshakeClientVersion = [];
                 HandshakeClientRandom = [];
                 HandshakeSessionId = [];
-                HandshakeExtensions = [];
+                HandshakeExtensions = FrozenSet<HandshakeExtension>.Empty;
                 return;
         }
 
@@ -28,7 +29,7 @@ public abstract record TlsRecord
         HandshakeClientRandom = data.TakeBytes(ref index, 32);
         byte handshakeSessionIdLength = data.TakeByte(ref index);
         HandshakeSessionId = data.TakeBytes(ref index, handshakeSessionIdLength);
-        HandshakeExtensions = [];
+        HandshakeExtensions = FrozenSet<HandshakeExtension>.Empty;
     }
 
     protected TlsRecord(TlsVersion tlsVersion, TlsContentType tlsContentType, TlsHandshakeType tlsHandshakeType)
@@ -42,10 +43,10 @@ public abstract record TlsRecord
         HandshakeClientVersion = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)tlsVersion));
         HandshakeClientRandom = RandomNumberGenerator.GetBytes(32);
         HandshakeSessionId = RandomNumberGenerator.GetBytes(32);
-        HandshakeExtensions = [];
+        HandshakeExtensions = FrozenSet<HandshakeExtension>.Empty;
     }
 
-    public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
+    public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
 
     public TlsRecordHeader TlsRecordHeader { get; }
 
@@ -68,7 +69,7 @@ public abstract record TlsRecord
     // 2 bytes
     public byte[] HandshakeExtensionsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)HandshakeExtensions.Sum(q => q.GetBytes().Length)));
 
-    public List<HandshakeExtension> HandshakeExtensions { get; protected set; }
+    public FrozenSet<HandshakeExtension> HandshakeExtensions { get; protected init; }
 
     public static TlsRecord Parse(ReadOnlySpan<byte> data)
     {

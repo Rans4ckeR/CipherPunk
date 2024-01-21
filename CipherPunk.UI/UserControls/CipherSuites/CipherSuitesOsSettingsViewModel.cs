@@ -7,9 +7,9 @@ internal sealed class CipherSuitesOsSettingsViewModel(ILogger logger, ICipherSui
 {
     public string? AdminMessage => Elevated ? null : "Run as Administrator to modify the OS settings.";
 
-    protected override IEnumerable<WindowsApiCipherSuiteConfiguration> GetActiveSettingConfiguration() => CipherSuiteService.GetOperatingSystemConfiguredCipherSuiteList();
+    protected override IEnumerable<WindowsApiCipherSuiteConfiguration> GetActiveSettingConfiguration() => CipherSuiteService.GetOperatingSystemConfiguredCipherSuiteList().OrderBy(q => q.Priority);
 
-    protected override void DoExecuteSaveSettingsCommand() => CipherSuiteService.UpdateCipherSuiteOrder(ModifiedSettingConfigurations!.Select(q => q.Id).ToArray());
+    protected override void DoExecuteSaveSettingsCommand() => CipherSuiteService.UpdateCipherSuiteOrder(ModifiedSettingConfigurations!.Select(q => q.Id));
 
     protected override void DoExecuteResetSettingsCommand() => CipherSuiteService.ResetCipherSuiteListToOperatingSystemDefault();
 }

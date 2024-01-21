@@ -16,4 +16,4 @@ internal readonly record struct UiWindowsDocumentationCipherSuiteConfiguration(
     bool Tls13,
     bool ExplicitApplicationRequestOnly = false,
     SslProviderKeyTypeId? PreWindows10EllipticCurve = null,
-    Security? Security = null);
+    CipherSuiteSecurity? Security = null);

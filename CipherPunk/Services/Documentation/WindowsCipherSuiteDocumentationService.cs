@@ -1,20 +1,20 @@
 ﻿namespace CipherPunk;
 
-using System.Collections.ObjectModel;
+using System.Collections.Frozen;
 
 internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSuiteDocumentationService
 {
-    private ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
+    private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
 
-    public ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
+    public FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>> GetWindowsDocumentationCipherSuiteConfigurations()
         => windowsDocumentationCipherSuiteConfigurations ??= BuildWindowsDocumentationCipherSuiteConfigurations();
 
-    public List<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion windowsVersion)
-        => GetWindowsDocumentationCipherSuiteConfigurations().First(q => q.Key <= windowsVersion).Value;
+    public FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion windowsVersion)
+        => GetWindowsDocumentationCipherSuiteConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
 
-    private static ReadOnlyDictionary<WindowsVersion, List<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations() =>
-        new List<(WindowsVersion Version, List<WindowsDocumentationCipherSuiteConfiguration> Configurations)>
-        {
+    private static FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>> BuildWindowsDocumentationCipherSuiteConfigurations()
+        => FrozenDictionary.ToFrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>>(
+        [
             Windows11V22H2CipherSuiteDocumentationService.GetConfiguration(),
             Windows11V21H2CipherSuiteDocumentationService.GetConfiguration(),
             WindowsServer2022CipherSuiteDocumentationService.GetConfiguration(),
@@ -29,5 +29,5 @@ internal sealed class WindowsCipherSuiteDocumentationService : IWindowsCipherSui
             Windows8CipherSuiteDocumentationService.GetConfiguration(),
             Windows7CipherSuiteDocumentationService.GetConfiguration(),
             WindowsVistaCipherSuiteDocumentationService.GetConfiguration()
-        }.ToDictionary(q => q.Version, q => q.Configurations).AsReadOnly();
+        ]);
 }

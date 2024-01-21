@@ -13,5 +13,5 @@ public readonly record struct CipherSuite(
     [property: JsonPropertyName("auth_algorithm")] string AuthenticationAlgorithm,
     [property: JsonPropertyName("enc_algorithm")] string EncryptionAlgorithm,
     [property: JsonPropertyName("hash_algorithm")] string HashAlgorithm,
-    [property: JsonPropertyName("security")] Security Security,
+    [property: JsonPropertyName("security")] CipherSuiteSecurity Security,
     [property: JsonPropertyName("tls_version")] CipherSuiteTlsVersion[] TlsVersions);

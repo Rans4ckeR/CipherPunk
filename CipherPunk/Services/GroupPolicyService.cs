@@ -67,7 +67,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateSslCipherSuiteOrderPolicy(string[] cipherSuites)
+    public void UpdateSslCipherSuiteOrderPolicy(IEnumerable<string> cipherSuites)
     {
         string cipherSuitesString = FormattableString.Invariant($"{string.Join(',', cipherSuites)}\0");
 
@@ -75,7 +75,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateEccCurveOrderPolicy(string[] ellipticCurves)
+    public void UpdateEccCurveOrderPolicy(IEnumerable<string> ellipticCurves)
     {
         string ellipticCurvesString = FormattableString.Invariant($"{string.Join('\0', ellipticCurves)}\0\0");
 
@@ -201,13 +201,12 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                 }
             }
 
-            if (regGetValueResult is WIN32_ERROR.ERROR_FILE_NOT_FOUND)
-                return null;
-
-            if (regGetValueResult is not WIN32_ERROR.ERROR_SUCCESS)
-                throw new Win32Exception((int)regGetValueResult);
-
-            return new(buffer[..(int)(pcbData / sizeof(char))]);
+            return regGetValueResult switch
+            {
+                WIN32_ERROR.ERROR_FILE_NOT_FOUND => null,
+                not WIN32_ERROR.ERROR_SUCCESS => throw new Win32Exception((int)regGetValueResult),
+                _ => new(buffer[..(int)(pcbData / sizeof(char))])
+            };
         }
         finally
         {

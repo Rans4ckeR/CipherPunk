@@ -1,8 +1,9 @@
 ﻿namespace CipherPunk;
 
 using System.Buffers.Binary;
+using System.Collections.Frozen;
 
-public sealed record ClientHelloTlsRecord : TlsRecord
+internal sealed record ClientHelloTlsRecord : TlsRecord
 {
     public ClientHelloTlsRecord(ReadOnlySpan<byte> data)
         : base(data)
@@ -10,7 +11,7 @@ public sealed record ClientHelloTlsRecord : TlsRecord
         HandshakeCipherSuites = [];
         HandshakeCompressionMethods = [];
 
-        int index = TlsRecordHeader.Size + 1 + HandshakeMessageLength.Length + HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length; // + 1 for TlsHandshakeHeaderMessageType, HandshakeSessionIdLength
+        int index = TlsRecordHeader.Size + sizeof(byte) + HandshakeMessageLength.Length + HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length; // + 1 for TlsHandshakeHeaderMessageType, HandshakeSessionIdLength
         ushort handshakeCipherSuitesLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
 
         HandshakeCipherSuites = data.TakeBytes(ref index, handshakeCipherSuitesLength);
@@ -24,60 +25,63 @@ public sealed record ClientHelloTlsRecord : TlsRecord
     public ClientHelloTlsRecord(
         string? serverName,
         TlsVersion tlsVersion,
-        TlsCipherSuite[]? sslProviderCipherSuiteIds,
-        TlsCompressionMethodIdentifier[]? tlsCompressionMethodIdentifiers,
-        TlsEllipticCurvesPointFormat[]? tlsEllipticCurvesPointFormats,
-        TlsSignatureScheme[]? tlsSignatureSchemes,
-        TlsSupportedGroup[]? tlsSupportedGroups,
-        TlsVersion[]? tlsVersions,
-        TlsPreSharedKeysKeyExchangeMode[]? tlsPreSharedKeysKeyExchangeModes,
+        IReadOnlyCollection<TlsCipherSuite>? sslProviderCipherSuiteIds,
+        IReadOnlyCollection<TlsCompressionMethodIdentifier>? tlsCompressionMethodIdentifiers,
+        IReadOnlyCollection<TlsEllipticCurvesPointFormat>? tlsEllipticCurvesPointFormats,
+        IReadOnlyCollection<TlsSignatureScheme>? tlsSignatureSchemes,
+        IReadOnlyCollection<TlsSupportedGroup>? tlsSupportedGroups,
+        IReadOnlyCollection<TlsVersion>? tlsVersions,
+        IReadOnlyCollection<TlsPreSharedKeysKeyExchangeMode>? tlsPreSharedKeysKeyExchangeModes,
         KeyShare[]? keyShares,
-        TlsCertificateCompressionAlgorithm[]? tlsCertificateCompressionAlgorithms)
+        IReadOnlyCollection<TlsCertificateCompressionAlgorithm>? tlsCertificateCompressionAlgorithms)
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
-        HandshakeCipherSuites = sslProviderCipherSuiteIds?.Length > 0 ? sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray() : [];
+        HandshakeCipherSuites = sslProviderCipherSuiteIds?.Count > 0 ? sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray() : [];
 
-        HandshakeCompressionMethods = tlsCompressionMethodIdentifiers?.Length > 0 ? tlsCompressionMethodIdentifiers.Cast<byte>().ToArray() : [];
+        HandshakeCompressionMethods = tlsCompressionMethodIdentifiers?.Count > 0 ? tlsCompressionMethodIdentifiers.Cast<byte>().ToArray() : [];
 
-        HandshakeExtensions.AddRange(new HandshakeExtension[]
-        {
+        List<HandshakeExtension> handshakeExtensions =
+        [
             new StatusRequestHandshakeExtension(),
             new RenegotiationInfoHandshakeExtension(),
             new SignedCertificateTimestampHandshakeExtension(),
             new SessionTicketExtension(),
             new EncryptThenMacExtension(),
             new ExtendedMasterSecretExtension()
-        });
+        ];
 
         if (serverName is not null)
-            HandshakeExtensions.Add(new ServerNameHandshakeExtension(serverName));
+            handshakeExtensions.Add(new ServerNameHandshakeExtension(serverName));
 
-        if (tlsEllipticCurvesPointFormats?.Length > 0)
-            HandshakeExtensions.Add(new EllipticCurvesPointFormatsHandshakeExtension(tlsEllipticCurvesPointFormats));
+        if (tlsEllipticCurvesPointFormats?.Count > 0)
+            handshakeExtensions.Add(new EllipticCurvesPointFormatsHandshakeExtension(tlsEllipticCurvesPointFormats));
 
-        if (tlsSignatureSchemes?.Length > 0)
-            HandshakeExtensions.Add(new SignatureAlgorithmsHandshakeExtension(tlsSignatureSchemes)); // "signature_algorithms" is REQUIRED for certificate authentication.
+        if (tlsSignatureSchemes?.Count > 0)
+            handshakeExtensions.Add(new SignatureAlgorithmsHandshakeExtension(tlsSignatureSchemes)); // "signature_algorithms" is REQUIRED for certificate authentication.
 
-        if (tlsSupportedGroups?.Length > 0)
-            HandshakeExtensions.Add(new SupportedGroupsHandshakeExtension(tlsSupportedGroups)); // "supported_groups" is REQUIRED for ClientHello messages using DHE or ECDHE key exchange.
+        if (tlsSupportedGroups?.Count > 0)
+            handshakeExtensions.Add(new SupportedGroupsHandshakeExtension(tlsSupportedGroups)); // "supported_groups" is REQUIRED for ClientHello messages using DHE or ECDHE key exchange.
 
-        if (tlsVersions?.Length > 0)
-            HandshakeExtensions.Add(new SupportedVersionsExtension(tlsVersions)); // "supported_versions" is REQUIRED for all ClientHello, ServerHello, and HelloRetryRequest messages.
+        if (tlsVersions?.Count > 0)
+            handshakeExtensions.Add(new SupportedVersionsExtension(tlsVersions)); // "supported_versions" is REQUIRED for all ClientHello, ServerHello, and HelloRetryRequest messages.
 
-        if (tlsPreSharedKeysKeyExchangeModes?.Length > 0)
-            HandshakeExtensions.Add(new PreSharedKeysKeyExchangeModesExtension(tlsPreSharedKeysKeyExchangeModes)); // "pre_shared_key" is REQUIRED for PSK key agreement.
+        if (tlsPreSharedKeysKeyExchangeModes?.Count > 0)
+            handshakeExtensions.Add(new PreSharedKeysKeyExchangeModesExtension(tlsPreSharedKeysKeyExchangeModes)); // "pre_shared_key" is REQUIRED for PSK key agreement.
 
         if (keyShares?.Length > 0)
-            HandshakeExtensions.Add(new KeyShareExtension(keyShares)); // "key_share" is REQUIRED for DHE or ECDHE key exchange.
+            handshakeExtensions.Add(new KeyShareExtension(keyShares)); // "key_share" is REQUIRED for DHE or ECDHE key exchange.
 
-        if (tlsCertificateCompressionAlgorithms?.Length > 0)
-            HandshakeExtensions.Add(new CompressCertificateHandshakeExtension(tlsCertificateCompressionAlgorithms));
+        if (tlsCertificateCompressionAlgorithms?.Count > 0)
+            handshakeExtensions.Add(new CompressCertificateHandshakeExtension(tlsCertificateCompressionAlgorithms));
 
         //// "psk_key_exchange_modes" is REQUIRED for PSK key agreement.
 
-        var padding = new PaddingHandshakeExtension(512 - (1 + HandshakeMessageLength.Length + HandshakeMessageNumberOfBytes)); // + 1 for size of TlsHandshakeHeaderMessageType
+        const int paddingLength = 512;
+        var padding = new PaddingHandshakeExtension(paddingLength - (sizeof(byte) + HandshakeMessageLength.Length + HandshakeMessageNumberOfBytes)); // + 1 for size of TlsHandshakeHeaderMessageType
 
-        HandshakeExtensions.Add(padding);
+        handshakeExtensions.Add(padding);
+
+        HandshakeExtensions = handshakeExtensions.ToFrozenSet();
     }
 
     // 2 bytes

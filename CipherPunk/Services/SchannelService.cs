@@ -1,5 +1,6 @@
 ﻿namespace CipherPunk;
 
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
@@ -35,7 +36,7 @@ internal sealed class SchannelService : ISchannelService
     private const string ServerCacheTime = "ServerCacheTime";
 
     [SupportedOSPlatform("windows")]
-    public List<SchannelProtocolSettings> GetProtocolSettings()
+    public FrozenSet<SchannelProtocolSettings> GetProtocolSettings()
     {
         var result = new List<SchannelProtocolSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelProtocolsPath);
@@ -68,14 +69,14 @@ internal sealed class SchannelService : ISchannelService
             result.Add(new(schannelProtocol, clientStatus, serverStatus));
         }
 
-        return result;
+        return result.ToFrozenSet();
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings) => throw new NotImplementedException();
+    public void UpdateProtocolSettings(ICollection<SchannelProtocolSettings> schannelProtocolSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
-    public List<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
+    public FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
     {
         var result = new List<SchannelKeyExchangeAlgorithmSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelKeyExchangeAlgorithmsPath);
@@ -99,14 +100,14 @@ internal sealed class SchannelService : ISchannelService
             result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled is not 0));
         }
 
-        return result;
+        return result.ToFrozenSet();
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings) => throw new NotImplementedException();
+    public void UpdateKeyExchangeAlgorithmSettings(ICollection<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
-    public List<SchannelHashSettings> GetSchannelHashSettings()
+    public FrozenSet<SchannelHashSettings> GetSchannelHashSettings()
     {
         var result = new List<SchannelHashSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelHashesPath);
@@ -136,14 +137,14 @@ internal sealed class SchannelService : ISchannelService
             result.Add(new(schannelHash, enabled is null ? null : enabled is not 0));
         }
 
-        return result;
+        return result.ToFrozenSet();
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings) => throw new NotImplementedException();
+    public void UpdateSchannelHashSettings(ICollection<SchannelHashSettings> schannelHashSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
-    public List<SchannelCipherSettings> GetSchannelCipherSettings()
+    public FrozenSet<SchannelCipherSettings> GetSchannelCipherSettings()
     {
         var result = new List<SchannelCipherSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelCiphersPath);
@@ -173,11 +174,11 @@ internal sealed class SchannelService : ISchannelService
             result.Add(new(schannelCipher, enabled is null ? null : enabled is not 0));
         }
 
-        return result;
+        return result.ToFrozenSet();
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings) => throw new NotImplementedException();
+    public void UpdateSchannelCipherSettings(ICollection<SchannelCipherSettings> schannelCipherSettings) => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public SchannelSettings GetSchannelSettings()

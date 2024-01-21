@@ -1,32 +1,33 @@
 ﻿namespace CipherPunk;
 
+using System.Collections.Frozen;
 using System.Runtime.Versioning;
 
 public interface ISchannelService
 {
     [SupportedOSPlatform("windows")]
-    List<SchannelProtocolSettings> GetProtocolSettings();
+    FrozenSet<SchannelProtocolSettings> GetProtocolSettings();
 
     [SupportedOSPlatform("windows")]
-    void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings);
+    void UpdateProtocolSettings(ICollection<SchannelProtocolSettings> schannelProtocolSettings);
 
     [SupportedOSPlatform("windows")]
-    List<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings();
+    FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings();
 
     [SupportedOSPlatform("windows")]
-    void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings);
+    void UpdateKeyExchangeAlgorithmSettings(ICollection<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings);
 
     [SupportedOSPlatform("windows")]
-    List<SchannelHashSettings> GetSchannelHashSettings();
+    FrozenSet<SchannelHashSettings> GetSchannelHashSettings();
 
     [SupportedOSPlatform("windows")]
-    void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings);
+    void UpdateSchannelHashSettings(ICollection<SchannelHashSettings> schannelHashSettings);
 
     [SupportedOSPlatform("windows")]
-    List<SchannelCipherSettings> GetSchannelCipherSettings();
+    FrozenSet<SchannelCipherSettings> GetSchannelCipherSettings();
 
     [SupportedOSPlatform("windows")]
-    void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings);
+    void UpdateSchannelCipherSettings(ICollection<SchannelCipherSettings> schannelCipherSettings);
 
     [SupportedOSPlatform("windows")]
     SchannelSettings GetSchannelSettings();

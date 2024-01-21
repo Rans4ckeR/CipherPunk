@@ -10,7 +10,8 @@
         MinWidth="640px"
         MinHeight="480px"
         Title="{Binding Title}"
-        Style="{DynamicResource TextStyle}">
+        Style="{DynamicResource TextStyle}"
+        Icon="pack://application:,,,/CipherPunk.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

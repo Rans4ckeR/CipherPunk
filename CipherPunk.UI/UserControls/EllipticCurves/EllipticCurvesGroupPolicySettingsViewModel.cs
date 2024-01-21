@@ -17,7 +17,7 @@ internal sealed class EllipticCurvesGroupPolicySettingsViewModel(ILogger logger,
             .OrderBy(q => activeGroupPolicyEllipticCurveConfigurationsStrings.IndexOf(q.pwszName));
     }
 
-    protected override void DoExecuteSaveSettingsCommand() => groupPolicyService.UpdateEccCurveOrderPolicy(ModifiedSettingConfigurations!.Select(q => q.Name).ToArray());
+    protected override void DoExecuteSaveSettingsCommand() => groupPolicyService.UpdateEccCurveOrderPolicy(ModifiedSettingConfigurations!.Select(q => q.Name));
 
     protected override void DoExecuteResetSettingsCommand() => groupPolicyService.UpdateEccCurveOrderPolicy([]);
 }

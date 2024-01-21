@@ -1,4 +1,5 @@
-﻿namespace CipherPunk;
+﻿// ReSharper disable UnusedMember.Global
+namespace CipherPunk;
 
 [Flags]
 public enum SchannelLogLevel

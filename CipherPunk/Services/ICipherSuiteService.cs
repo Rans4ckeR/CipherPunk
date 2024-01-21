@@ -1,36 +1,37 @@
 ﻿namespace CipherPunk;
 
+using System.Collections.Frozen;
 using System.Runtime.Versioning;
 using Windows.Win32;
 
 public interface ICipherSuiteService
 {
     [SupportedOSPlatform("windows6.0.6000")]
-    string[] GetLocalCngConfigurationContextIdentifiers();
+    IEnumerable<string> GetLocalCngConfigurationContextIdentifiers();
 
     /// <summary>
     /// Gets the default Cipher Suite configurations for the current OS from documentation.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
+    FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
 
     /// <summary>
     /// Gets the configured Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
+    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
 
     /// <summary>
     /// Gets the OS's currently active Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
+    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
 
     /// <summary>
     /// Gets the default Cipher Suite configurations for the current OS from Ncrypt.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
 
     /// <summary>
     /// Resets the Ncrypt Cipher Suite configurations to the default for the current OS.
@@ -66,11 +67,11 @@ public interface ICipherSuiteService
     /// Sets the active Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateCipherSuiteOrder(string[] cipherSuites);
+    void UpdateCipherSuiteOrder(IEnumerable<string> cipherSuites);
 
     /// <summary>
     /// Sets the active Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites);
+    void UpdateCipherSuiteOrder(IEnumerable<SslProviderCipherSuiteId> cipherSuites);
 }

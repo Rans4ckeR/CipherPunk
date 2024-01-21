@@ -2,18 +2,21 @@
 
 using System.Buffers.Binary;
 
-public sealed record CompressCertificateHandshakeExtension : HandshakeExtension
+internal sealed record CompressCertificateHandshakeExtension : HandshakeExtension
 {
-    public CompressCertificateHandshakeExtension(TlsCertificateCompressionAlgorithm[] tlsCertificateCompressionAlgorithms)
+    public CompressCertificateHandshakeExtension(IEnumerable<TlsCertificateCompressionAlgorithm> tlsCertificateCompressionAlgorithms)
         => CertificateCompressionAlgorithms = tlsCertificateCompressionAlgorithms.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
 
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.compress_certificate));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.compress_certificate));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(1 + CertificateCompressionAlgorithms.Length))); // + 1 for size of CertificateCompressionAlgorithmsLength
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + CertificateCompressionAlgorithms.Length))); // + 1 for size of CertificateCompressionAlgorithmsLength
 
-    public byte CertificateCompressionAlgorithmsLength => (byte)CertificateCompressionAlgorithms.Length;
+    public byte CertificateCompressionAlgorithmsLength
+        => (byte)CertificateCompressionAlgorithms.Length;
 
     // 2 bytes per item
     public byte[] CertificateCompressionAlgorithms { get; }

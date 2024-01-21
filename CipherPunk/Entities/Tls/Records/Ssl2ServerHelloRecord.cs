@@ -2,7 +2,7 @@
 
 using System.Buffers.Binary;
 
-public sealed record Ssl2ServerHelloRecord
+internal sealed record Ssl2ServerHelloRecord
 {
     public Ssl2ServerHelloRecord(ReadOnlySpan<byte> data)
     {
@@ -22,7 +22,7 @@ public sealed record Ssl2ServerHelloRecord
     }
 
     // 2 bytes
-    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(1 + 1 + 1 + Version.Length + CertificateLength.Length + CipherSpecLength.Length + ConnectionIdLength.Length + Certificate.Length + CipherSpecs.Length + ConnectionId.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType, SessionIdHit, CertificateType
+    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + sizeof(byte) + sizeof(byte) + Version.Length + CertificateLength.Length + CipherSpecLength.Length + ConnectionIdLength.Length + Certificate.Length + CipherSpecs.Length + ConnectionId.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType, SessionIdHit, CertificateType
 
     public byte MessageType { get; }
 

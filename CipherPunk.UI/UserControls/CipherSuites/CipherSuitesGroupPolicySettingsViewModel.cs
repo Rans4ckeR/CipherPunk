@@ -19,7 +19,7 @@ internal sealed class CipherSuitesGroupPolicySettingsViewModel(ILogger logger, I
             .OrderBy(q => windowsActiveGroupPolicyCipherSuiteConfigurationsStrings.IndexOf(q.CipherSuite.ToString()));
     }
 
-    protected override void DoExecuteSaveSettingsCommand() => groupPolicyService.UpdateSslCipherSuiteOrderPolicy(ModifiedSettingConfigurations!.Select(q => q.Id.ToString()).ToArray());
+    protected override void DoExecuteSaveSettingsCommand() => groupPolicyService.UpdateSslCipherSuiteOrderPolicy(ModifiedSettingConfigurations!.Select(q => q.Id.ToString()));
 
     protected override void DoExecuteResetSettingsCommand() => groupPolicyService.UpdateSslCipherSuiteOrderPolicy([]);
 }

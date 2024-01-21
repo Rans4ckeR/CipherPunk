@@ -90,7 +90,7 @@ dotnet_diagnostic.CA1869.severity = warning
 dotnet_style_allow_multiple_blank_lines_experimental = false:warning
 dotnet_style_allow_statement_immediately_after_block_experimental = false:warning
 dotnet_code_quality_unused_parameters = all:warning
-dotnet_style_prefer_collection_expression = true:warning
+dotnet_style_prefer_collection_expression = when_types_exactly_match:warning
 ###############################
 # C# Coding Conventions       #
 ###############################
@@ -1381,3 +1381,7 @@ csharp_style_prefer_pattern_matching = true:warning
 csharp_style_prefer_not_pattern = true:warning
 csharp_style_prefer_extended_property_pattern = true:warning
 dotnet_diagnostic.SA1010.severity = warning
+dotnet_diagnostic.SYSLIB1096.severity = warning
+dotnet_diagnostic.SYSLIB1097.severity = warning
+dotnet_diagnostic.CA1870.severity = warning
+dotnet_diagnostic.IDE0305.severity = warning

@@ -2,18 +2,21 @@
 
 using System.Buffers.Binary;
 
-public sealed record PreSharedKeysKeyExchangeModesExtension : HandshakeExtension
+internal sealed record PreSharedKeysKeyExchangeModesExtension : HandshakeExtension
 {
-    public PreSharedKeysKeyExchangeModesExtension(TlsPreSharedKeysKeyExchangeMode[] tlsPreSharedKeysKeyExchangeModes)
+    public PreSharedKeysKeyExchangeModesExtension(IEnumerable<TlsPreSharedKeysKeyExchangeMode> tlsPreSharedKeysKeyExchangeModes)
         => PreSharedKeysKeyExchangeModes = tlsPreSharedKeysKeyExchangeModes.Cast<byte>().ToArray();
 
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.psk_key_exchange_modes));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.psk_key_exchange_modes));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(1 + PreSharedKeysKeyExchangeModes.Length))); // + 1 for size of PreSharedKeysKeyExchangeModesLength
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + PreSharedKeysKeyExchangeModes.Length))); // + 1 for size of PreSharedKeysKeyExchangeModesLength
 
-    public byte PreSharedKeysKeyExchangeModesLength => (byte)PreSharedKeysKeyExchangeModes.Length;
+    public byte PreSharedKeysKeyExchangeModesLength
+        => (byte)PreSharedKeysKeyExchangeModes.Length;
 
     // 1 byte per item
     public byte[] PreSharedKeysKeyExchangeModes { get; }

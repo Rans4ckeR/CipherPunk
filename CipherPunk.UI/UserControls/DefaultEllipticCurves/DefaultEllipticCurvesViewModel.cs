@@ -1,5 +1,6 @@
 ﻿namespace CipherPunk.UI;
 
+using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 
@@ -62,17 +63,16 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
     {
         try
         {
-            List<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfigurations = windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion!.Value);
-
-            ushort priority = ushort.MinValue;
-            var uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationEllipticCurveConfigurations.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
-                ++priority,
+            FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfigurations = windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion!.Value);
+            IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationEllipticCurveConfigurations.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
+                q.Priority,
                 q.Name,
                 q.Identifier,
                 q.Code,
                 q.TlsSupportedGroup,
                 q.AllowedByUseStrongCryptographyFlag,
-                q.EnabledByDefault)).ToList();
+                q.EnabledByDefault))
+                .OrderBy(q => q.Priority);
 
             DefaultEllipticCurves = new(uiWindowsDocumentationCipherSuiteConfigurations);
         }

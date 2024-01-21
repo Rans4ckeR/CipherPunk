@@ -2,7 +2,7 @@
 
 using System.Buffers.Binary;
 
-public sealed record TlsRecordHeader
+internal sealed record TlsRecordHeader
 {
     public TlsRecordHeader(ReadOnlySpan<byte> data)
     {

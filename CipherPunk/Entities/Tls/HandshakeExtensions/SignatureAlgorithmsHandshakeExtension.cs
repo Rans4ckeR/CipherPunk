@@ -2,19 +2,22 @@
 
 using System.Buffers.Binary;
 
-public sealed record SignatureAlgorithmsHandshakeExtension : HandshakeExtension
+internal sealed record SignatureAlgorithmsHandshakeExtension : HandshakeExtension
 {
-    public SignatureAlgorithmsHandshakeExtension(TlsSignatureScheme[] tlsSignatureSchemes)
+    public SignatureAlgorithmsHandshakeExtension(IEnumerable<TlsSignatureScheme> tlsSignatureSchemes)
         => ExtensionTypeSignatureAlgorithms = tlsSignatureSchemes.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
 
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.signature_algorithms));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.signature_algorithms));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeSignatureAlgorithmsLength.Length + ExtensionTypeSignatureAlgorithms.Length)));
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeSignatureAlgorithmsLength.Length + ExtensionTypeSignatureAlgorithms.Length)));
 
     // 2 bytes
-    public byte[] ExtensionTypeSignatureAlgorithmsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)ExtensionTypeSignatureAlgorithms.Length));
+    public byte[] ExtensionTypeSignatureAlgorithmsLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)ExtensionTypeSignatureAlgorithms.Length));
 
     // 2 bytes per item
     public byte[] ExtensionTypeSignatureAlgorithms { get; }

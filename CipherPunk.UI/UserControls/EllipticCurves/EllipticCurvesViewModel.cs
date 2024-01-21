@@ -1,5 +1,6 @@
 ﻿namespace CipherPunk.UI;
 
+using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 
 internal sealed class EllipticCurvesViewModel : BaseViewModel
@@ -23,15 +24,14 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-
-        ushort priority = ushort.MinValue;
-        var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
-            ++priority,
+        FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
+        IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+            q.Priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
-            string.Join(',', q.CngAlgorithms))).ToList();
+            string.Join(',', q.CngAlgorithms)))
+            .OrderBy(q => q.Priority);
 
         ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
 

@@ -33,6 +33,7 @@
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <EnablePackageValidation>true</EnablePackageValidation>
+    <PackageIcon>CipherPunk.jpg</PackageIcon>
     <Platforms>AnyCPU</Platforms>
     <EnableSourceControlManagerQueries Condition="$(Configuration) == 'Debug'">true</EnableSourceControlManagerQueries> <!--https://github.com/dotnet/sdk/issues/36666-->
   </PropertyGroup>
@@ -43,6 +44,10 @@
     <AdditionalFiles Include="NativeMethods.txt" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\CipherPunk.jpg">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
     <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
   <ItemGroup>
@@ -53,11 +58,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="56.0.13-preview">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="57.0.42-preview">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.WDK.Win32Metadata" Version="0.9.9-experimental">
+    <PackageReference Include="Microsoft.Windows.WDK.Win32Metadata" Version="0.10.7-experimental">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

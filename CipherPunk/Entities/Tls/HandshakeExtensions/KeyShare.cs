@@ -2,7 +2,7 @@
 
 using System.Buffers.Binary;
 
-public sealed record KeyShare
+internal sealed record KeyShare
 {
     public KeyShare(TlsSupportedGroup tlsSupportedGroup, byte[] publicKey)
     {
@@ -14,7 +14,8 @@ public sealed record KeyShare
     public byte[] SupportedGroup { get; }
 
     // 2 bytes
-    public byte[] PublicKeyLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)PublicKey.Length));
+    public byte[] PublicKeyLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)PublicKey.Length));
 
     public byte[] PublicKey { get; }
 

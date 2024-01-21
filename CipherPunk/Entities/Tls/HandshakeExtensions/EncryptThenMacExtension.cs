@@ -2,13 +2,15 @@
 
 using System.Buffers.Binary;
 
-public sealed record EncryptThenMacExtension : HandshakeExtension
+internal sealed record EncryptThenMacExtension : HandshakeExtension
 {
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.encrypt_then_mac));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.encrypt_then_mac));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0)); // encrypt_then_mac
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0)); // encrypt_then_mac
 
     public override byte[] GetBytes()
     {

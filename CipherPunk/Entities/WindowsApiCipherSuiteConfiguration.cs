@@ -3,7 +3,8 @@
 using Windows.Win32;
 
 public readonly record struct WindowsApiCipherSuiteConfiguration(
-    List<SslProviderProtocolId> Protocols,
+    ushort Priority,
+    ICollection<SslProviderProtocolId> Protocols,
     SslProviderKeyTypeId? KeyType,
     string? Certificate,
     uint? MaximumExchangeLength,

@@ -1,5 +1,6 @@
 ﻿namespace CipherPunk.UI;
 
+using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CipherPunk.CipherSuiteInfoApi;
@@ -78,14 +79,13 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
     {
         try
         {
-            List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion!.Value);
+            FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion!.Value);
 
             if (FetchOnlineInfo)
                 await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, CancellationToken.None);
 
-            ushort priority = ushort.MinValue;
-            var uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationCipherSuiteConfigurations.Select(q => new UiWindowsDocumentationCipherSuiteConfiguration(
-                ++priority,
+            IOrderedEnumerable<UiWindowsDocumentationCipherSuiteConfiguration> uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationCipherSuiteConfigurations.Select(q => new UiWindowsDocumentationCipherSuiteConfiguration(
+                q.Priority,
                 q.CipherSuite,
                 q.AllowedByUseStrongCryptographyFlag,
                 q.EnabledByDefault,
@@ -97,7 +97,8 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
                 q.Protocols.Contains(SslProviderProtocolId.TLS1_3_PROTOCOL_VERSION),
                 q.ExplicitApplicationRequestOnly,
                 q.PreWindows10EllipticCurve,
-                onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
+                onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security))
+                .OrderBy(q => q.Priority);
 
             DefaultCipherSuites = new(uiWindowsDocumentationCipherSuiteConfigurations);
         }
