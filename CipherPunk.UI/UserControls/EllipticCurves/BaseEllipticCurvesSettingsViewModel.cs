@@ -54,7 +54,7 @@ internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEll
     }
 
     protected override bool CompareSetting(UiWindowsApiEllipticCurveConfiguration userInterfaceSettingConfiguration, UiWindowsApiEllipticCurveConfiguration availableSettingConfiguration)
-        => userInterfaceSettingConfiguration.Id == availableSettingConfiguration.Id;
+        => userInterfaceSettingConfiguration.Name.Equals(availableSettingConfiguration.Name, StringComparison.OrdinalIgnoreCase);
 
     protected override UiWindowsApiEllipticCurveConfiguration ConvertSettingCommand(UiWindowsApiEllipticCurveConfiguration availableSettingConfiguration)
     {
