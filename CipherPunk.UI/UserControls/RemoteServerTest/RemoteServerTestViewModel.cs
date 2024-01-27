@@ -3,6 +3,7 @@
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
 
 internal sealed class RemoteServerTestViewModel : BaseViewModel
@@ -13,8 +14,8 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
     private ushort? port;
     private ObservableCollection<UiRemoteServerTestResult>? remoteServerTestResults;
 
-    public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService, IUacService uacService)
-        : base(logger, uacService)
+    public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.tlsService = tlsService;
         RunTestCommand = new AsyncRelayCommand(ExecuteRunTestCommandAsync, CanExecuteRunTestCommand);

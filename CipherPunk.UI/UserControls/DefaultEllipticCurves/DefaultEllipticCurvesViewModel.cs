@@ -3,6 +3,7 @@
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
 {
@@ -12,8 +13,8 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
     private WindowsVersion? windowsVersion;
     private ObservableCollection<UiWindowsDocumentationEllipticCurveConfiguration>? defaultEllipticCurves;
 
-    public DefaultEllipticCurvesViewModel(ILogger logger, IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService, IUacService uacService, ITlsService tlsService)
-        : base(logger, uacService)
+    public DefaultEllipticCurvesViewModel(ILogger logger, IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService, IUacService uacService, ITlsService tlsService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.windowsEllipticCurveDocumentationService = windowsEllipticCurveDocumentationService;
         this.tlsService = tlsService;

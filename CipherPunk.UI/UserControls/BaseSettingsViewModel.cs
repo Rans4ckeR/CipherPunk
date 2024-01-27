@@ -1,6 +1,7 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
+using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
 
 internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailable, TDefault> : BaseViewModel
@@ -9,8 +10,8 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
     private ObservableCollection<TUserInterface>? modifiedSettingConfigurations;
     private ObservableCollection<TDefault>? defaultSettingConfigurations;
 
-    protected BaseSettingsViewModel(ILogger logger, IUacService uacService)
-        : base(logger, uacService)
+    protected BaseSettingsViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         MoveSettingUpCommand = new RelayCommand<TUserInterface?>(ExecuteMoveSettingUpCommand, CanExecuteMoveSettingUpCommand);
         MoveSettingDownCommand = new RelayCommand<TUserInterface?>(ExecuteMoveSettingDownCommand, CanExecuteMoveSettingDownCommand);

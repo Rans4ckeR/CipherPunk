@@ -2,9 +2,10 @@
 
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using CipherPunk.CipherSuiteInfoApi;
 
-internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService)
-    : BaseSettingsViewModel<WindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsDocumentationEllipticCurveConfiguration>(logger, uacService)
+internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    : BaseSettingsViewModel<WindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsDocumentationEllipticCurveConfiguration>(logger, uacService, cipherSuiteInfoApiService)
 {
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? availableSettingConfigurations;
 

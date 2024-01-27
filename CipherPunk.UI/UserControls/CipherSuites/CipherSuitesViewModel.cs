@@ -8,24 +8,14 @@ using Windows.Win32;
 internal sealed class CipherSuitesViewModel : BaseViewModel
 {
     private readonly ICipherSuiteService cipherSuiteService;
-    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
-    private bool fetchOnlineInfo = true;
 
     public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IUacService uacService)
-        : base(logger, uacService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.cipherSuiteService = cipherSuiteService;
-        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
 
         UpdateCanExecuteDefaultCommand();
-    }
-
-    public bool FetchOnlineInfo
-    {
-        get => fetchOnlineInfo;
-        set => _ = SetProperty(ref fetchOnlineInfo, value);
     }
 
     public ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? ActiveCipherSuiteConfigurations
@@ -36,11 +26,9 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
         FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 
-        if (FetchOnlineInfo)
-            await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
+        await FetchOnlineCipherSuiteInfoAsync(cancellationToken);
 
         IOrderedEnumerable<UiWindowsApiCipherSuiteConfiguration> uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             q.Priority,
@@ -61,17 +49,9 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             q.CipherBlockLength,
             q.CipherLength,
             q.Cipher,
-            onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security))
+            OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
             .OrderBy(q => q.Priority);
 
         ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
-    }
-
-    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
-    {
-        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.CipherSuite.ToString(), cancellationToken).AsTask()));
-
-        onlineCipherSuiteInfos.Clear();
-        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
     }
 }

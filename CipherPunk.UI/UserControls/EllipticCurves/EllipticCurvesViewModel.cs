@@ -2,14 +2,15 @@
 
 using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed class EllipticCurvesViewModel : BaseViewModel
 {
     private readonly IEllipticCurveService ellipticCurveService;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
 
-    public EllipticCurvesViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService)
-        : base(logger, uacService)
+    public EllipticCurvesViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.ellipticCurveService = ellipticCurveService;
 

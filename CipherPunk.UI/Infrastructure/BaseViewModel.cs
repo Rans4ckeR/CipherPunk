@@ -1,7 +1,9 @@
 ﻿namespace CipherPunk.UI;
 
+using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Windows.Media.Imaging;
+using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -9,14 +11,17 @@ using CommunityToolkit.Mvvm.Messaging.Messages;
 
 internal abstract class BaseViewModel : ObservableRecipient
 {
+    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private bool defaultCommandActive;
     private bool canExecuteDefaultCommand;
     private BitmapSource? uacIcon;
     private bool? elevated;
+    private bool fetchOnlineInfo = true;
 
-    protected BaseViewModel(ILogger logger, IUacService uacService)
+    protected BaseViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(StrongReferenceMessenger.Default)
     {
+        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
         UacService = uacService;
         IsActive = true;
         Logger = logger;
@@ -40,11 +45,19 @@ internal abstract class BaseViewModel : ObservableRecipient
 
     public BitmapSource UacIcon => uacIcon ??= UacService.GetShieldIcon();
 
-    public bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
+    public bool FetchOnlineInfo
+    {
+        get => fetchOnlineInfo;
+        set => _ = SetProperty(ref fetchOnlineInfo, value);
+    }
+
+    protected bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
 
     protected ILogger Logger { get; }
 
     protected IUacService UacService { get; }
+
+    protected FrozenDictionary<string, CipherSuite> OnlineCipherSuiteInfos { get; private set; } = FrozenDictionary<string, CipherSuite>.Empty;
 
     protected bool CanExecuteDefaultCommand
     {
@@ -77,6 +90,14 @@ internal abstract class BaseViewModel : ObservableRecipient
     protected virtual bool GetCanExecuteDefaultCommand() => !DefaultCommandActive;
 
     protected void UpdateCanExecuteDefaultCommand() => CanExecuteDefaultCommand = GetCanExecuteDefaultCommand();
+
+    protected async ValueTask FetchOnlineCipherSuiteInfoAsync(CancellationToken cancellationToken)
+    {
+        if (!FetchOnlineInfo)
+            return;
+
+        OnlineCipherSuiteInfos = await cipherSuiteInfoApiService.GetAllCipherSuitesAsync(true, cancellationToken);
+    }
 
     private async Task ExecuteDefaultCommandAsync(bool? showView, CancellationToken cancellationToken)
     {

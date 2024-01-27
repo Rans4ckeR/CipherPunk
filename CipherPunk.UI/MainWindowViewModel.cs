@@ -1,6 +1,7 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Windows;
+using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -21,6 +22,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
     public MainWindowViewModel(
         ILogger logger,
         IUacService uacService,
+        ICipherSuiteInfoApiService cipherSuiteInfoApiService,
         OverviewViewModel overviewViewModel,
         CipherSuitesViewModel cipherSuitesViewModel,
         CipherSuitesOsSettingsViewModel cipherSuitesOsSettingsViewModel,
@@ -33,7 +35,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
         DefaultCipherSuitesViewModel defaultCipherSuitesViewModel,
         DefaultEllipticCurvesViewModel defaultEllipticCurvesViewModel,
         ElevationViewModel elevationViewModel)
-        : base(logger, uacService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         IsActive = true;
         OverviewViewModel = overviewViewModel;

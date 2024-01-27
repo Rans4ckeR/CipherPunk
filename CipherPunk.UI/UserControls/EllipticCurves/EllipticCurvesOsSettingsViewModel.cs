@@ -1,7 +1,9 @@
 ﻿namespace CipherPunk.UI;
 
-internal sealed class EllipticCurvesOsSettingsViewModel(ILogger logger, IUacService uacService, IEllipticCurveService ellipticCurveService)
-    : BaseEllipticCurvesSettingsViewModel(logger, ellipticCurveService, uacService)
+using CipherPunk.CipherSuiteInfoApi;
+
+internal sealed class EllipticCurvesOsSettingsViewModel(ILogger logger, IUacService uacService, IEllipticCurveService ellipticCurveService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    : BaseEllipticCurvesSettingsViewModel(logger, ellipticCurveService, uacService, cipherSuiteInfoApiService)
 {
     public string? AdminMessage => Elevated ? null : "Run as Administrator to modify the OS settings.";
 

@@ -9,10 +9,8 @@ internal sealed class OverviewViewModel : BaseViewModel
 {
     private readonly ICipherSuiteService cipherSuiteService;
     private readonly IEllipticCurveService ellipticCurveService;
-    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
     private readonly ISchannelService schannelService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
     private ObservableCollection<SchannelProtocolSettings>? protocolSettings;
     private ObservableCollection<SchannelKeyExchangeAlgorithmSettings>? keyExchangeAlgorithmSettings;
     private ObservableCollection<SchannelCipherSettings>? cipherSettings;
@@ -20,7 +18,6 @@ internal sealed class OverviewViewModel : BaseViewModel
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
     private SchannelSettings? settings;
-    private bool fetchOnlineInfo = true;
     private string? groupPolicyCipherSuiteMessage;
     private string? groupPolicyEllipticCurveMessage;
 
@@ -32,21 +29,14 @@ internal sealed class OverviewViewModel : BaseViewModel
         ICipherSuiteInfoApiService cipherSuiteInfoApiService,
         IGroupPolicyService groupPolicyService,
         IUacService uacService)
-        : base(logger, uacService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.schannelService = schannelService;
         this.cipherSuiteService = cipherSuiteService;
         this.ellipticCurveService = ellipticCurveService;
-        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
         this.groupPolicyService = groupPolicyService;
 
         UpdateCanExecuteDefaultCommand();
-    }
-
-    public bool FetchOnlineInfo
-    {
-        get => fetchOnlineInfo;
-        set => _ = SetProperty(ref fetchOnlineInfo, value);
     }
 
     public string? GroupPolicyCipherSuiteMessage
@@ -117,11 +107,9 @@ internal sealed class OverviewViewModel : BaseViewModel
         HashSettings = new(schannelHashSettings);
         Settings = schannelSettings;
 
-        FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
         FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 
-        if (FetchOnlineInfo)
-            await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
+        await FetchOnlineCipherSuiteInfoAsync(cancellationToken);
 
         IOrderedEnumerable<UiWindowsApiCipherSuiteConfiguration> uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             q.Priority,
@@ -142,7 +130,7 @@ internal sealed class OverviewViewModel : BaseViewModel
             q.CipherBlockLength,
             q.CipherLength,
             q.Cipher,
-            onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security))
+            OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
             .OrderBy(q => q.Priority);
 
         ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
@@ -182,13 +170,5 @@ internal sealed class OverviewViewModel : BaseViewModel
 
         if (eccCurveOrderPolicy.Length > 0)
             GroupPolicyEllipticCurveMessage = "Current Elliptic Curve settings are set by Group Policy.";
-    }
-
-    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
-    {
-        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.CipherSuite.ToString(), cancellationToken).AsTask()));
-
-        onlineCipherSuiteInfos.Clear();
-        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
     }
 }

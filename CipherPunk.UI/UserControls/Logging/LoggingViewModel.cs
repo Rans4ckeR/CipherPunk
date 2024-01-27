@@ -1,14 +1,15 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
+using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed class LoggingViewModel : BaseViewModel
 {
     private readonly ISchannelLogService schannelLogService;
     private ObservableCollection<SchannelLog>? logs;
 
-    public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService, IUacService uacService)
-        : base(logger, uacService)
+    public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.schannelLogService = schannelLogService;
 

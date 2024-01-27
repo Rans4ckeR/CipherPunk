@@ -1,14 +1,15 @@
 ﻿namespace CipherPunk.UI;
 
 using System.Collections.ObjectModel;
+using CipherPunk.CipherSuiteInfoApi;
 
 internal sealed class ElevationViewModel : BaseViewModel
 {
     private ObservableCollection<MandatoryLevel>? mandatoryLevels;
     private MandatoryLevel? mandatoryLevel;
 
-    public ElevationViewModel(ILogger logger, IUacService uacService)
-        : base(logger, uacService)
+    public ElevationViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
         => UpdateCanExecuteDefaultCommand();
 
     public ObservableCollection<MandatoryLevel>? MandatoryLevels

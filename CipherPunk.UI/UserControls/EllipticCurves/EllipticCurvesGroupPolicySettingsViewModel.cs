@@ -1,7 +1,9 @@
 ﻿namespace CipherPunk.UI;
 
-internal sealed class EllipticCurvesGroupPolicySettingsViewModel(ILogger logger, IUacService uacService, IEllipticCurveService ellipticCurveService, IGroupPolicyService groupPolicyService)
-    : BaseEllipticCurvesSettingsViewModel(logger, ellipticCurveService, uacService)
+using CipherPunk.CipherSuiteInfoApi;
+
+internal sealed class EllipticCurvesGroupPolicySettingsViewModel(ILogger logger, IUacService uacService, IEllipticCurveService ellipticCurveService, IGroupPolicyService groupPolicyService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    : BaseEllipticCurvesSettingsViewModel(logger, ellipticCurveService, uacService, cipherSuiteInfoApiService)
 {
     public string? AdminMessage => Elevated ? null : "Run as Administrator to view and modify the Group Policy settings.";
 
