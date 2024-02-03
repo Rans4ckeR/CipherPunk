@@ -44,7 +44,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" Foreground="Orange" />
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" Foreground="Orange"/>
                     <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
@@ -59,7 +59,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" Foreground="Orange" />
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" Foreground="Orange"/>
                     <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
                 </Grid>
             </Expander>
@@ -119,38 +119,62 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0" Content="CertificateMappingMethods"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Settings.CertificateMappingMethods}" />
-                    <Label Grid.Row="1" Grid.Column="0" Content="ClientCacheTime"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Settings.ClientCacheTime}" />
-                    <Label Grid.Row="2" Grid.Column="0" Content="EnableOcspStaplingForSni"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Settings.EnableOcspStaplingForSni}" />
-                    <Label Grid.Row="3" Grid.Column="0" Content="FipsAlgorithmPolicy"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Settings.FipsAlgorithmPolicy}" />
-                    <Label Grid.Row="4" Grid.Column="0" Content="IssuerCacheSize"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Settings.IssuerCacheSize}" />
-                    <Label Grid.Row="5" Grid.Column="0" Content="IssuerCacheTime"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Settings.IssuerCacheTime}" />
-                    <Label Grid.Row="6" Grid.Column="0" Content="LogLevel"/>
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Settings.LogLevel}" />
-                    <Label Grid.Row="7" Grid.Column="0" Content="MaximumCacheSize"/>
-                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Settings.MaximumCacheSize}" />
-                    <Label Grid.Row="8" Grid.Column="0" Content="MessageLimitClient"/>
-                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Settings.MessageLimitClient}" />
-                    <Label Grid.Row="9" Grid.Column="0" Content="MessageLimitServer"/>
-                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding Settings.MessageLimitServer}" />
-                    <Label Grid.Row="10" Grid.Column="0" Content="MessageLimitServerClientAuth"/>
-                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding Settings.MessageLimitServerClientAuth}" />
-                    <Label Grid.Row="11" Grid.Column="0" Content="SendTrustedIssuerList"/>
-                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding Settings.SendTrustedIssuerList}" />
-                    <Label Grid.Row="12" Grid.Column="0" Content="ServerCacheTime"/>
-                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding Settings.ServerCacheTime}" />
+                    <Label Grid.Row="0" Grid.Column="0" Content="CertificateMappingMethods" ToolTip="When a server application requires client authentication, SChannel automatically attempts to map the certificate that is supplied by the client computer to a user account. You can authenticate users who sign in with a client certificate by creating mappings, which relate the certificate information to a Windows user account.&#x0a;&#x0a;
+After you create and enable a certificate mapping, each time a client presents a client certificate, your server application automatically associates that user with the appropriate Windows user account.&#x0a;&#x0a;
+In most cases, a certificate is mapped to a user account in one of two ways:&#x0a;&#x0a;
+A single certificate is mapped to a single user account (one-to-one mapping).&#x0a;
+Multiple certificates are mapped to one user account (many-to-one mapping).&#x0a;
+The SChannel provider uses four (4) certificate mapping methods:&#x0a;&#x0a;
+Kerberos service-for-user (S4U) mapping (enabled by default)&#x0a;
+User principal name mapping&#x0a;
+One-to-one mapping (also known as subject/issuer mapping)&#x0a;
+Many-to-one mapping"/>
+                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Settings.CertificateMappingMethods}"/>
+                    <Label Grid.Row="1" Grid.Column="0" Content="ClientCacheTime" ToolTip="This entry specifies client TLS session cache item lifetime in milliseconds. Beginning with Windows Server 2008 and Windows Vista the default is 10 hours. A value of 0 turns off TLS session caching on the client.&#x0a;&#x0a;
+The first time a client connects to a server through the SChannel SSP, a full TLS/SSL handshake is performed. When this is complete, the master secret, cipher suite, and certificates are stored in the session cache on the respective client and server."/>
+                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Settings.ClientCacheTime}"/>
+                    <Label Grid.Row="2" Grid.Column="0" Content="EnableOcspStaplingForSni" ToolTip="Online Certificate Status Protocol (OCSP) stapling enables a web server, such as Internet Information Services (IIS), to provide the current revocation status of a server certificate when it sends the server certificate to a client during the TLS handshake. This feature reduces the load on OCSP servers because the web server can cache the current OCSP status of the server certificate and send it to multiple web clients. Without this feature, each web client would try to retrieve the current OCSP status of the server certificate from the OCSP server. This would generate a high load on that OCSP server.&#x0a;&#x0a;
+In addition to IIS, web services over http.sys can also benefit from this setting, including Active Directory Federation Services (AD FS) and Web Application Proxy (WAP).&#x0a;&#x0a;
+By default, OCSP support is enabled for IIS websites that have a simple secure (SSL/TLS) binding. However, this support isn't enabled by default if the IIS website is using either or both of the following types of SSL/TLS bindings:&#x0a;&#x0a;
+Require Server Name Indication&#x0a;
+Use Centralized Certificate Store&#x0a;
+In this case, the server hello response during the TLS handshake won't include an OCSP stapled status by default. This behavior improves performance: The Windows OCSP stapling implementation scales to hundreds of server certificates. However, Server Name Indication (SNI) and Central Certificate Store (CCS) enable IIS to scale to thousands of websites that potentially have thousands of server certificates, therefore enabling OCSP stapling for CCS bindings may cause performance issues.&#x0a;&#x0a;
+Applicable versions: All versions beginning with Windows Server 2012 and Windows 8."/>
+                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Settings.EnableOcspStaplingForSni}"/>
+                    <Label Grid.Row="3" Grid.Column="0" Content="IssuerCacheSize" ToolTip="This entry controls the size of the issuer cache, and it's used with issuer mapping. The SChannel SSP attempts to map all of the issuers in the client's certificate chain, not just the direct issuer of the client certificate. When the issuers don't map to an account, which is the typical case, the server might attempt to map the same issuer name repeatedly, hundreds of times per second.&#x0a;&#x0a;
+To prevent this, the server has a negative cache, so if an issuer name doesn't map to an account, it's added to the cache and the SChannel SSP won't attempt to map the issuer name again until the cache entry expires. This registry entry specifies the cache size. This entry does not exist in the registry by default. The default value is 100.&#x0a;&#x0a;
+Applicable versions: All versions beginning with Windows Server 2008 and Windows Vista."/>
+                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Settings.IssuerCacheSize}"/>
+                    <Label Grid.Row="4" Grid.Column="0" Content="IssuerCacheTime" ToolTip="This entry controls the length of the cache timeout interval in milliseconds. The SChannel SSP attempts to map all of the issuers in the client's certificate chain, not just the direct issuer of the client certificate. In the case where the issuers don't map to an account, which is the typical case, the server might attempt to map the same issuer name repeatedly, hundreds of times per second.&#x0a;&#x0a;
+To prevent this, the server has a negative cache, so if an issuer name doesn't map to an account, it's added to the cache and the SChannel SSP won't attempt to map the issuer name again until the cache entry expires. This cache is kept for performance reasons, so that the system doesn't continue trying to map the same issuers. This entry doesn't exist in the registry by default. The default value is 10 minutes.&#x0a;&#x0a;
+Applicable versions: All versions beginning with Windows Server 2008 and Windows Vista."/>
+                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Settings.IssuerCacheTime}"/>
+                    <Label Grid.Row="5" Grid.Column="0" Content="LogLevel" ToolTip="There are eight logging levels for SChannel events saved to the system event log and viewable using Event Viewer."/>
+                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Settings.LogLevel}"/>
+                    <Label Grid.Row="6" Grid.Column="0" Content="MaximumCacheSize" ToolTip="This entry controls the maximum number of TLS sessions to cache. Setting MaximumCacheSize to 0 disables the server-side session cache to prevent session resumption. Increasing MaximumCacheSize above the default values causes Lsass.exe to consume additional memory. Each session-cache element typically requires 2 KB to 4 KB of memory. This entry doesn't exist in the registry by default. The default value is 20,000 elements.&#x0a;&#x0a;
+Applicable versions: All versions beginning with Windows Server 2008 and Windows Vista."/>
+                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Settings.MaximumCacheSize}"/>
+                    <Label Grid.Row="7" Grid.Column="0" Content="MessageLimitClient" ToolTip="To specify a maximum allowed size of fragmented TLS handshake messages that the TLS client will accept, create a MessageLimitClient entry. After you've created the entry, change the DWORD value to the desired bit length. If not configured, the default value is 0x8000 bytes."/>
+                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Settings.MessageLimitClient}"/>
+                    <Label Grid.Row="8" Grid.Column="0" Content="MessageLimitServer" ToolTip="To specify a maximum allowed size of fragmented TLS handshake messages that the TLS server will accept when there's no client authentication, create a MessageLimitServer entry. After you've created the entry, change the DWORD value to the desired bit length. If not configured, the default value is 0x4000 bytes."/>
+                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Settings.MessageLimitServer}"/>
+                    <Label Grid.Row="9" Grid.Column="0" Content="MessageLimitServerClientAuth" ToolTip="To specify a maximum allowed size of fragmented TLS handshake messages that the TLS server will accept when there's client authentication, create a MessageLimitServerClientAuth entry. After you've created the entry, change the DWORD value to the desired bit length. If not configured, the default value is 0x8000 bytes."/>
+                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding Settings.MessageLimitServerClientAuth}"/>
+                    <Label Grid.Row="10" Grid.Column="0" Content="SendTrustedIssuerList" ToolTip="TLS servers may send a list of the distinguished names of acceptable certificate authorities when requesting client authentication. This may help TLS clients select an appropriate TLS client certificate. SChannel-based TLS servers don't send this trusted issuer list by default because it exposes the certificate authorities trusted by the server to passive observers and also increases the amount of data exchanged in the course of the TLS handshake. Setting this value to 1 causes SChannel-based servers to send their lists of trusted issuers.&#x0a;&#x0a;
+Not sending a list of trusted issuers might impact what the client sends when it's asked for a client certificate. For example, when Internet Explorer receives a request for client authentication, it only displays the client certificates that chain up to one of the certification authorities that is sent by the server. If the server didn't send a list, Internet Explorer displays all of the client certificates that are installed on the client.&#x0a;&#x0a;
+This behavior might be desirable. For example, when PKI environments include cross certificates, the client and server certificates won't have the same root CA; therefore, Internet Explorer cannot choose a certificate that chains up to one of the server's CAs. TLS clients may offer any available client certificate when a server does not send the trusted issuer list. This entry doesn't exist in the registry by default.&#x0a;&#x0a;
+                           Default Send Trusted Issuer List behavior&#x0a;
+                           Windows Server 2012, Windows 8 and later: FALSE&#x0a;
+                           Windows Server 2008 R2, Windows 7, and earlier: TRUE"/>
+                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding Settings.SendTrustedIssuerList}"/>
+                    <Label Grid.Row="11" Grid.Column="0" Content="ServerCacheTime" ToolTip="This entry specifies server TLS session cache item lifetime in milliseconds. The default is 10 hours. A value of 0 turns off TLS session caching on the server and prevents session resumption. Increasing ServerCacheTime above the default values causes Lsass.exe to consume additional memory. Each session cache element typically requires 2 KB to 4 KB of memory. This entry doesn't exist in the registry by default.&#x0a;&#x0a;
+Applicable versions: All versions beginning with Windows Server 2008 and Windows Vista."/>
+                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding Settings.ServerCacheTime}"/>
                 </Grid>
             </Expander>
         </Border>

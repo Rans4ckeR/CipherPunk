@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 
-internal sealed class SchannelService : ISchannelService
+internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
 {
-    // https://learn.microsoft.com/en-us/windows-server/security/tls/tls-registry-settings
     private const string SchannelPath = @"SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\";
     private const string SchannelProtocolsPath = SchannelPath + "Protocols\\";
     private const string SchannelProtocolsClientPath = "\\Client";
@@ -18,14 +17,13 @@ internal sealed class SchannelService : ISchannelService
     private const string SchannelMessagingPath = SchannelPath + "Messaging\\";
     private const string Enabled = "Enabled";
     private const string DisabledByDefault = "DisabledByDefault";
-    private const string ClientMinKeyBitLength = "ClientMinKeyBitLength"; // Added in Windows 10, version 1507 and Windows Server 2016.
-    private const string ClientMaxKeyBitLength = "ClientMaxKeyBitLength"; // Added in Windows 10, version 1507 and Windows Server 2016.
-    private const string ServerMinKeyBitLength = "ServerMinKeyBitLength"; // Added in Windows 10, version 1507 and Windows Server 2016.
+    private const string ClientMinKeyBitLength = "ClientMinKeyBitLength";
+    private const string ClientMaxKeyBitLength = "ClientMaxKeyBitLength";
+    private const string ServerMinKeyBitLength = "ServerMinKeyBitLength";
     private const string EventLogging = "EventLogging";
     private const string ClientCacheTime = "ClientCacheTime";
     private const string CertificateMappingMethods = "CertificateMappingMethods";
     private const string EnableOcspStaplingForSni = "EnableOcspStaplingForSni";
-    private const string FipsAlgorithmPolicy = "FIPSAlgorithmPolicy";
     private const string IssuerCacheSize = "IssuerCacheSize";
     private const string IssuerCacheTime = "IssuerCacheTime";
     private const string MaximumCacheSize = "MaximumCacheSize";
@@ -43,22 +41,9 @@ internal sealed class SchannelService : ISchannelService
 
         foreach (SchannelProtocol schannelProtocol in Enum.GetValues<SchannelProtocol>())
         {
-            string subKeyName = schannelProtocol switch
-            {
-                SchannelProtocol.DTLS1_0 => "DTLS 1.0",
-                SchannelProtocol.DTLS1_2 => "DTLS 1.2",
-                SchannelProtocol.UNIHELLO => "Multi-Protocol Unified Hello",
-                SchannelProtocol.PCT1_0 => "PCT 1.0",
-                SchannelProtocol.SSL2_0 => "SSL 2.0",
-                SchannelProtocol.SSL3_0 => "SSL 3.0",
-                SchannelProtocol.TLS1_0 => "TLS 1.0",
-                SchannelProtocol.TLS1_1 => "TLS 1.1",
-                SchannelProtocol.TLS1_2 => "TLS 1.2",
-                SchannelProtocol.TLS1_3 => "TLS 1.3",
-                _ => throw new ArgumentOutOfRangeException(nameof(schannelProtocol), schannelProtocol, null)
-            };
-            using RegistryKey? clientKey = key?.OpenSubKey(subKeyName + SchannelProtocolsClientPath);
-            using RegistryKey? serverKey = key?.OpenSubKey(subKeyName + SchannelProtocolsServerPath);
+            string subKeyName = GetSchannelProtocolSubKeyName(schannelProtocol);
+            using RegistryKey? clientKey = key?.OpenSubKey(FormattableString.Invariant($"{subKeyName}{SchannelProtocolsClientPath}"));
+            using RegistryKey? serverKey = key?.OpenSubKey(FormattableString.Invariant($"{subKeyName}{SchannelProtocolsServerPath}"));
             int? clientDisabledByDefault = (int?)clientKey?.GetValue(DisabledByDefault);
             int? serverDisabledByDefault = (int?)serverKey?.GetValue(DisabledByDefault);
             int? clientEnabled = (int?)clientKey?.GetValue(Enabled);
@@ -73,7 +58,31 @@ internal sealed class SchannelService : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateProtocolSettings(ICollection<SchannelProtocolSettings> schannelProtocolSettings) => throw new NotImplementedException();
+    public void UpdateProtocolSettings(ICollection<SchannelProtocolSettings> schannelProtocolSettings)
+    {
+        FrozenSet<SchannelProtocolSettings> currentProtocolSettings = GetProtocolSettings();
+        using RegistryKey key = Registry.LocalMachine.CreateSubKey(SchannelProtocolsPath);
+
+        foreach (SchannelProtocolSettings schannelProtocolSetting in schannelProtocolSettings)
+        {
+            SchannelProtocolSettings activeProtocolSettings = currentProtocolSettings.Single(q => q.ServerStatus == schannelProtocolSetting.ServerStatus);
+            string subKeyName = GetSchannelProtocolSubKeyName(schannelProtocolSetting.Protocol);
+
+            if (schannelProtocolSetting.ClientStatus != activeProtocolSettings.ClientStatus)
+            {
+                using RegistryKey clientKey = key.CreateSubKey(FormattableString.Invariant($"{subKeyName}{SchannelProtocolsClientPath}"));
+
+                UpdateProtocolSettings(schannelProtocolSetting.ClientStatus, clientKey);
+            }
+
+            if (schannelProtocolSetting.ServerStatus != activeProtocolSettings.ServerStatus)
+            {
+                using RegistryKey serverKey = key.CreateSubKey(FormattableString.Invariant($"{subKeyName}{SchannelProtocolsServerPath}"));
+
+                UpdateProtocolSettings(schannelProtocolSetting.ClientStatus, serverKey);
+            }
+        }
+    }
 
     [SupportedOSPlatform("windows")]
     public FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
@@ -96,6 +105,12 @@ internal sealed class SchannelService : ISchannelService
                 "PKCS" => SchannelKeyExchangeAlgorithm.PKCS,
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
+
+            if (tlsService.GetWindowsVersion() >= WindowsVersion.Windows10V1507)
+            {
+                clientMinKeyBitLength ??= 1024;
+                serverMinKeyBitLength ??= 2048;
+            }
 
             result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled is not 0));
         }
@@ -186,11 +201,10 @@ internal sealed class SchannelService : ISchannelService
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelPath);
         var logLevel = (SchannelLogLevel?)(int?)key?.GetValue(EventLogging);
         var certificateMappingMethods = (SchannelCertificateMappingMethod?)(int?)key?.GetValue(CertificateMappingMethods);
-        int? clientCacheTime = (int?)key?.GetValue(ClientCacheTime); // in milliseconds
+        int? clientCacheTime = (int?)key?.GetValue(ClientCacheTime);
         int? enableOcspStaplingForSni = (int?)key?.GetValue(EnableOcspStaplingForSni);
-        int? fipsAlgorithmPolicy = (int?)key?.GetValue(FipsAlgorithmPolicy);
         int? issuerCacheSize = (int?)key?.GetValue(IssuerCacheSize);
-        int? issuerCacheTime = (int?)key?.GetValue(IssuerCacheTime); // in milliseconds
+        int? issuerCacheTime = (int?)key?.GetValue(IssuerCacheTime);
         int? maximumCacheSize = (int?)key?.GetValue(MaximumCacheSize);
         int? sendTrustedIssuerList = (int?)key?.GetValue(SendTrustedIssuerList);
         int? serverCacheTime = (int?)key?.GetValue(ServerCacheTime);
@@ -200,19 +214,18 @@ internal sealed class SchannelService : ISchannelService
         int? messageLimitServerClientAuth = (int?)messagingSubKey?.GetValue(MessageLimitServerClientAuth);
 
         return new(
-            logLevel,
-            certificateMappingMethods,
-            clientCacheTime,
-            enableOcspStaplingForSni is null ? null : enableOcspStaplingForSni is not 0,
-            fipsAlgorithmPolicy is null ? null : fipsAlgorithmPolicy is not 0,
-            issuerCacheSize,
-            issuerCacheTime,
-            maximumCacheSize,
-            sendTrustedIssuerList is null ? null : sendTrustedIssuerList is not 0,
-            serverCacheTime,
-            messageLimitClient,
-            messageLimitServer,
-            messageLimitServerClientAuth);
+            logLevel ?? SchannelLogLevel.Error,
+            certificateMappingMethods ?? SchannelCertificateMappingMethod.S4U2Self | SchannelCertificateMappingMethod.S4U2SelfExplicit,
+            clientCacheTime ?? (int)TimeSpan.FromHours(10).TotalMilliseconds,
+            enableOcspStaplingForSni is not null and not 0,
+            issuerCacheSize ?? 100,
+            issuerCacheTime ?? (int)TimeSpan.FromMinutes(10).TotalMilliseconds,
+            maximumCacheSize ?? 20000,
+            sendTrustedIssuerList is null ? tlsService.GetWindowsVersion() <= WindowsVersion.Windows7OrServer2008R2 : sendTrustedIssuerList is not 0,
+            serverCacheTime ?? (int)TimeSpan.FromHours(10).TotalMilliseconds,
+            messageLimitClient ?? 0x8000,
+            messageLimitServer ?? 0x4000,
+            messageLimitServerClientAuth ?? 0x8000);
     }
 
     [SupportedOSPlatform("windows")]
@@ -232,5 +245,62 @@ internal sealed class SchannelService : ISchannelService
             return SchannelProtocolStatus.DisabledByDefault;
 
         return enabled is 0 ? SchannelProtocolStatus.Disabled : SchannelProtocolStatus.OsDefault;
+    }
+
+    private static string GetSchannelProtocolSubKeyName(SchannelProtocol schannelProtocol)
+        => schannelProtocol switch
+        {
+            SchannelProtocol.DTLS1_0 => "DTLS 1.0",
+            SchannelProtocol.DTLS1_2 => "DTLS 1.2",
+            SchannelProtocol.UNIHELLO => "Multi-Protocol Unified Hello",
+            SchannelProtocol.PCT1_0 => "PCT 1.0",
+            SchannelProtocol.SSL2_0 => "SSL 2.0",
+            SchannelProtocol.SSL3_0 => "SSL 3.0",
+            SchannelProtocol.TLS1_0 => "TLS 1.0",
+            SchannelProtocol.TLS1_1 => "TLS 1.1",
+            SchannelProtocol.TLS1_2 => "TLS 1.2",
+            SchannelProtocol.TLS1_3 => "TLS 1.3",
+            _ => throw new ArgumentOutOfRangeException(nameof(schannelProtocol), schannelProtocol, null)
+        };
+
+    [SupportedOSPlatform("windows")]
+    private static void UpdateProtocolSettings(SchannelProtocolStatus schannelProtocolStatus, RegistryKey key)
+    {
+        int? disabledByDefault;
+        int? enabled;
+        const int trueValue = unchecked((int)0xFF_FF_FF_FF);
+        const int falseValue = 0;
+
+        switch (schannelProtocolStatus)
+        {
+            case SchannelProtocolStatus.Enabled:
+                enabled = trueValue;
+                disabledByDefault = falseValue;
+                break;
+            case SchannelProtocolStatus.DisabledByDefault:
+                enabled = trueValue;
+                disabledByDefault = trueValue;
+                break;
+            case SchannelProtocolStatus.Disabled:
+                enabled = falseValue;
+                disabledByDefault = trueValue;
+                break;
+            case SchannelProtocolStatus.OsDefault:
+                enabled = null;
+                disabledByDefault = null;
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(schannelProtocolStatus), schannelProtocolStatus, null);
+        }
+
+        if (disabledByDefault is null)
+            key.DeleteValue(DisabledByDefault);
+        else
+            key.SetValue(DisabledByDefault, disabledByDefault, RegistryValueKind.DWord);
+
+        if (enabled is null)
+            key.DeleteValue(DisabledByDefault);
+        else
+            key.SetValue(Enabled, enabled, RegistryValueKind.DWord);
     }
 }

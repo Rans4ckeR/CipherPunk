@@ -34,7 +34,7 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding AdminMessage}" Foreground="Orange" />
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding AdminMessage}" Foreground="Orange"/>
                         <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" x:Name="ModifiedSettingConfigurations" ItemsSource="{Binding ModifiedSettingConfigurations}">
                             <DataGrid.Resources>
                                 <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}" Color="Green"/>
