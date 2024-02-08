@@ -17,7 +17,6 @@ internal sealed class OverviewViewModel : BaseViewModel
     private ObservableCollection<SchannelHashSettings>? hashSettings;
     private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
     private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
-    private SchannelSettings? settings;
     private string? groupPolicyCipherSuiteMessage;
     private string? groupPolicyEllipticCurveMessage;
 
@@ -28,16 +27,20 @@ internal sealed class OverviewViewModel : BaseViewModel
         IEllipticCurveService ellipticCurveService,
         ICipherSuiteInfoApiService cipherSuiteInfoApiService,
         IGroupPolicyService groupPolicyService,
-        IUacService uacService)
+        IUacService uacService,
+        SchannelSettingsViewModel schannelSettingsViewModel)
         : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.schannelService = schannelService;
         this.cipherSuiteService = cipherSuiteService;
         this.ellipticCurveService = ellipticCurveService;
         this.groupPolicyService = groupPolicyService;
+        SchannelSettingsViewModel = schannelSettingsViewModel;
 
         UpdateCanExecuteDefaultCommand();
     }
+
+    public SchannelSettingsViewModel SchannelSettingsViewModel { get; }
 
     public string? GroupPolicyCipherSuiteMessage
     {
@@ -49,12 +52,6 @@ internal sealed class OverviewViewModel : BaseViewModel
     {
         get => groupPolicyEllipticCurveMessage;
         private set => _ = SetProperty(ref groupPolicyEllipticCurveMessage, value);
-    }
-
-    public SchannelSettings? Settings
-    {
-        get => settings;
-        private set => _ = SetProperty(ref settings, value);
     }
 
     public ObservableCollection<SchannelProtocolSettings>? ProtocolSettings
@@ -99,13 +96,12 @@ internal sealed class OverviewViewModel : BaseViewModel
         FrozenSet<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings = schannelService.GetKeyExchangeAlgorithmSettings();
         FrozenSet<SchannelCipherSettings> schannelCipherSettings = schannelService.GetSchannelCipherSettings();
         FrozenSet<SchannelHashSettings> schannelHashSettings = schannelService.GetSchannelHashSettings();
-        SchannelSettings schannelSettings = schannelService.GetSchannelSettings();
 
         ProtocolSettings = new(schannelProtocolSettings);
         KeyExchangeAlgorithmSettings = new(schannelKeyExchangeAlgorithmSettings);
         CipherSettings = new(schannelCipherSettings);
         HashSettings = new(schannelHashSettings);
-        Settings = schannelSettings;
+        SchannelSettingsViewModel.SchannelSettings = schannelService.GetSchannelSettings();
 
         FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 

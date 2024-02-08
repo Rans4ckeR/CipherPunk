@@ -199,7 +199,7 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
     public SchannelSettings GetSchannelSettings()
     {
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelPath);
-        var logLevel = (SchannelLogLevel?)(int?)key?.GetValue(EventLogging);
+        var eventLogging = (SchannelEventLogging?)(int?)key?.GetValue(EventLogging);
         var certificateMappingMethods = (SchannelCertificateMappingMethod?)(int?)key?.GetValue(CertificateMappingMethods);
         int? clientCacheTime = (int?)key?.GetValue(ClientCacheTime);
         int? enableOcspStaplingForSni = (int?)key?.GetValue(EnableOcspStaplingForSni);
@@ -214,7 +214,7 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
         int? messageLimitServerClientAuth = (int?)messagingSubKey?.GetValue(MessageLimitServerClientAuth);
 
         return new(
-            logLevel ?? SchannelLogLevel.Error,
+            eventLogging ?? SchannelEventLogging.Error,
             certificateMappingMethods ?? SchannelCertificateMappingMethod.S4U2Self | SchannelCertificateMappingMethod.S4U2SelfExplicit,
             clientCacheTime ?? (int)TimeSpan.FromHours(10).TotalMilliseconds,
             enableOcspStaplingForSni is not null and not 0,
@@ -229,11 +229,71 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelLogSettings(SchannelLogLevel schannelLogLevel)
+    public void UpdateSchannelSettings(SchannelSettings schannelSettings)
     {
-        using RegistryKey key = Registry.LocalMachine.OpenSubKey(SchannelPath)!;
+        using RegistryKey key = Registry.LocalMachine.CreateSubKey(SchannelPath);
 
-        key.SetValue(EventLogging, schannelLogLevel, RegistryValueKind.DWord);
+        if (schannelSettings.EventLogging.HasValue)
+            key.SetValue(EventLogging, schannelSettings.EventLogging, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(EventLogging, false);
+
+        if (schannelSettings.CertificateMappingMethods.HasValue)
+            key.SetValue(CertificateMappingMethods, schannelSettings.CertificateMappingMethods, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(CertificateMappingMethods, false);
+
+        if (schannelSettings.ClientCacheTime.HasValue)
+            key.SetValue(ClientCacheTime, schannelSettings.ClientCacheTime, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(ClientCacheTime, false);
+
+        if (schannelSettings.EnableOcspStaplingForSni.HasValue)
+            key.SetValue(EnableOcspStaplingForSni, schannelSettings.EnableOcspStaplingForSni, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(EnableOcspStaplingForSni, false);
+
+        if (schannelSettings.IssuerCacheSize.HasValue)
+            key.SetValue(IssuerCacheSize, schannelSettings.IssuerCacheSize, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(IssuerCacheSize, false);
+
+        if (schannelSettings.IssuerCacheTime.HasValue)
+            key.SetValue(IssuerCacheTime, schannelSettings.IssuerCacheTime, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(IssuerCacheTime, false);
+
+        if (schannelSettings.MaximumCacheSize.HasValue)
+            key.SetValue(MaximumCacheSize, schannelSettings.MaximumCacheSize, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(MaximumCacheSize, false);
+
+        if (schannelSettings.SendTrustedIssuerList.HasValue)
+            key.SetValue(SendTrustedIssuerList, schannelSettings.SendTrustedIssuerList, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(SendTrustedIssuerList, false);
+
+        if (schannelSettings.ServerCacheTime.HasValue)
+            key.SetValue(ServerCacheTime, schannelSettings.ServerCacheTime, RegistryValueKind.DWord);
+        else
+            key.DeleteValue(ServerCacheTime, false);
+
+        using RegistryKey messagingSubKey = Registry.LocalMachine.CreateSubKey(SchannelMessagingPath);
+
+        if (schannelSettings.MessageLimitClient.HasValue)
+            messagingSubKey.SetValue(MessageLimitClient, schannelSettings.MessageLimitClient, RegistryValueKind.DWord);
+        else
+            messagingSubKey.DeleteValue(MessageLimitClient, false);
+
+        if (schannelSettings.MessageLimitServer.HasValue)
+            messagingSubKey.SetValue(MessageLimitServer, schannelSettings.MessageLimitServer, RegistryValueKind.DWord);
+        else
+            messagingSubKey.DeleteValue(MessageLimitServer, false);
+
+        if (schannelSettings.MessageLimitServerClientAuth.HasValue)
+            messagingSubKey.SetValue(MessageLimitServerClientAuth, schannelSettings.MessageLimitServerClientAuth, RegistryValueKind.DWord);
+        else
+            messagingSubKey.DeleteValue(MessageLimitServerClientAuth, false);
     }
 
     private static SchannelProtocolStatus GetProtocolStatus(int? disabledByDefault, int? enabled)

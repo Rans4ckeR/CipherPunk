@@ -2,7 +2,7 @@
 namespace CipherPunk;
 
 [Flags]
-public enum SchannelLogLevel
+public enum SchannelEventLogging
 {
     Error = 1,
     Warning = 2,

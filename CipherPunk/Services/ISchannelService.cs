@@ -33,5 +33,5 @@ public interface ISchannelService
     SchannelSettings GetSchannelSettings();
 
     [SupportedOSPlatform("windows")]
-    void UpdateSchannelLogSettings(SchannelLogLevel schannelLogLevel);
+    void UpdateSchannelSettings(SchannelSettings schannelSettings);
 }

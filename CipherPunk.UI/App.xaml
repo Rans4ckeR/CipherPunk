@@ -106,5 +106,8 @@
         <DataTemplate DataType="{x:Type ui:ElevationViewModel}">
             <ui:ElevationView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:SchannelSettingsViewModel}">
+            <ui:SchannelSettingsView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>
