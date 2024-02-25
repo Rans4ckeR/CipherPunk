@@ -2,9 +2,7 @@
 
 using System.Collections.Frozen;
 
-public interface IWindowsEllipticCurveDocumentationService
+internal interface IWindowsEllipticCurveDocumentationService
 {
-    FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations();
-
     FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion);
 }

@@ -1,6 +1,6 @@
 ﻿namespace CipherPunk.UI;
 
-public static class LoggerExtensions
+internal static class LoggerExtensions
 {
     private static readonly Action<ILogger, string, Exception?> ExceptionDetails = LoggerMessage.Define<string>(LogLevel.Error, new(1, nameof(ExceptionThrown)), "{Exception}");
 

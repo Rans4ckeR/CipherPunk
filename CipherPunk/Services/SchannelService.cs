@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
 
-internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
+internal sealed class SchannelService(IWindowsVersionService windowsVersionService, IWindowsDocumentationService windowsDocumentationService) : ISchannelService
 {
     private const string SchannelPath = @"SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\";
     private const string SchannelProtocolsPath = SchannelPath + "Protocols\\";
@@ -48,8 +48,9 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
             int? serverDisabledByDefault = (int?)serverKey?.GetValue(DisabledByDefault);
             int? clientEnabled = (int?)clientKey?.GetValue(Enabled);
             int? serverEnabled = (int?)serverKey?.GetValue(Enabled);
-            SchannelProtocolStatus clientStatus = GetProtocolStatus(clientDisabledByDefault, clientEnabled);
-            SchannelProtocolStatus serverStatus = GetProtocolStatus(serverDisabledByDefault, serverEnabled);
+            SchannelProtocolSettings defaultSchannelProtocolSettings = windowsDocumentationService.GetProtocolConfigurations(windowsVersionService.WindowsVersion).Single(q => q.Protocol == schannelProtocol);
+            SchannelProtocolStatus clientStatus = GetProtocolStatus(clientDisabledByDefault, clientEnabled, defaultSchannelProtocolSettings.ClientStatus);
+            SchannelProtocolStatus serverStatus = GetProtocolStatus(serverDisabledByDefault, serverEnabled, defaultSchannelProtocolSettings.ServerStatus);
 
             result.Add(new(schannelProtocol, clientStatus, serverStatus));
         }
@@ -58,14 +59,14 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateProtocolSettings(ICollection<SchannelProtocolSettings> schannelProtocolSettings)
+    public void UpdateProtocolSettings(IEnumerable<SchannelProtocolSettings> schannelProtocolSettings)
     {
         FrozenSet<SchannelProtocolSettings> currentProtocolSettings = GetProtocolSettings();
         using RegistryKey key = Registry.LocalMachine.CreateSubKey(SchannelProtocolsPath);
 
         foreach (SchannelProtocolSettings schannelProtocolSetting in schannelProtocolSettings)
         {
-            SchannelProtocolSettings activeProtocolSettings = currentProtocolSettings.Single(q => q.ServerStatus == schannelProtocolSetting.ServerStatus);
+            SchannelProtocolSettings activeProtocolSettings = currentProtocolSettings.Single(q => q.Protocol == schannelProtocolSetting.Protocol);
             string subKeyName = GetSchannelProtocolSubKeyName(schannelProtocolSetting.Protocol);
 
             if (schannelProtocolSetting.ClientStatus != activeProtocolSettings.ClientStatus)
@@ -83,6 +84,9 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
             }
         }
     }
+
+    [SupportedOSPlatform("windows")]
+    public void ResetProtocolSettings() => UpdateProtocolSettings(windowsDocumentationService.GetProtocolConfigurations(windowsVersionService.WindowsVersion));
 
     [SupportedOSPlatform("windows")]
     public FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
@@ -106,7 +110,7 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 
-            if (tlsService.GetWindowsVersion() >= WindowsVersion.Windows10V1507)
+            if (windowsVersionService.WindowsVersion >= WindowsVersion.Windows10V1507)
             {
                 clientMinKeyBitLength ??= 1024;
                 serverMinKeyBitLength ??= 2048;
@@ -119,7 +123,10 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateKeyExchangeAlgorithmSettings(ICollection<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings) => throw new NotImplementedException();
+    public void UpdateKeyExchangeAlgorithmSettings(IEnumerable<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings) => throw new NotImplementedException();
+
+    [SupportedOSPlatform("windows")]
+    public void ResetKeyExchangeAlgorithmSettings() => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public FrozenSet<SchannelHashSettings> GetSchannelHashSettings()
@@ -156,7 +163,10 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelHashSettings(ICollection<SchannelHashSettings> schannelHashSettings) => throw new NotImplementedException();
+    public void UpdateSchannelHashSettings(IEnumerable<SchannelHashSettings> schannelHashSettings) => throw new NotImplementedException();
+
+    [SupportedOSPlatform("windows")]
+    public void ResetSchannelHashSettings() => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public FrozenSet<SchannelCipherSettings> GetSchannelCipherSettings()
@@ -193,7 +203,10 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
     }
 
     [SupportedOSPlatform("windows")]
-    public void UpdateSchannelCipherSettings(ICollection<SchannelCipherSettings> schannelCipherSettings) => throw new NotImplementedException();
+    public void UpdateSchannelCipherSettings(IEnumerable<SchannelCipherSettings> schannelCipherSettings) => throw new NotImplementedException();
+
+    [SupportedOSPlatform("windows")]
+    public void ResetSchannelCipherSettings() => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
     public SchannelSettings GetSchannelSettings()
@@ -221,7 +234,7 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
             issuerCacheSize ?? 100,
             issuerCacheTime ?? (int)TimeSpan.FromMinutes(10).TotalMilliseconds,
             maximumCacheSize ?? 20000,
-            sendTrustedIssuerList is null ? tlsService.GetWindowsVersion() <= WindowsVersion.Windows7OrServer2008R2 : sendTrustedIssuerList is not 0,
+            sendTrustedIssuerList is null ? windowsVersionService.WindowsVersion <= WindowsVersion.Windows7OrServer2008R2 : sendTrustedIssuerList is not 0,
             serverCacheTime ?? (int)TimeSpan.FromHours(10).TotalMilliseconds,
             messageLimitClient ?? 0x8000,
             messageLimitServer ?? 0x4000,
@@ -296,15 +309,23 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
             messagingSubKey.DeleteValue(MessageLimitServerClientAuth, false);
     }
 
-    private static SchannelProtocolStatus GetProtocolStatus(int? disabledByDefault, int? enabled)
+    [SupportedOSPlatform("windows")]
+    public void ResetSchannelSettings() => UpdateSchannelSettings(default(SchannelSettings) with { EventLogging = SchannelEventLogging.Error });
+
+    private static SchannelProtocolStatus GetProtocolStatus(int? disabledByDefault, int? enabled, SchannelProtocolStatus defaultSchannelProtocolStatus)
     {
+        if (defaultSchannelProtocolStatus is SchannelProtocolStatus.NotSupported)
+            return SchannelProtocolStatus.NotSupported;
+
         if (enabled is not null and not 0 && disabledByDefault is 0)
             return SchannelProtocolStatus.Enabled;
 
+#pragma warning disable IDE0046 // Use conditional expression for return
         if (enabled is not null and not 0 && disabledByDefault is not null and not 0)
+#pragma warning restore IDE0046 // Use conditional expression for return
             return SchannelProtocolStatus.DisabledByDefault;
 
-        return enabled is 0 ? SchannelProtocolStatus.Disabled : SchannelProtocolStatus.OsDefault;
+        return enabled is 0 ? SchannelProtocolStatus.Disabled : defaultSchannelProtocolStatus;
     }
 
     private static string GetSchannelProtocolSubKeyName(SchannelProtocol schannelProtocol)
@@ -312,6 +333,7 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
         {
             SchannelProtocol.DTLS1_0 => "DTLS 1.0",
             SchannelProtocol.DTLS1_2 => "DTLS 1.2",
+            SchannelProtocol.DTLS1_3 => "DTLS 1.3",
             SchannelProtocol.UNIHELLO => "Multi-Protocol Unified Hello",
             SchannelProtocol.PCT1_0 => "PCT 1.0",
             SchannelProtocol.SSL2_0 => "SSL 2.0",
@@ -346,6 +368,7 @@ internal sealed class SchannelService(ITlsService tlsService) : ISchannelService
                 disabledByDefault = trueValue;
                 break;
             case SchannelProtocolStatus.OsDefault:
+            case SchannelProtocolStatus.NotSupported:
                 enabled = null;
                 disabledByDefault = null;
                 break;

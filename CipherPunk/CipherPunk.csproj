@@ -35,7 +35,7 @@
     <EnablePackageValidation>true</EnablePackageValidation>
     <PackageIcon>CipherPunk.jpg</PackageIcon>
     <Platforms>AnyCPU</Platforms>
-    <EnableSourceControlManagerQueries Condition="$(Configuration) == 'Debug'">true</EnableSourceControlManagerQueries> <!--https://github.com/dotnet/sdk/issues/36666-->
+    <NoWarn>CA1707,SA1300,SA1310,SA1623,IDE1006</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
@@ -58,7 +58,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="58.0.18-preview">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="59.0.13-preview">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

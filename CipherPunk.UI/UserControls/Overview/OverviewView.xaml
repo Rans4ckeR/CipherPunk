@@ -21,19 +21,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="Protocol Settings">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ProtocolSettings}"/>
-                </Grid>
-            </Expander>
-        </Border>
+        <ContentControl Content="{Binding SchannelProtocolSettingsViewModel}" Grid.Row="0" Grid.Column="0"/>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
             <Expander Header="Cipher Suites">
                 <Grid>

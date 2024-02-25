@@ -1,15 +1,11 @@
 ﻿namespace CipherPunk;
 
-using System.Collections.Frozen;
 using Windows.Win32;
 
-internal static class Windows10V1507CipherSuiteDocumentationService
+internal sealed class Windows10V1507DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows10V1507, windowsEllipticCurveDocumentationService)
 {
-    public static KeyValuePair<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>> GetConfiguration()
-        => new(WindowsVersion.Windows10V1507, FrozenSet.ToFrozenSet([.. GetDefaultEnabledConfiguration(), .. GetDefaultDisabledConfiguration()]));
-
-    private static FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetDefaultEnabledConfiguration()
-        => FrozenSet.ToFrozenSet<WindowsDocumentationCipherSuiteConfiguration>(
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration()
+        =>
         [
             new(1, SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
             new(2, SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
@@ -45,10 +41,10 @@ internal static class Windows10V1507CipherSuiteDocumentationService
             new(32, SslProviderCipherSuiteId.TLS_RSA_WITH_NULL_SHA, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION], true),
             new(33, SslProviderCipherSuiteId.SSL_CK_RC4_128_WITH_MD5, false, true, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION], true),
             new(34, SslProviderCipherSuiteId.SSL_CK_DES_192_EDE3_CBC_WITH_MD5, true, true, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION], true)
-        ]);
+        ];
 
-    private static FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetDefaultDisabledConfiguration()
-        => FrozenSet.ToFrozenSet<WindowsDocumentationCipherSuiteConfiguration>(
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration()
+        =>
         [
             new(35, SslProviderCipherSuiteId.TLS_RSA_WITH_DES_CBC_SHA, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
             new(36, SslProviderCipherSuiteId.TLS_RSA_EXPORT1024_WITH_RC4_56_SHA, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
@@ -59,5 +55,5 @@ internal static class Windows10V1507CipherSuiteDocumentationService
             new(41, SslProviderCipherSuiteId.TLS_DHE_DSS_EXPORT1024_WITH_DES_CBC_SHA, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
             new(42, SslProviderCipherSuiteId.SSL_CK_DES_64_CBC_WITH_MD5, true, false, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION]),
             new(43, SslProviderCipherSuiteId.SSL_CK_RC4_128_EXPORT40_WITH_MD5, false, false, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION])
-        ]);
+        ];
 }

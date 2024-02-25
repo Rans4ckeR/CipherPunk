@@ -27,7 +27,6 @@
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <Platforms>x86;x64;ARM64</Platforms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <EnableSourceControlManagerQueries Condition="$(Configuration) == 'Debug'">true</EnableSourceControlManagerQueries> <!--https://github.com/dotnet/sdk/issues/36666-->
     <ApplicationIcon>..\CipherPunk.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
@@ -40,7 +39,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="58.0.18-preview">
+    <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata" Version="59.0.13-preview">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

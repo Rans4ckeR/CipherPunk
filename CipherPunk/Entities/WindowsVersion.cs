@@ -4,6 +4,8 @@ public enum WindowsVersion
 {
     WindowsVistaOrServer2008,
 
+    WindowsServer2008SP2,
+
     Windows7OrServer2008R2,
 
     Windows8OrServer2012,

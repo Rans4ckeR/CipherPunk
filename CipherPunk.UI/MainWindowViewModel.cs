@@ -32,6 +32,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel ellipticCurvesGroupPolicySettingsViewModel,
         RemoteServerTestViewModel remoteServerTestViewModel,
         LoggingViewModel loggingViewModel,
+        DefaultProtocolsViewModel defaultProtocolsViewModel,
         DefaultCipherSuitesViewModel defaultCipherSuitesViewModel,
         DefaultEllipticCurvesViewModel defaultEllipticCurvesViewModel,
         ElevationViewModel elevationViewModel)
@@ -47,6 +48,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel = ellipticCurvesGroupPolicySettingsViewModel;
         RemoteServerTestViewModel = remoteServerTestViewModel;
         LoggingViewModel = loggingViewModel;
+        DefaultProtocolsViewModel = defaultProtocolsViewModel;
         DefaultCipherSuitesViewModel = defaultCipherSuitesViewModel;
         DefaultEllipticCurvesViewModel = defaultEllipticCurvesViewModel;
         ElevationViewModel = elevationViewModel;
@@ -81,6 +83,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
     public RemoteServerTestViewModel RemoteServerTestViewModel { get; }
 
     public LoggingViewModel LoggingViewModel { get; }
+
+    public DefaultProtocolsViewModel DefaultProtocolsViewModel { get; }
 
     public DefaultCipherSuitesViewModel DefaultCipherSuitesViewModel { get; }
 

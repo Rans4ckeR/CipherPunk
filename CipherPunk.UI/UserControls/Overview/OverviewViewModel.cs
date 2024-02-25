@@ -11,7 +11,6 @@ internal sealed class OverviewViewModel : BaseViewModel
     private readonly IEllipticCurveService ellipticCurveService;
     private readonly IGroupPolicyService groupPolicyService;
     private readonly ISchannelService schannelService;
-    private ObservableCollection<SchannelProtocolSettings>? protocolSettings;
     private ObservableCollection<SchannelKeyExchangeAlgorithmSettings>? keyExchangeAlgorithmSettings;
     private ObservableCollection<SchannelCipherSettings>? cipherSettings;
     private ObservableCollection<SchannelHashSettings>? hashSettings;
@@ -28,7 +27,8 @@ internal sealed class OverviewViewModel : BaseViewModel
         ICipherSuiteInfoApiService cipherSuiteInfoApiService,
         IGroupPolicyService groupPolicyService,
         IUacService uacService,
-        SchannelSettingsViewModel schannelSettingsViewModel)
+        SchannelSettingsViewModel schannelSettingsViewModel,
+        SchannelProtocolSettingsViewModel schannelProtocolSettingsViewModel)
         : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.schannelService = schannelService;
@@ -36,11 +36,14 @@ internal sealed class OverviewViewModel : BaseViewModel
         this.ellipticCurveService = ellipticCurveService;
         this.groupPolicyService = groupPolicyService;
         SchannelSettingsViewModel = schannelSettingsViewModel;
+        SchannelProtocolSettingsViewModel = schannelProtocolSettingsViewModel;
 
         UpdateCanExecuteDefaultCommand();
     }
 
     public SchannelSettingsViewModel SchannelSettingsViewModel { get; }
+
+    public SchannelProtocolSettingsViewModel SchannelProtocolSettingsViewModel { get; }
 
     public string? GroupPolicyCipherSuiteMessage
     {
@@ -52,12 +55,6 @@ internal sealed class OverviewViewModel : BaseViewModel
     {
         get => groupPolicyEllipticCurveMessage;
         private set => _ = SetProperty(ref groupPolicyEllipticCurveMessage, value);
-    }
-
-    public ObservableCollection<SchannelProtocolSettings>? ProtocolSettings
-    {
-        get => protocolSettings;
-        private set => _ = SetProperty(ref protocolSettings, value);
     }
 
     public ObservableCollection<SchannelKeyExchangeAlgorithmSettings>? KeyExchangeAlgorithmSettings
@@ -92,16 +89,15 @@ internal sealed class OverviewViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        FrozenSet<SchannelProtocolSettings> schannelProtocolSettings = schannelService.GetProtocolSettings();
         FrozenSet<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings = schannelService.GetKeyExchangeAlgorithmSettings();
         FrozenSet<SchannelCipherSettings> schannelCipherSettings = schannelService.GetSchannelCipherSettings();
         FrozenSet<SchannelHashSettings> schannelHashSettings = schannelService.GetSchannelHashSettings();
 
-        ProtocolSettings = new(schannelProtocolSettings);
         KeyExchangeAlgorithmSettings = new(schannelKeyExchangeAlgorithmSettings);
         CipherSettings = new(schannelCipherSettings);
         HashSettings = new(schannelHashSettings);
-        SchannelSettingsViewModel.SchannelSettings = schannelService.GetSchannelSettings();
+        await SchannelProtocolSettingsViewModel.DefaultCommand.ExecuteAsync(null);
+        await SchannelSettingsViewModel.DefaultCommand.ExecuteAsync(null);
 
         FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 

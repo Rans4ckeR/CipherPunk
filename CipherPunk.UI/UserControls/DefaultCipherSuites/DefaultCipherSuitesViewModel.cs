@@ -8,17 +8,17 @@ using Windows.Win32;
 
 internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
 {
-    private readonly IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService;
-    private readonly ITlsService tlsService;
+    private readonly IWindowsDocumentationService windowsDocumentationService;
+    private readonly IWindowsVersionService windowsVersionService;
     private ObservableCollection<WindowsVersion>? windowsVersions;
     private WindowsVersion? windowsVersion;
     private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? defaultCipherSuites;
 
-    public DefaultCipherSuitesViewModel(ILogger logger, IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, IUacService uacService, ITlsService tlsService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    public DefaultCipherSuitesViewModel(ILogger logger, IWindowsDocumentationService windowsDocumentationService, IUacService uacService, IWindowsVersionService windowsVersionService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
     {
-        this.windowsCipherSuiteDocumentationService = windowsCipherSuiteDocumentationService;
-        this.tlsService = tlsService;
+        this.windowsDocumentationService = windowsDocumentationService;
+        this.windowsVersionService = windowsVersionService;
 
         UpdateCanExecuteDefaultCommand();
     }
@@ -60,7 +60,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
         WindowsVersions ??= new(Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q));
-        WindowsVersion ??= tlsService.GetWindowsVersion();
+        WindowsVersion ??= windowsVersionService.WindowsVersion;
 
         return Task.CompletedTask;
     }
@@ -69,7 +69,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
     {
         try
         {
-            FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(WindowsVersion!.Value);
+            FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = windowsDocumentationService.GetCipherSuiteConfigurations(WindowsVersion!.Value);
 
             await FetchOnlineCipherSuiteInfoAsync(CancellationToken.None);
 

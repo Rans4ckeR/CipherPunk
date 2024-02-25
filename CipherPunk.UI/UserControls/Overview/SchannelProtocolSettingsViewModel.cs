@@ -1,14 +1,15 @@
 ﻿namespace CipherPunk.UI;
 
+using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
 
-internal sealed class SchannelSettingsViewModel : BaseViewModel
+internal sealed class SchannelProtocolSettingsViewModel : BaseViewModel
 {
     private readonly ISchannelService schannelService;
-    private UiSchannelSettings? schannelSettings;
+    private ObservableCollection<UiSchannelProtocolSettings>? schannelProtocolSettings;
 
-    public SchannelSettingsViewModel(ISchannelService schannelService, ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    public SchannelProtocolSettingsViewModel(ISchannelService schannelService, ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.schannelService = schannelService;
@@ -25,15 +26,15 @@ internal sealed class SchannelSettingsViewModel : BaseViewModel
 
     public IAsyncRelayCommand CancelSettingsCommand { get; }
 
-    public UiSchannelSettings? SchannelSettings
+    public ObservableCollection<UiSchannelProtocolSettings>? SchannelProtocolSettings
     {
-        get => schannelSettings;
-        set => _ = SetProperty(ref schannelSettings, value);
+        get => schannelProtocolSettings;
+        set => _ = SetProperty(ref schannelProtocolSettings, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        SchannelSettings = new(schannelService.GetSchannelSettings());
+        SchannelProtocolSettings = new(schannelService.GetProtocolSettings().Select(q => new UiSchannelProtocolSettings(q)).OrderByDescending(q => q.Protocol));
 
         return Task.CompletedTask;
     }
@@ -43,26 +44,14 @@ internal sealed class SchannelSettingsViewModel : BaseViewModel
 
     private async Task DoExecuteSaveSettingsCommand()
     {
-        schannelService.UpdateSchannelSettings(new(
-            (SchannelEventLogging)SchannelSettings!.EventLogging!.Where(q => q.Enabled).Sum(q => (int)q.Member),
-            (SchannelCertificateMappingMethod)SchannelSettings!.CertificateMappingMethods!.Where(q => q.Enabled).Sum(q => (int)q.Member),
-            SchannelSettings!.ClientCacheTime,
-            SchannelSettings!.EnableOcspStaplingForSni,
-            SchannelSettings!.IssuerCacheSize,
-            SchannelSettings!.IssuerCacheTime,
-            SchannelSettings!.MaximumCacheSize,
-            SchannelSettings!.SendTrustedIssuerList,
-            SchannelSettings!.ServerCacheTime,
-            SchannelSettings!.MessageLimitClient,
-            SchannelSettings!.MessageLimitServer,
-            SchannelSettings!.MessageLimitServerClientAuth));
+        schannelService.UpdateProtocolSettings(SchannelProtocolSettings!.Select(q => new SchannelProtocolSettings(q.Protocol, q.ClientStatus, q.ServerStatus)));
         await DoExecuteDefaultCommandAsync(CancellationToken.None);
         NotifyCanExecuteChanged();
     }
 
     private async Task DoExecuteResetSettingsCommand()
     {
-        schannelService.ResetSchannelSettings();
+        schannelService.ResetProtocolSettings();
         await DoExecuteDefaultCommandAsync(CancellationToken.None);
         NotifyCanExecuteChanged();
     }

@@ -7,7 +7,7 @@ public readonly record struct WindowsDocumentationCipherSuiteConfiguration(
     SslProviderCipherSuiteId CipherSuite,
     bool AllowedByUseStrongCryptographyFlag,
     bool EnabledByDefault,
-    SslProviderProtocolId[] Protocols,
+    ICollection<SslProviderProtocolId> Protocols,
     bool ExplicitApplicationRequestOnly = false,
     SslProviderKeyTypeId? PreWindows10EllipticCurve = null)
 {

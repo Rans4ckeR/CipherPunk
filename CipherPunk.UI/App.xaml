@@ -67,6 +67,13 @@
             <Setter Property="AlternatingRowBackground" Value="{StaticResource NavigationBackgroundSolidColorBrush}"/>
             <Setter Property="RowBackground" Value="{StaticResource TitleBackgroundSolidColorBrush}"/>
         </Style>
+        <Style TargetType="{x:Type ListBox}">
+            <Setter Property="Foreground" Value="{StaticResource TextSolidColorBrush}"/>
+            <Setter Property="Background" Value="{StaticResource TitleBackgroundSolidColorBrush}"/>
+        </Style>
+        <Style TargetType="{x:Type CheckBox}">
+            <Setter Property="Foreground" Value="{StaticResource TextSolidColorBrush}"/>
+        </Style>
         <Style TargetType="{x:Type ui:NoScrollDataGrid}" BasedOn="{StaticResource {x:Type DataGrid}}">
             <Setter Property="IsReadOnly" Value="True"/>
         </Style>
@@ -97,6 +104,9 @@
         <DataTemplate DataType="{x:Type ui:LoggingViewModel}">
             <ui:LoggingView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:DefaultProtocolsViewModel}">
+            <ui:DefaultProtocolsView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type ui:DefaultCipherSuitesViewModel}">
             <ui:DefaultCipherSuitesView/>
         </DataTemplate>
@@ -108,6 +118,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type ui:SchannelSettingsViewModel}">
             <ui:SchannelSettingsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type ui:SchannelProtocolSettingsViewModel}">
+            <ui:SchannelProtocolSettingsView/>
         </DataTemplate>
     </Application.Resources>
 </Application>

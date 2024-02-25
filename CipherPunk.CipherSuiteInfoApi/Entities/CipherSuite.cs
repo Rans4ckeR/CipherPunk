@@ -14,4 +14,4 @@ public readonly record struct CipherSuite(
     [property: JsonPropertyName("enc_algorithm")] string EncryptionAlgorithm,
     [property: JsonPropertyName("hash_algorithm")] string HashAlgorithm,
     [property: JsonPropertyName("security")] CipherSuiteSecurity Security,
-    [property: JsonPropertyName("tls_version")] CipherSuiteTlsVersion[] TlsVersions);
+    [property: JsonPropertyName("tls_version")] ICollection<CipherSuiteTlsVersion> TlsVersions);

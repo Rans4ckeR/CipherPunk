@@ -7,9 +7,11 @@ Inspired by [IISCrypto](https://www.nartac.com/Products/IISCrypto/)
 Features
 * Supports SSL2.0, SSL3.0, TLS1.0, TLS1.1, TLS1.2 & TLS1.3
 * Remote server probing
+* Protocol configuration
 * Cipher Suite configuration
 * Elliptic Curve configuration
-* Windows 7 to 11 & Windows Server 2008 R2 to 2022
+* Schannel configuration
+* Windows 7 to 11 & Windows Server 2008 to 2022
 * Configuration using local Group Policy (IISCrypto style)
 * Configuration using Schannel API
 
@@ -35,8 +37,63 @@ A Windows .NET WPF application for x86, x64 and ARM64.
 
 A NuGet package to manage Windows Schannel.
 
-* [NuGet](https://www.nuget.org/packages/CipherPunk)
-* [GitHub](https://github.com/Rans4ckeR?tab=packages&repo_name=CipherPunk)
+[https://www.nuget.org/packages/CipherPunk](https://www.nuget.org/packages/CipherPunk)
+
+### Services
+
+* ICipherSuiteService
+  * GetLocalCngConfigurationContextIdentifiers
+  * GetOperatingSystemDocumentationDefaultCipherSuiteList
+  * GetOperatingSystemConfiguredCipherSuiteList
+  * GetOperatingSystemActiveCipherSuiteList
+  * GetOperatingSystemDefaultCipherSuiteList
+  * ResetCipherSuiteListToOperatingSystemDefault
+  * RemoveCipherSuite
+  * AddCipherSuite
+  * UpdateCipherSuiteOrder
+* IEllipticCurveIdentifierService
+  * GetEllipticCurveIdentifiers
+  * GetIdentifier
+* IEllipticCurveService
+  * GetOperatingSystemDefaultEllipticCurveList
+  * GetOperatingSystemAvailableEllipticCurveList
+  * GetOperatingSystemActiveEllipticCurveList
+  * GetOperatingSystemConfiguredEllipticCurveList
+  * ResetEllipticCurveListToOperatingSystemDefault
+  * UpdateEllipticCurveOrder
+* IGroupPolicyService
+  * GetSslCipherSuiteOrderPolicyWindowsDefaultsAsync
+  * GetSslCurveOrderPolicyWindowsDefaultsAsync
+  * UpdateSslCipherSuiteOrderPolicy
+  * UpdateEccCurveOrderPolicy
+  * GetSslCipherSuiteOrderPolicy
+  * GetEccCurveOrderPolicy
+* ISchannelLogService
+  * GetSchannelLogs
+* ISchannelService
+  * GetProtocolSettings
+  * UpdateProtocolSettings
+  * ResetProtocolSettings
+  * GetKeyExchangeAlgorithmSettings
+  * UpdateKeyExchangeAlgorithmSettings
+  * ResetKeyExchangeAlgorithmSettings
+  * GetSchannelHashSettings
+  * UpdateSchannelHashSettings
+  * ResetSchannelHashSettings
+  * GetSchannelCipherSettings
+  * UpdateSchannelCipherSettings
+  * ResetSchannelCipherSettings
+  * GetSchannelSettings
+  * UpdateSchannelSettings
+  * ResetSchannelSettings
+* ITlsService
+  * GetRemoteServerCipherSuitesAsync
+* IWindowsDocumentationService
+  * GetProtocolConfigurations
+  * GetCipherSuiteConfigurations
+  * GetEllipticCurveConfigurations
+* IWindowsVersionService
+  * WindowsVersion
 
 ### Usage Examples
 
@@ -55,20 +112,20 @@ ICipherSuiteService cipherSuiteService = serviceScope.ServiceProvider.GetRequire
 IEllipticCurveService ellipticCurveService = serviceScope.ServiceProvider.GetRequiredService<IEllipticCurveService>();
 
 // Retrieve the currently active cipher suites ordered by priority
-List<WindowsApiCipherSuiteConfiguration> cipherSuites = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
-cipherSuites.ForEach(q => Console.WriteLine(q.CipherSuiteName));
+var cipherSuites = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
+cipherSuites.ToList().ForEach(q => Console.WriteLine(q.CipherSuiteName));
 
 // Retrieve the currently active elliptic curves ordered by priority
-List<WindowsApiEllipticCurveConfiguration> ellipticCurves = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-ellipticCurves.ForEach(q => Console.WriteLine(q.pwszName));
+var ellipticCurves = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
+ellipticCurves.ToList().ForEach(q => Console.WriteLine(q.pwszName));
 
 // Retrieve the default cipher suites ordered by priority for the current OS
-List<WindowsDocumentationCipherSuiteConfiguration> defaultCipherSuites = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
-defaultCipherSuites.ForEach(q => Console.WriteLine(q.CipherSuite));
+var defaultCipherSuites = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
+defaultCipherSuites.ToList().ForEach(q => Console.WriteLine(q.CipherSuite));
 
 // Retrieve the default elliptic curves ordered by priority for the current OS
-List<WindowsDocumentationEllipticCurveConfiguration> defaultEllipticCurves = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
-defaultEllipticCurves.ForEach(q => Console.WriteLine(q.Name));
+var defaultEllipticCurves = ellipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
+defaultEllipticCurves.ToList().ForEach(q => Console.WriteLine(q.Name));
 
 // Add a cipher suite
 cipherSuiteService.AddCipherSuite("TLS_AES_256_GCM_SHA384");

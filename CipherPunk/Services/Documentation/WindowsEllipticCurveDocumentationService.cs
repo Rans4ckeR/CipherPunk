@@ -7,11 +7,8 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
 {
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>>? windowsDocumentationEllipticCurveConfigurations;
 
-    public FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations()
-        => windowsDocumentationEllipticCurveConfigurations ??= BuildWindowsDocumentationEllipticCurveConfigurations();
-
     public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion)
-        => GetWindowsDocumentationEllipticCurveConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
+        => (windowsDocumentationEllipticCurveConfigurations ??= BuildWindowsDocumentationEllipticCurveConfigurations()).Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
 
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
     {

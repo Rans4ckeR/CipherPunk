@@ -20,5 +20,10 @@ public enum SchannelProtocolStatus
     /// <summary>
     /// Not configured, the default OS setting is used.
     /// </summary>
-    OsDefault
+    OsDefault,
+
+    /// <summary>
+    /// Not supported by the OS.
+    /// </summary>
+    NotSupported
 }

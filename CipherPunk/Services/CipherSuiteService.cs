@@ -9,7 +9,7 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 
-internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
+internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDocumentationService, IWindowsVersionService windowsVersionService)
     : ICipherSuiteService
 {
     private const string LocalCngSslContextName = "SSL";
@@ -57,11 +57,7 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList()
-    {
-        WindowsVersion windowsVersion = tlsService.GetWindowsVersion();
-
-        return windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(windowsVersion);
-    }
+        => windowsDocumentationService.GetCipherSuiteConfigurations(windowsVersionService.WindowsVersion);
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]

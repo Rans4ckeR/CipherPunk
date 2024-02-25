@@ -12,12 +12,13 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddCipherPunk(this IServiceCollection services)
         => services
             .AddSingleton<ICipherSuiteService, CipherSuiteService>()
-            .AddSingleton<IWindowsCipherSuiteDocumentationService, WindowsCipherSuiteDocumentationService>()
+            .AddSingleton<IWindowsDocumentationService, WindowsDocumentationService>()
             .AddSingleton<IWindowsEllipticCurveDocumentationService, WindowsEllipticCurveDocumentationService>()
             .AddSingleton<IGroupPolicyService, GroupPolicyService>()
             .AddSingleton<IEllipticCurveIdentifierService, EllipticCurveIdentifierService>()
             .AddSingleton<IEllipticCurveService, EllipticCurveService>()
             .AddSingleton<ITlsService, TlsService>()
             .AddSingleton<ISchannelService, SchannelService>()
-            .AddSingleton<ISchannelLogService, SchannelLogService>();
+            .AddSingleton<ISchannelLogService, SchannelLogService>()
+            .AddSingleton<IWindowsVersionService, WindowsVersionService>();
 }

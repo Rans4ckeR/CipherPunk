@@ -7,31 +7,41 @@ using Windows.Win32;
 public interface ICipherSuiteService
 {
     [SupportedOSPlatform("windows6.0.6000")]
+#pragma warning disable CA1024 // Use properties where appropriate
     IEnumerable<string> GetLocalCngConfigurationContextIdentifiers();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the default Cipher Suite configurations for the current OS from documentation.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
+#pragma warning disable CA1024 // Use properties where appropriate
     FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the configured Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
+#pragma warning disable CA1024 // Use properties where appropriate
     FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the OS's currently active Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
+#pragma warning disable CA1024 // Use properties where appropriate
     FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the default Cipher Suite configurations for the current OS from Ncrypt.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
+#pragma warning disable CA1024 // Use properties where appropriate
     FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Resets the Ncrypt Cipher Suite configurations to the default for the current OS.

@@ -13,7 +13,7 @@ using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 using Windows.Win32.System.Registry;
 
-internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService, ITlsService tlsService)
+internal sealed class EllipticCurveService(IWindowsDocumentationService windowsDocumentationService, IWindowsVersionService windowsVersionService)
     : IEllipticCurveService
 {
     private const string NcryptSchannelInterfaceSslKey = @"SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002";
@@ -260,11 +260,7 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList()
-    {
-        WindowsVersion windowsVersion = tlsService.GetWindowsVersion();
-
-        return windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(windowsVersion);
-    }
+        => windowsDocumentationService.GetEllipticCurveConfigurations(windowsVersionService.WindowsVersion);
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]

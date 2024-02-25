@@ -2,7 +2,7 @@
 
 using System.Text;
 
-public static class ExceptionMessageBuilder
+internal static class ExceptionMessageBuilder
 {
     public static string GetDetailedExceptionInfo(this Exception ex) => new StringBuilder().GetExceptionInfo(ex).ToString();
 

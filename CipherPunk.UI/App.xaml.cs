@@ -37,18 +37,22 @@ internal sealed partial class App
                     .AddSingleton<EllipticCurvesGroupPolicySettingsViewModel>()
                     .AddSingleton<RemoteServerTestViewModel>()
                     .AddSingleton<LoggingViewModel>()
+                    .AddSingleton<DefaultProtocolsViewModel>()
                     .AddSingleton<DefaultCipherSuitesViewModel>()
                     .AddSingleton<DefaultEllipticCurvesViewModel>()
                     .AddSingleton<ElevationViewModel>()
                     .AddSingleton<SchannelSettingsViewModel>()
+                    .AddSingleton<SchannelProtocolSettingsViewModel>()
                     .AddCipherPunk()
                     .AddCipherSuiteInfoApi();
             }).Build();
     }
 
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
-        await host.StartAsync();
+        Mouse.OverrideCursor = Cursors.AppStarting;
+
+        host.Start();
 
         SetUiCulture();
 
@@ -61,13 +65,13 @@ internal sealed partial class App
         Mouse.OverrideCursor = null;
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    protected override void OnExit(ExitEventArgs e)
     {
         Mouse.OverrideCursor = Cursors.Wait;
 
         using (host)
         {
-            await host.StopAsync();
+            host.StopAsync().GetAwaiter().GetResult();
         }
 
         base.OnExit(e);

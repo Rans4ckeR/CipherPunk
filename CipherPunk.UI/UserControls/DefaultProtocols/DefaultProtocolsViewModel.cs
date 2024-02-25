@@ -5,15 +5,15 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CipherPunk.CipherSuiteInfoApi;
 
-internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
+internal sealed class DefaultProtocolsViewModel : BaseViewModel
 {
     private readonly IWindowsDocumentationService windowsDocumentationService;
     private readonly IWindowsVersionService windowsVersionService;
     private ObservableCollection<WindowsVersion>? windowsVersions;
     private WindowsVersion? windowsVersion;
-    private ObservableCollection<UiWindowsDocumentationEllipticCurveConfiguration>? defaultEllipticCurves;
+    private ObservableCollection<SchannelProtocolSettings>? defaultProtocols;
 
-    public DefaultEllipticCurvesViewModel(ILogger logger, IWindowsDocumentationService windowsDocumentationService, IUacService uacService, IWindowsVersionService windowsVersionService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    public DefaultProtocolsViewModel(ILogger logger, IWindowsDocumentationService windowsDocumentationService, IUacService uacService, IWindowsVersionService windowsVersionService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.windowsDocumentationService = windowsDocumentationService;
@@ -34,10 +34,10 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
         set => _ = SetProperty(ref windowsVersion, value);
     }
 
-    public ObservableCollection<UiWindowsDocumentationEllipticCurveConfiguration>? DefaultEllipticCurves
+    public ObservableCollection<SchannelProtocolSettings>? DefaultProtocols
     {
-        get => defaultEllipticCurves;
-        private set => _ = SetProperty(ref defaultEllipticCurves, value);
+        get => defaultProtocols;
+        private set => _ = SetProperty(ref defaultProtocols, value);
     }
 
     protected override void BaseViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -64,18 +64,9 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
     {
         try
         {
-            FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfigurations = windowsDocumentationService.GetEllipticCurveConfigurations(WindowsVersion!.Value);
-            IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationEllipticCurveConfigurations.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
-                q.Priority,
-                q.Name,
-                q.Identifier,
-                q.Code,
-                q.TlsSupportedGroup,
-                q.AllowedByUseStrongCryptographyFlag,
-                q.EnabledByDefault))
-                .OrderBy(q => q.Priority);
+            FrozenSet<SchannelProtocolSettings> windowsDocumentationProtocolConfigurations = windowsDocumentationService.GetProtocolConfigurations(WindowsVersion!.Value);
 
-            DefaultEllipticCurves = new(uiWindowsDocumentationCipherSuiteConfigurations);
+            DefaultProtocols = new(windowsDocumentationProtocolConfigurations);
         }
         catch (Exception ex)
         {
