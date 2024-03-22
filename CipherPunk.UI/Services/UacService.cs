@@ -18,7 +18,7 @@ internal sealed class UacService : IUacService
     {
         var psii = new SHSTOCKICONINFO
         {
-            cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO))
+            cbSize = (uint)Marshal.SizeOf<SHSTOCKICONINFO>()
         };
         BOOL destroyIconResult = default;
         BitmapSource bitmapSource;

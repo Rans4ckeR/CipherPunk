@@ -404,6 +404,7 @@ dotnet_diagnostic.CA1303.severity = none
 dotnet_diagnostic.CA1008.severity = none
 dotnet_diagnostic.API1002.severity = none
 dotnet_diagnostic.API1003.severity = warning
+dotnet_diagnostic.CA2263.severity = warning
 
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
@@ -563,5 +564,48 @@ dotnet_diagnostic.CA1062.severity = none
 dotnet_diagnostic.MSTEST0001.severity = warning
 dotnet_diagnostic.MSTEST0006.severity = warning
 dotnet_diagnostic.MSTEST0004.severity = warning
+
+# RS1015: Provide non-null 'helpLinkUri' value to diagnostic descriptor constructor
+dotnet_diagnostic.RS1015.severity = warning
+
+# RS1020: Category for analyzers must be from the specified values
+dotnet_diagnostic.RS1020.severity = warning
+
+# RS1028: Provide non-null 'customTags' value to diagnostic descriptor constructor
+dotnet_diagnostic.RS1028.severity = warning
+
+# CA1002: Do not expose generic lists
+dotnet_diagnostic.CA1002.severity = warning
+
+# CA1014: Mark assemblies with CLSCompliant
+dotnet_diagnostic.CA1014.severity = warning
+
+# CA1017: Mark assemblies with ComVisible
+dotnet_diagnostic.CA1017.severity = warning
+
+# CA1021: Avoid out parameters
+dotnet_diagnostic.CA1021.severity = warning
+
+# CA1045: Do not pass types by reference
+dotnet_diagnostic.CA1045.severity = warning
+
+# CA1060: Move pinvokes to native methods class
+dotnet_diagnostic.CA1060.severity = warning
+
+# CA1501: Avoid excessive inheritance
+dotnet_diagnostic.CA1501.severity = warning
+
+# CA1502: Avoid excessive complexity
+dotnet_diagnostic.CA1502.severity = warning
+
+# CA1505: Avoid unmaintainable code
+dotnet_diagnostic.CA1505.severity = warning
+
+# CA1506: Avoid excessive class coupling
+dotnet_diagnostic.CA1506.severity = warning
+
+# CA1509: Invalid entry in code metrics rule specification file
+dotnet_diagnostic.CA1509.severity = warning
+
 [*.vb]
 dotnet_diagnostic.CA1047.severity = warning
