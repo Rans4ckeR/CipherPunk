@@ -1,6 +1,6 @@
 ﻿namespace CipherPunk.CipherSuiteInfoApi;
 
-public enum Security
+public enum CipherSuiteSecurity
 {
     Insecure,
 

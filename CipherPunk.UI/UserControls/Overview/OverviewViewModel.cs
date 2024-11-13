@@ -1,27 +1,16 @@
-﻿namespace CipherPunk.UI;
-
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 using Windows.Win32;
+
+namespace CipherPunk.UI;
 
 internal sealed class OverviewViewModel : BaseViewModel
 {
     private readonly ICipherSuiteService cipherSuiteService;
     private readonly IEllipticCurveService ellipticCurveService;
-    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private readonly IGroupPolicyService groupPolicyService;
     private readonly ISchannelService schannelService;
-    private readonly List<CipherSuite?> onlineCipherSuiteInfos = [];
-    private ObservableCollection<SchannelProtocolSettings>? protocolSettings;
-    private ObservableCollection<SchannelKeyExchangeAlgorithmSettings>? keyExchangeAlgorithmSettings;
-    private ObservableCollection<SchannelCipherSettings>? cipherSettings;
-    private ObservableCollection<SchannelHashSettings>? hashSettings;
-    private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
-    private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
-    private SchannelSettings? settings;
-    private bool fetchOnlineInfo = true;
-    private string? groupPolicyCipherSuiteMessage;
-    private string? groupPolicyEllipticCurveMessage;
 
     public OverviewViewModel(
         ILogger logger,
@@ -30,101 +19,85 @@ internal sealed class OverviewViewModel : BaseViewModel
         IEllipticCurveService ellipticCurveService,
         ICipherSuiteInfoApiService cipherSuiteInfoApiService,
         IGroupPolicyService groupPolicyService,
-        IUacService uacService)
-        : base(logger, uacService)
+        IUacService uacService,
+        SchannelSettingsViewModel schannelSettingsViewModel,
+        SchannelProtocolSettingsViewModel schannelProtocolSettingsViewModel)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         this.schannelService = schannelService;
         this.cipherSuiteService = cipherSuiteService;
         this.ellipticCurveService = ellipticCurveService;
-        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
         this.groupPolicyService = groupPolicyService;
+        SchannelSettingsViewModel = schannelSettingsViewModel;
+        SchannelProtocolSettingsViewModel = schannelProtocolSettingsViewModel;
 
         UpdateCanExecuteDefaultCommand();
     }
 
-    public bool FetchOnlineInfo
-    {
-        get => fetchOnlineInfo;
-        set => _ = SetProperty(ref fetchOnlineInfo, value);
-    }
+    public SchannelSettingsViewModel SchannelSettingsViewModel { get; }
+
+    public SchannelProtocolSettingsViewModel SchannelProtocolSettingsViewModel { get; }
 
     public string? GroupPolicyCipherSuiteMessage
     {
-        get => groupPolicyCipherSuiteMessage;
-        private set => _ = SetProperty(ref groupPolicyCipherSuiteMessage, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public string? GroupPolicyEllipticCurveMessage
     {
-        get => groupPolicyEllipticCurveMessage;
-        private set => _ = SetProperty(ref groupPolicyEllipticCurveMessage, value);
-    }
-
-    public SchannelSettings? Settings
-    {
-        get => settings;
-        private set => _ = SetProperty(ref settings, value);
-    }
-
-    public ObservableCollection<SchannelProtocolSettings>? ProtocolSettings
-    {
-        get => protocolSettings;
-        private set => _ = SetProperty(ref protocolSettings, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<SchannelKeyExchangeAlgorithmSettings>? KeyExchangeAlgorithmSettings
     {
-        get => keyExchangeAlgorithmSettings;
-        private set => _ = SetProperty(ref keyExchangeAlgorithmSettings, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<SchannelCipherSettings>? CipherSettings
     {
-        get => cipherSettings;
-        private set => _ = SetProperty(ref cipherSettings, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<SchannelHashSettings>? HashSettings
     {
-        get => hashSettings;
-        private set => _ = SetProperty(ref hashSettings, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? ActiveCipherSuiteConfigurations
     {
-        get => activeCipherSuiteConfigurations;
-        private set => _ = SetProperty(ref activeCipherSuiteConfigurations, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? ActiveEllipticCurveConfigurations
     {
-        get => activeEllipticCurveConfigurations;
-        private set => _ = SetProperty(ref activeEllipticCurveConfigurations, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        List<SchannelProtocolSettings> schannelProtocolSettings = schannelService.GetProtocolSettings();
-        List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings = schannelService.GetKeyExchangeAlgorithmSettings();
-        List<SchannelCipherSettings> schannelCipherSettings = schannelService.GetSchannelCipherSettings();
-        List<SchannelHashSettings> schannelHashSettings = schannelService.GetSchannelHashSettings();
-        SchannelSettings schannelSettings = schannelService.GetSchannelSettings();
+        FrozenSet<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings = schannelService.GetKeyExchangeAlgorithmSettings();
+        FrozenSet<SchannelCipherSettings> schannelCipherSettings = schannelService.GetSchannelCipherSettings();
+        FrozenSet<SchannelHashSettings> schannelHashSettings = schannelService.GetSchannelHashSettings();
 
-        ProtocolSettings = new(schannelProtocolSettings);
-        KeyExchangeAlgorithmSettings = new(schannelKeyExchangeAlgorithmSettings);
-        CipherSettings = new(schannelCipherSettings);
-        HashSettings = new(schannelHashSettings);
-        Settings = schannelSettings;
+        KeyExchangeAlgorithmSettings = [.. schannelKeyExchangeAlgorithmSettings];
+        CipherSettings = [.. schannelCipherSettings];
+        HashSettings = [.. schannelHashSettings];
+        await SchannelProtocolSettingsViewModel.DefaultCommand.ExecuteAsync(null);
+        await SchannelSettingsViewModel.DefaultCommand.ExecuteAsync(null);
 
-        List<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
-        List<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
+        FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 
-        if (FetchOnlineInfo)
-            await FetchOnlineCipherSuiteInfoAsync(windowsDocumentationCipherSuiteConfigurations, cancellationToken);
+        await FetchOnlineCipherSuiteInfoAsync(cancellationToken);
 
-        ushort priority = ushort.MinValue;
-        var uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
-            ++priority,
+        IOrderedEnumerable<UiWindowsApiCipherSuiteConfiguration> uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
+            q.Priority,
             q.CipherSuite,
             q.Protocols.Contains(SslProviderProtocolId.SSL2_PROTOCOL_VERSION),
             q.Protocols.Contains(SslProviderProtocolId.SSL3_PROTOCOL_VERSION),
@@ -142,22 +115,21 @@ internal sealed class OverviewViewModel : BaseViewModel
             q.CipherBlockLength,
             q.CipherLength,
             q.Cipher,
-            onlineCipherSuiteInfos.SingleOrDefault(r => q.CipherSuite.ToString().Equals(r!.Value.IanaName, StringComparison.OrdinalIgnoreCase), null)?.Security)).ToList();
+            OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
+            .OrderBy(q => q.Priority);
 
-        ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
+        ActiveCipherSuiteConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];
 
-        List<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-
-        priority = ushort.MinValue;
-
-        var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
-            ++priority,
+        FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
+        IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+            q.Priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
-            string.Join(',', q.CngAlgorithms))).ToList();
+            string.Join(',', q.CngAlgorithms)))
+            .OrderBy(q => q.Priority);
 
-        ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
+        ActiveEllipticCurveConfigurations = [.. uiWindowsApiEllipticCurveConfigurations];
 
         DetectGroupPolicyOverride();
     }
@@ -183,13 +155,5 @@ internal sealed class OverviewViewModel : BaseViewModel
 
         if (eccCurveOrderPolicy.Length > 0)
             GroupPolicyEllipticCurveMessage = "Current Elliptic Curve settings are set by Group Policy.";
-    }
-
-    private async Task FetchOnlineCipherSuiteInfoAsync(IEnumerable<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations, CancellationToken cancellationToken)
-    {
-        CipherSuite?[] cipherSuites = await Task.WhenAll(windowsDocumentationCipherSuiteConfigurations.Select(q => cipherSuiteInfoApiService.GetCipherSuiteAsync(q.CipherSuite.ToString(), cancellationToken).AsTask()));
-
-        onlineCipherSuiteInfos.Clear();
-        onlineCipherSuiteInfos.AddRange(cipherSuites.Where(q => q is not null));
     }
 }

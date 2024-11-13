@@ -1,9 +1,10 @@
-﻿namespace CipherPunk;
-
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
+using System.Collections.Frozen;
 using System.Security.Cryptography;
 
-public abstract record TlsRecord
+namespace CipherPunk;
+
+internal abstract record TlsRecord
 {
     protected TlsRecord(ReadOnlySpan<byte> data)
     {
@@ -23,7 +24,10 @@ public abstract record TlsRecord
         }
 
         TlsHandshakeHeaderMessageType = data.TakeByte(ref index);
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+        // ReSharper disable once UnusedVariable
         uint handshakeMessageLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt32(new byte[] { 0x00 }.Concat(data.TakeBytes(ref index, 3)).ToArray()));
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
         HandshakeClientVersion = data.TakeBytes(ref index, 2);
         HandshakeClientRandom = data.TakeBytes(ref index, 32);
         byte handshakeSessionIdLength = data.TakeByte(ref index);
@@ -45,7 +49,7 @@ public abstract record TlsRecord
         HandshakeExtensions = [];
     }
 
-    public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
+    public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
 
     public TlsRecordHeader TlsRecordHeader { get; }
 
@@ -68,7 +72,7 @@ public abstract record TlsRecord
     // 2 bytes
     public byte[] HandshakeExtensionsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)HandshakeExtensions.Sum(q => q.GetBytes().Length)));
 
-    public List<HandshakeExtension> HandshakeExtensions { get; protected set; }
+    public FrozenSet<HandshakeExtension> HandshakeExtensions { get; protected init; }
 
     public static TlsRecord Parse(ReadOnlySpan<byte> data)
     {

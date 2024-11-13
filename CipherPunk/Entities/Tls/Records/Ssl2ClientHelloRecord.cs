@@ -1,11 +1,11 @@
-﻿namespace CipherPunk;
-
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Security.Cryptography;
 
-public sealed record Ssl2ClientHelloRecord
+namespace CipherPunk;
+
+internal sealed record Ssl2ClientHelloRecord
 {
-    public Ssl2ClientHelloRecord(SslCipherSuite[] sslProviderCipherSuiteIds)
+    public Ssl2ClientHelloRecord(IEnumerable<SslCipherSuite> sslProviderCipherSuiteIds)
     {
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));
@@ -18,7 +18,7 @@ public sealed record Ssl2ClientHelloRecord
     /// This field is the length of the following data in bytes. The high bit MUST be 1 and is not part of the length.
     /// 2 bytes.
     /// </summary>
-    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(1 + Version.Length + CipherSpecLength.Length + SessionIdLength.Length + ChallengeLength.Length + CipherSpecs.Length + SessionId.Length + Challenge.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType
+    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + Version.Length + CipherSpecLength.Length + SessionIdLength.Length + ChallengeLength.Length + CipherSpecs.Length + SessionId.Length + Challenge.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType
 
     /// <summary>
     /// This field, in conjunction with the <see cref="Version"/> field, identifies a version 2 client hello message. The value should be <see cref="TlsHandshakeType.client_hello"/>.

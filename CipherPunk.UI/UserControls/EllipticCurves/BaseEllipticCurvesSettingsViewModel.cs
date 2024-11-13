@@ -1,16 +1,16 @@
-﻿namespace CipherPunk.UI;
-
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
+using CipherPunk.CipherSuiteInfoApi;
 
-internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService)
-    : BaseSettingsViewModel<WindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsDocumentationEllipticCurveConfiguration>(logger, uacService)
+namespace CipherPunk.UI;
+
+internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
+    : BaseSettingsViewModel<WindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsDocumentationEllipticCurveConfiguration>(logger, uacService, cipherSuiteInfoApiService)
 {
-    private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? availableSettingConfigurations;
-
     public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? AvailableSettingConfigurations
     {
-        get => availableSettingConfigurations;
-        private set => _ = SetProperty(ref availableSettingConfigurations, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected IEllipticCurveService EllipticCurveService { get; } = ellipticCurveService;
@@ -18,45 +18,42 @@ internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEll
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
         IEnumerable<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = GetActiveSettingConfiguration();
-        List<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = EllipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
-        List<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = EllipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
-
-        ushort priority = ushort.MinValue;
-        var uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
-            ++priority,
+        FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = EllipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
+        FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = EllipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
+        IEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+            q.Priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
-            string.Join(',', q.CngAlgorithms))).ToList();
-
-        var uiWindowsApiAvailableEllipticCurveConfigurations = windowsApiAvailableEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
-            0,
+            string.Join(',', q.CngAlgorithms)));
+        IEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiAvailableEllipticCurveConfigurations = windowsApiAvailableEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+            ushort.MinValue,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
-            string.Join(',', q.CngAlgorithms))).ToList();
-
-        priority = ushort.MinValue;
-
-        var uiWindowsDocumentationEllipticCurveConfiguration = windowsDocumentationEllipticCurveConfiguration.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
-            ++priority,
+            string.Join(',', q.CngAlgorithms)))
+            .OrderBy(q => q.Id)
+            .ThenBy(q => q.Name);
+        IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationEllipticCurveConfiguration = windowsDocumentationEllipticCurveConfiguration.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
+            q.Priority,
             q.Name,
             q.Identifier,
             q.Code,
             q.TlsSupportedGroup,
             q.AllowedByUseStrongCryptographyFlag,
-            q.EnabledByDefault)).ToList();
+            q.EnabledByDefault))
+            .OrderBy(q => q.Priority);
 
-        DefaultSettingConfigurations = new(uiWindowsDocumentationEllipticCurveConfiguration);
-        AvailableSettingConfigurations = new(uiWindowsApiAvailableEllipticCurveConfigurations);
-        ActiveSettingConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
-        ModifiedSettingConfigurations = new(ActiveSettingConfigurations);
+        DefaultSettingConfigurations = [.. uiWindowsDocumentationEllipticCurveConfiguration];
+        AvailableSettingConfigurations = [.. uiWindowsApiAvailableEllipticCurveConfigurations];
+        ActiveSettingConfigurations = [.. uiWindowsApiEllipticCurveConfigurations];
+        ModifiedSettingConfigurations = [.. ActiveSettingConfigurations];
 
         return Task.CompletedTask;
     }
 
     protected override bool CompareSetting(UiWindowsApiEllipticCurveConfiguration userInterfaceSettingConfiguration, UiWindowsApiEllipticCurveConfiguration availableSettingConfiguration)
-        => userInterfaceSettingConfiguration.Id == availableSettingConfiguration.Id;
+        => userInterfaceSettingConfiguration.Name.Equals(availableSettingConfiguration.Name, StringComparison.OrdinalIgnoreCase);
 
     protected override UiWindowsApiEllipticCurveConfiguration ConvertSettingCommand(UiWindowsApiEllipticCurveConfiguration availableSettingConfiguration)
     {

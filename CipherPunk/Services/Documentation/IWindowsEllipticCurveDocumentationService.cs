@@ -1,8 +1,8 @@
-﻿namespace CipherPunk;
+﻿using System.Collections.Frozen;
 
-public interface IWindowsEllipticCurveDocumentationService
+namespace CipherPunk;
+
+internal interface IWindowsEllipticCurveDocumentationService
 {
-    Dictionary<WindowsVersion, List<WindowsDocumentationEllipticCurveConfiguration>> GetWindowsDocumentationEllipticCurveConfigurations();
-
-    List<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion);
+    FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion);
 }

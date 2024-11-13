@@ -1,7 +1,7 @@
-﻿namespace CipherPunk.CipherSuiteInfoApi;
-
-using System.Net;
+﻿using System.Net;
 using Microsoft.Extensions.DependencyInjection;
+
+namespace CipherPunk.CipherSuiteInfoApi;
 
 public static class ServiceCollectionExtensions
 {

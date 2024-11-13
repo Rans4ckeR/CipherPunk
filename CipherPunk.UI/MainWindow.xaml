@@ -10,7 +10,8 @@
         MinWidth="640px"
         MinHeight="480px"
         Title="{Binding Title}"
-        Style="{DynamicResource TextStyle}">
+        Style="{DynamicResource TextStyle}"
+        Icon="pack://application:,,,/CipherPunk.ico">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -36,48 +37,51 @@
                     </Ribbon.ContextMenu>
                     <RibbonTab Header="Overview">
                         <RibbonGroup>
-                            <RibbonButton Label="Overview" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding OverviewViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Overview" Command="{Binding OverviewViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Cipher Suites">
                         <RibbonGroup>
-                            <RibbonButton Label="Active Cipher Suites" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Active Cipher Suites" Command="{Binding CipherSuitesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesOsSettingsViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="OS Settings" Command="{Binding CipherSuitesOsSettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding CipherSuitesGroupPolicySettingsViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Group Policy Settings" Command="{Binding CipherSuitesGroupPolicySettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Elliptic Curves">
                         <RibbonGroup>
-                            <RibbonButton Label="Active Elliptic Curves" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Active Elliptic Curves" Command="{Binding EllipticCurvesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="OS Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesOsSettingsViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="OS Settings" Command="{Binding EllipticCurvesOsSettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Group Policy Settings" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding EllipticCurvesGroupPolicySettingsViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Group Policy Settings" Command="{Binding EllipticCurvesGroupPolicySettingsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Remote Server Probe">
                         <RibbonGroup>
-                            <RibbonButton Label="Remote Server Probe" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Remote Server Probe" Command="{Binding RemoteServerTestViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                     <RibbonTab Header="Information">
                         <RibbonGroup>
-                            <RibbonButton Label="Schannel logging" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding LoggingViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Schannel logging" Command="{Binding LoggingViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Windows Default Cipher Suites" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding DefaultCipherSuitesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Windows Default Protocols" Command="{Binding DefaultProtocolsViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="Windows Default Elliptic Curves" LargeImageSource="{Binding EllipticCurvesButtonImage}" Command="{Binding DefaultEllipticCurvesViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Windows Default Cipher Suites" Command="{Binding DefaultCipherSuitesViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                         <RibbonGroup>
-                            <RibbonButton Label="UAC Elevation" LargeImageSource="{Binding CipherSuitesButtonImage}" Command="{Binding ElevationViewModel.DefaultCommand}"/>
+                            <RibbonButton Label="Windows Default Elliptic Curves" Command="{Binding DefaultEllipticCurvesViewModel.DefaultCommand}"/>
+                        </RibbonGroup>
+                        <RibbonGroup>
+                            <RibbonButton Label="UAC Elevation" Command="{Binding ElevationViewModel.DefaultCommand}"/>
                         </RibbonGroup>
                     </RibbonTab>
                 </Ribbon>

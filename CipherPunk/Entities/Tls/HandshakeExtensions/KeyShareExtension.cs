@@ -1,17 +1,20 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public sealed record KeyShareExtension(KeyShare[] KeyShares) : HandshakeExtension
+internal sealed record KeyShareExtension(KeyShare[] KeyShares) : HandshakeExtension
 {
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.key_share));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.key_share));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(KeyShareLength.Length + KeyShares.SelectMany(q => q.GetBytes()).Count())));
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(KeyShareLength.Length + KeyShares.SelectMany(q => q.GetBytes()).Count())));
 
     // 2 bytes
-    public byte[] KeyShareLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)KeyShares.SelectMany(q => q.GetBytes()).Count()));
+    public byte[] KeyShareLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)KeyShares.SelectMany(q => q.GetBytes()).Count()));
 
     public override byte[] GetBytes()
     {

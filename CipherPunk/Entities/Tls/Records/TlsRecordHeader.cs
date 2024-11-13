@@ -1,8 +1,8 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public sealed record TlsRecordHeader
+internal sealed record TlsRecordHeader
 {
     public TlsRecordHeader(ReadOnlySpan<byte> data)
     {

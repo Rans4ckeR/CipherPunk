@@ -1,5 +1,4 @@
-﻿namespace CipherPunk;
-
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
@@ -8,7 +7,9 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 
-internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService windowsCipherSuiteDocumentationService, ITlsService tlsService)
+namespace CipherPunk;
+
+internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDocumentationService, IWindowsVersionService windowsVersionService)
     : ICipherSuiteService
 {
     private const string LocalCngSslContextName = "SSL";
@@ -17,7 +18,7 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public string[] GetLocalCngConfigurationContextIdentifiers()
+    public IEnumerable<string> GetLocalCngConfigurationContextIdentifiers()
     {
         uint pcbBuffer = 0U;
         string[] contexts;
@@ -55,30 +56,27 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList()
-    {
-        WindowsVersion windowsVersion = tlsService.GetWindowsVersion();
-
-        return windowsCipherSuiteDocumentationService.GetWindowsDocumentationCipherSuiteConfigurations(windowsVersion);
-    }
+    public FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList()
+        => windowsDocumentationService.GetCipherSuiteConfigurations(windowsVersionService.WindowsVersion);
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList()
+    public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
         string[] configuredCipherSuites = (string[]?)registryKey?.GetValue(SslCipherSuiteOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
-        List<WindowsApiCipherSuiteConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+        FrozenSet<WindowsApiCipherSuiteConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+        ushort priority = ushort.MinValue;
 
-        return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => configuredCipherSuites.Contains(q.CipherSuite.ToString(), StringComparer.OrdinalIgnoreCase)).ToList();
+        return configuredCipherSuites.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.CipherSuite.ToString().Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority }).ToFrozenSet();
     }
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList()
+    public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList()
     {
         uint pcbBuffer = 0U;
-        string[] contexts = GetLocalCngConfigurationContextIdentifiers();
+        IEnumerable<string> contexts = GetLocalCngConfigurationContextIdentifiers();
 
         if (!contexts.Contains(LocalCngSslContextName, StringComparer.OrdinalIgnoreCase))
             throw new SchannelServiceException(FormattableString.Invariant($"{LocalCngSslContextName} context not found."));
@@ -94,14 +92,14 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
                 if (bCryptEnumContextFunctionsStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptEnumContextFunctionsStatus);
 
-                List<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+                FrozenSet<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
                 var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
                 ref CRYPT_CONTEXT_FUNCTIONS cryptContextFunctions = ref Unsafe.AsRef<CRYPT_CONTEXT_FUNCTIONS>(ppBuffer);
 
                 for (uint i = uint.MinValue; i < cryptContextFunctions.cFunctions; i++)
                 {
                     string? function = cryptContextFunctions.rgpszFunctions[i].ToString();
-                    WindowsApiCipherSuiteConfiguration cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase));
+                    WindowsApiCipherSuiteConfiguration cipherSuite = defaultCipherSuiteConfigurations.SingleOrDefault(q => function.Equals(q.CipherSuiteName, StringComparison.OrdinalIgnoreCase)) with { Priority = (ushort)(i + 1) };
 
                     if (cipherSuite == default)
                         throw new SchannelServiceException(function);
@@ -109,7 +107,7 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
                         cipherSuiteConfigurations.Add(cipherSuite);
                 }
 
-                return cipherSuiteConfigurations;
+                return cipherSuiteConfigurations.ToFrozenSet();
             }
             finally
             {
@@ -121,7 +119,7 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
+    public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
     {
         var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration?>();
 
@@ -227,25 +225,24 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
                                 if (dwKeyType is not 0)
                                     keyType = dwKeyType;
 
-                                var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration
-                                {
-                                    Protocols = providerProtocolIds,
-                                    BaseCipherSuite = ncryptSslCipherSuite.dwBaseCipherSuite,
-                                    Certificate = serverCertificateKeyType,
-                                    Cipher = ncryptSslCipherSuite.szCipher.ToString()!,
-                                    CipherBlockLength = ncryptSslCipherSuite.dwCipherBlockLen,
-                                    CipherLength = ncryptSslCipherSuite.dwCipherLen,
-                                    CipherSuite = dwCipherSuite,
-                                    Exchange = keyExchangeAlgorithm,
-                                    Hash = hash,
-                                    HashLength = hashLengthBytes,
-                                    Image = pszImage,
-                                    KeyType = keyType,
-                                    MaximumExchangeLength = maximumKeyExchangeKeyLengthBits,
-                                    MinimumExchangeLength = minimumKeyExchangeKeyLengthBits,
-                                    Provider = pszProvider,
-                                    CipherSuiteName = ncryptSslCipherSuite.szCipherSuite.ToString()!
-                                };
+                                var cipherSuiteConfiguration = new WindowsApiCipherSuiteConfiguration(
+                                    0,
+                                    providerProtocolIds,
+                                    keyType,
+                                    serverCertificateKeyType,
+                                    maximumKeyExchangeKeyLengthBits,
+                                    minimumKeyExchangeKeyLengthBits,
+                                    keyExchangeAlgorithm,
+                                    hashLengthBytes,
+                                    hash,
+                                    ncryptSslCipherSuite.dwCipherBlockLen,
+                                    ncryptSslCipherSuite.dwCipherLen,
+                                    ncryptSslCipherSuite.dwBaseCipherSuite,
+                                    dwCipherSuite,
+                                    ncryptSslCipherSuite.szCipher.ToString(),
+                                    pszProvider,
+                                    pszImage,
+                                    ncryptSslCipherSuite.szCipherSuite.ToString());
 
                                 cipherSuiteConfigurations.Add(cipherSuiteConfiguration);
                             }
@@ -269,24 +266,25 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
             }
         }
 
-        cipherSuiteConfigurations.Reverse();
-
-        return cipherSuiteConfigurations.Select(q => q!.Value).ToList();
+        return cipherSuiteConfigurations.Select(q => q!.Value).ToFrozenSet();
     }
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetCipherSuiteListToOperatingSystemDefault()
     {
-        List<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
-        IEnumerable<WindowsDocumentationCipherSuiteConfiguration> defaultCipherSuites = GetOperatingSystemDocumentationDefaultCipherSuiteList().Where(q => q.EnabledByDefault);
+        FrozenSet<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
+        IEnumerable<string> defaultCipherSuites = GetOperatingSystemDocumentationDefaultCipherSuiteList()
+            .Where(q => q.EnabledByDefault)
+            .OrderBy(q => q.Priority)
+            .Select(q => q.CipherSuite.ToString());
 
         foreach (string cipher in activeCipherSuites.Select(q => q.CipherSuiteName))
         {
             RemoveCipherSuite(cipher);
         }
 
-        foreach (string cipher in defaultCipherSuites.Select(q => q.CipherSuite.ToString()))
+        foreach (string cipher in defaultCipherSuites)
         {
             AddCipherSuite(cipher, false);
         }
@@ -329,9 +327,9 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateCipherSuiteOrder(string[] cipherSuites)
+    public void UpdateCipherSuiteOrder(IEnumerable<string> cipherSuites)
     {
-        List<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
+        FrozenSet<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
 
         foreach (string cipher in activeCipherSuites.Select(q => q.CipherSuiteName))
         {
@@ -346,5 +344,6 @@ internal sealed class CipherSuiteService(IWindowsCipherSuiteDocumentationService
 
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites) => UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()).ToArray());
+    public void UpdateCipherSuiteOrder(IEnumerable<SslProviderCipherSuiteId> cipherSuites)
+        => UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()));
 }

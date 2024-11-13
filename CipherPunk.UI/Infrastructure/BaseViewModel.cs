@@ -1,22 +1,24 @@
-﻿namespace CipherPunk.UI;
-
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media.Imaging;
+using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
+namespace CipherPunk.UI;
+
 internal abstract class BaseViewModel : ObservableRecipient
 {
-    private bool defaultCommandActive;
-    private bool canExecuteDefaultCommand;
-    private BitmapSource? uacIcon;
+    private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
     private bool? elevated;
 
-    protected BaseViewModel(ILogger logger, IUacService uacService)
+    protected BaseViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(StrongReferenceMessenger.Default)
     {
+        this.cipherSuiteInfoApiService = cipherSuiteInfoApiService;
         UacService = uacService;
         IsActive = true;
         Logger = logger;
@@ -30,28 +32,34 @@ internal abstract class BaseViewModel : ObservableRecipient
 
     public bool DefaultCommandActive
     {
-        get => defaultCommandActive;
+        get;
         set
         {
-            if (SetProperty(ref defaultCommandActive, value))
+            if (SetProperty(ref field, value))
                 DefaultCommand.NotifyCanExecuteChanged();
         }
     }
 
-    public BitmapSource UacIcon => uacIcon ??= UacService.GetShieldIcon();
+    [field: AllowNull]
+    [field: MaybeNull]
+    public BitmapSource UacIcon => field ??= UacService.GetShieldIcon();
 
-    public bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
+    public bool FetchOnlineInfo { get; set => _ = SetProperty(ref field, value); } = true;
+
+    protected bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
 
     protected ILogger Logger { get; }
 
     protected IUacService UacService { get; }
 
+    protected FrozenDictionary<string, CipherSuite> OnlineCipherSuiteInfos { get; private set; } = FrozenDictionary<string, CipherSuite>.Empty;
+
     protected bool CanExecuteDefaultCommand
     {
-        get => canExecuteDefaultCommand;
+        get;
         private set
         {
-            if (SetProperty(ref canExecuteDefaultCommand, value))
+            if (SetProperty(ref field, value))
                 DefaultCommand.NotifyCanExecuteChanged();
         }
     }
@@ -77,6 +85,14 @@ internal abstract class BaseViewModel : ObservableRecipient
     protected virtual bool GetCanExecuteDefaultCommand() => !DefaultCommandActive;
 
     protected void UpdateCanExecuteDefaultCommand() => CanExecuteDefaultCommand = GetCanExecuteDefaultCommand();
+
+    protected async ValueTask FetchOnlineCipherSuiteInfoAsync(CancellationToken cancellationToken)
+    {
+        if (!FetchOnlineInfo)
+            return;
+
+        OnlineCipherSuiteInfos = await cipherSuiteInfoApiService.GetAllCipherSuitesAsync(true, cancellationToken);
+    }
 
     private async Task ExecuteDefaultCommandAsync(bool? showView, CancellationToken cancellationToken)
     {

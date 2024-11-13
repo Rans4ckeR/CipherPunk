@@ -1,9 +1,10 @@
-﻿namespace CipherPunk.CipherSuiteInfoApi;
-
+﻿using System.Collections.Frozen;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+
+namespace CipherPunk.CipherSuiteInfoApi;
 
 internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFactory)
     : ICipherSuiteInfoApiService
@@ -13,8 +14,16 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
         Converters = { new JsonStringEnumConverter() }
     };
 
-    public async ValueTask<CipherSuite?> GetCipherSuiteAsync(string cipherSuiteName, CancellationToken cancellationToken = default)
+    private FrozenDictionary<string, CipherSuite> cipherSuites = FrozenDictionary<string, CipherSuite>.Empty;
+
+    public async ValueTask<CipherSuite?> GetCipherSuiteAsync(string cipherSuiteName, bool useCache = true, CancellationToken cancellationToken = default)
     {
+        if (useCache && cipherSuites.Count is 0)
+            cipherSuites = await GetAllCipherSuitesAsync(useCache, cancellationToken);
+
+        if (useCache && cipherSuites.TryGetValue(cipherSuiteName, out CipherSuite cipherSuite))
+            return cipherSuite;
+
         string cipherSuiteResponseJson;
 
         try
@@ -51,8 +60,11 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
         return await JsonSerializer.DeserializeAsync<CipherSuite>(stream, JsonSerializerOptions, cancellationToken);
     }
 
-    public async ValueTask<CipherSuite[]> GetAllCipherSuitesAsync(CancellationToken cancellationToken = default)
+    public async ValueTask<FrozenDictionary<string, CipherSuite>> GetAllCipherSuitesAsync(bool useCache = true, CancellationToken cancellationToken = default)
     {
+        if (cipherSuites.Count is not 0 && useCache)
+            return cipherSuites;
+
         string cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync("cs", cancellationToken);
         var cipherSuitesResponseNode = JsonNode.Parse(cipherSuiteResponseJson);
         JsonArray cipherSuiteObjectsArray = cipherSuitesResponseNode!["ciphersuites"]!.AsArray();
@@ -85,6 +97,8 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
 
         stream.Position = 0L;
 
-        return (await JsonSerializer.DeserializeAsync<CipherSuite[]>(stream, JsonSerializerOptions, cancellationToken))!;
+        cipherSuites = (await JsonSerializer.DeserializeAsync<IEnumerable<CipherSuite>>(stream, JsonSerializerOptions, cancellationToken))!.ToFrozenDictionary(q => q.IanaName);
+
+        return cipherSuites;
     }
 }

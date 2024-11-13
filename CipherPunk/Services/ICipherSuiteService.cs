@@ -1,36 +1,47 @@
-﻿namespace CipherPunk;
-
+﻿using System.Collections.Frozen;
 using System.Runtime.Versioning;
 using Windows.Win32;
+
+namespace CipherPunk;
 
 public interface ICipherSuiteService
 {
     [SupportedOSPlatform("windows6.0.6000")]
-    string[] GetLocalCngConfigurationContextIdentifiers();
+#pragma warning disable CA1024 // Use properties where appropriate
+    IEnumerable<string> GetLocalCngConfigurationContextIdentifiers();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the default Cipher Suite configurations for the current OS from documentation.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the configured Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the OS's currently active Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the default Cipher Suite configurations for the current OS from Ncrypt.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Resets the Ncrypt Cipher Suite configurations to the default for the current OS.
@@ -66,11 +77,11 @@ public interface ICipherSuiteService
     /// Sets the active Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateCipherSuiteOrder(string[] cipherSuites);
+    void UpdateCipherSuiteOrder(IEnumerable<string> cipherSuites);
 
     /// <summary>
     /// Sets the active Ncrypt Cipher Suite configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateCipherSuiteOrder(SslProviderCipherSuiteId[] cipherSuites);
+    void UpdateCipherSuiteOrder(IEnumerable<SslProviderCipherSuiteId> cipherSuites);
 }

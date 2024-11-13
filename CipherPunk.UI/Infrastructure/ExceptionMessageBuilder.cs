@@ -1,8 +1,8 @@
-﻿namespace CipherPunk.UI;
+﻿using System.Text;
 
-using System.Text;
+namespace CipherPunk.UI;
 
-public static class ExceptionMessageBuilder
+internal static class ExceptionMessageBuilder
 {
     public static string GetDetailedExceptionInfo(this Exception ex) => new StringBuilder().GetExceptionInfo(ex).ToString();
 

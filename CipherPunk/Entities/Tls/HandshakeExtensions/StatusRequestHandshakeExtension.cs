@@ -1,23 +1,27 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public sealed record StatusRequestHandshakeExtension : HandshakeExtension
+internal sealed record StatusRequestHandshakeExtension : HandshakeExtension
 {
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.status_request));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.status_request));
 
     // 2 bytes
     public override byte[] ExtensionTypeLength
-        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeStatusRequestResponderIdLength.Length + ExtensionTypeStatusRequestRequestExtensionLength.Length + 1))); // + 1 for size of ExtensionTypeStatusRequestType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeStatusRequestResponderIdLength.Length + ExtensionTypeStatusRequestRequestExtensionLength.Length + sizeof(byte)))); // + 1 for size of ExtensionTypeStatusRequestType
 
-    public static byte ExtensionTypeStatusRequestType => 0x01; // 0x00: certificate status type OCSP
-
-    // 2 bytes
-    public byte[] ExtensionTypeStatusRequestResponderIdLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0));
+    public static byte ExtensionTypeStatusRequestType
+        => 0x01; // 0x00: certificate status type OCSP
 
     // 2 bytes
-    public byte[] ExtensionTypeStatusRequestRequestExtensionLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0));
+    public static byte[] ExtensionTypeStatusRequestResponderIdLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0));
+
+    // 2 bytes
+    public static byte[] ExtensionTypeStatusRequestRequestExtensionLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0));
 
     public override byte[] GetBytes()
     {

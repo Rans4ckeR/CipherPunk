@@ -1,5 +1,4 @@
-﻿namespace CipherPunk;
-
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -12,7 +11,9 @@ using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 using Windows.Win32.System.Registry;
 
-internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService, ITlsService tlsService)
+namespace CipherPunk;
+
+internal sealed class EllipticCurveService(IWindowsDocumentationService windowsDocumentationService, IWindowsVersionService windowsVersionService)
     : IEllipticCurveService
 {
     private const string NcryptSchannelInterfaceSslKey = @"SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002";
@@ -22,7 +23,7 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
+    public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
     {
         var curveConfigurations = new List<WindowsApiEllipticCurveConfiguration>();
 
@@ -36,6 +37,8 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
 
                 if (sslEnumProtocolProvidersStatus.Failed)
                     throw new Win32Exception(sslEnumProtocolProvidersStatus);
+
+                ushort priority = ushort.MinValue;
 
                 for (uint i = uint.MinValue; i < pdwProviderCount; i++)
                 {
@@ -187,7 +190,7 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
                                     BigInteger seed = new(parameters[(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor)..(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor + cbSeed)], true, true);
 
                                     // todo search strings in certutil.exe: CurveType, EccCurveFlags
-                                    var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(null, eccCurveNameString, null, null, null, dwBitLength, null, null, [], null);
+                                    var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(++priority, null, eccCurveNameString, null, null, null, dwBitLength, null, null, [], null);
 
                                     curveConfigurations.Add(windowsEllipticCurveInfo);
                                 }
@@ -232,7 +235,7 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
                                 if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                     pwszCNGExtraAlgid = null;
 
-                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, [pwszCNGAlgid!], pwszCNGExtraAlgid);
+                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(++priority, pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, FrozenSet.ToFrozenSet([pwszCNGAlgid!]), pwszCNGExtraAlgid);
 
                                 curveConfigurations.Add(windowsEllipticCurveInfo);
                             }
@@ -251,25 +254,21 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
             }
         }
 
-        return curveConfigurations;
+        return curveConfigurations.ToFrozenSet();
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList()
-    {
-        WindowsVersion windowsVersion = tlsService.GetWindowsVersion();
-
-        return windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(windowsVersion);
-    }
+    public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList()
+        => windowsDocumentationService.GetEllipticCurveConfigurations(windowsVersionService.WindowsVersion);
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
+    public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
         using RegistryKey? policyRegistryKey = Registry.LocalMachine.OpenSubKey(SslConfigurationPolicyKey);
         string[] activeEllipticCurves = (string[]?)policyRegistryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
-        List<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
+        FrozenSet<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
 
         if (activeEllipticCurves.Length is 0)
         {
@@ -278,32 +277,38 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
             activeEllipticCurves = (string[]?)ncryptRegistryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
         }
 
-        return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => activeEllipticCurves.Contains(q.pwszName, StringComparer.OrdinalIgnoreCase)).ToList();
+        ushort priority = ushort.MinValue;
+
+        return activeEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority }).ToFrozenSet();
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList()
+    public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
-        string[] activeEllipticCurves = (string[]?)registryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
-        List<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
+        string[] configuredEllipticCurves = (string[]?)registryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
+        FrozenSet<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
+        ushort priority = ushort.MinValue;
 
-        return availableWindowsApiActiveEllipticCurveConfigurations.Where(q => activeEllipticCurves.Contains(q.pwszName, StringComparer.OrdinalIgnoreCase)).ToList();
+        return configuredEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority }).ToFrozenSet();
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetEllipticCurveListToOperatingSystemDefault()
     {
-        IEnumerable<WindowsDocumentationEllipticCurveConfiguration> defaultEllipticCurves = GetOperatingSystemDefaultEllipticCurveList().Where(q => q.EnabledByDefault);
+        IEnumerable<string> defaultEllipticCurveNames = GetOperatingSystemDefaultEllipticCurveList()
+            .Where(q => q.EnabledByDefault)
+            .OrderBy(q => q.Priority)
+            .Select(q => q.Name);
 
-        UpdateEllipticCurveOrder(defaultEllipticCurves.Select(q => q.Name).ToArray());
+        UpdateEllipticCurveOrder(defaultEllipticCurveNames);
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateEllipticCurveOrder(string[] ellipticCurves)
+    public void UpdateEllipticCurveOrder(IEnumerable<string> ellipticCurves)
     {
         string ellipticCurvesString = FormattableString.Invariant($"{string.Join('\0', ellipticCurves)}\0\0");
 
@@ -334,5 +339,6 @@ internal sealed class EllipticCurveService(IWindowsEllipticCurveDocumentationSer
 
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
-    public void UpdateEllipticCurveOrder(BCRYPT_ECC_CURVE[] ellipticCurves) => UpdateEllipticCurveOrder(ellipticCurves.Select(q => q.ToString()).ToArray());
+    public void UpdateEllipticCurveOrder(IEnumerable<BCRYPT_ECC_CURVE> ellipticCurves)
+        => UpdateEllipticCurveOrder(ellipticCurves.Select(q => q.ToString()));
 }

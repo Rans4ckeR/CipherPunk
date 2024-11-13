@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.UI;
+﻿using CommunityToolkit.Mvvm.Messaging;
 
-using CommunityToolkit.Mvvm.Messaging;
+namespace CipherPunk.UI;
 
 internal sealed class UserInterfaceLogService : ILogger
 {

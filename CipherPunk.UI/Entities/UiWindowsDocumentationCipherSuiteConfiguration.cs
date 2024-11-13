@@ -1,7 +1,7 @@
-﻿namespace CipherPunk.UI;
-
-using CipherPunk.CipherSuiteInfoApi;
+﻿using CipherPunk.CipherSuiteInfoApi;
 using Windows.Win32;
+
+namespace CipherPunk.UI;
 
 internal readonly record struct UiWindowsDocumentationCipherSuiteConfiguration(
     ushort Priority,
@@ -16,4 +16,4 @@ internal readonly record struct UiWindowsDocumentationCipherSuiteConfiguration(
     bool Tls13,
     bool ExplicitApplicationRequestOnly = false,
     SslProviderKeyTypeId? PreWindows10EllipticCurve = null,
-    Security? Security = null);
+    CipherSuiteSecurity? Security = null);

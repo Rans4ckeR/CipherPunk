@@ -1,6 +1,6 @@
 ﻿namespace CipherPunk;
 
-public static class ReadOnlySpanOfBytesExtensions
+internal static class ReadOnlySpanOfBytesExtensions
 {
     public static byte TakeByte(this ReadOnlySpan<byte> data, ref int index) => data[index..++index][0];
 

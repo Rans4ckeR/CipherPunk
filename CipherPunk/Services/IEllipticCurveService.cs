@@ -1,6 +1,7 @@
-﻿namespace CipherPunk;
-
+﻿using System.Collections.Frozen;
 using System.Runtime.Versioning;
+
+namespace CipherPunk;
 
 public interface IEllipticCurveService
 {
@@ -8,25 +9,33 @@ public interface IEllipticCurveService
     /// Gets the default Elliptic Curve configurations for the current OS.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the available Elliptic Curve configurations for the current OS.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the OS's currently active Elliptic Curve configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Gets the configured Ncrypt Elliptic Curve configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    List<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Resets the Ncrypt Elliptic Curve configurations to the default for the current OS.
@@ -38,11 +47,11 @@ public interface IEllipticCurveService
     /// Sets the active Ncrypt Elliptic Curve configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateEllipticCurveOrder(string[] ellipticCurves);
+    void UpdateEllipticCurveOrder(IEnumerable<string> ellipticCurves);
 
     /// <summary>
     /// Sets the active Ncrypt Elliptic Curve configurations.
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
-    void UpdateEllipticCurveOrder(BCRYPT_ECC_CURVE[] ellipticCurves);
+    void UpdateEllipticCurveOrder(IEnumerable<BCRYPT_ECC_CURVE> ellipticCurves);
 }

@@ -1,15 +1,14 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
-using Windows.Win32;
+namespace CipherPunk;
 
-public sealed record ServerHelloTlsRecord : TlsRecord
+internal sealed record ServerHelloTlsRecord : TlsRecord
 {
     public ServerHelloTlsRecord(ReadOnlySpan<byte> data)
         : base(data)
     {
         HandshakeCipherSuite = [];
-        int index = TlsRecordHeader.Size + 1 + HandshakeMessageLength.Length + HandshakeClientVersion.Length + HandshakeClientRandom.Length + 1 + HandshakeSessionId.Length; // + 1 for TlsHandshakeHeaderMessageType, HandshakeSessionIdLength
+        int index = TlsRecordHeader.Size + sizeof(byte) + HandshakeMessageLength.Length + HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length; // + 1 for TlsHandshakeHeaderMessageType, HandshakeSessionIdLength
 
         HandshakeCipherSuite = data.TakeBytes(ref index, 2);
         HandshakeCompressionMethod = data.TakeByte(ref index);
@@ -65,9 +64,6 @@ public sealed record ServerHelloTlsRecord : TlsRecord
 
     // 1 byte
     public byte HandshakeCompressionMethod { get; }
-
-    public static implicit operator TlsServerHello(ServerHelloTlsRecord serverHelloTlsRecord)
-        => new((SslProviderCipherSuiteId)BitConverter.ToUInt16(serverHelloTlsRecord.HandshakeCipherSuite), (TlsCompressionMethodIdentifier)serverHelloTlsRecord.HandshakeCompressionMethod);
 
     protected override byte[] GetRecordTypeBytes()
     {

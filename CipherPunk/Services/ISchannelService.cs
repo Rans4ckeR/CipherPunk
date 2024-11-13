@@ -1,36 +1,62 @@
-﻿namespace CipherPunk;
-
+﻿using System.Collections.Frozen;
 using System.Runtime.Versioning;
+
+namespace CipherPunk;
 
 public interface ISchannelService
 {
     [SupportedOSPlatform("windows")]
-    List<SchannelProtocolSettings> GetProtocolSettings();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<SchannelProtocolSettings> GetProtocolSettings();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
-    void UpdateProtocolSettings(List<SchannelProtocolSettings> schannelProtocolSettings);
+    void UpdateProtocolSettings(IEnumerable<SchannelProtocolSettings> schannelProtocolSettings);
 
     [SupportedOSPlatform("windows")]
-    List<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings();
+    void ResetProtocolSettings();
 
     [SupportedOSPlatform("windows")]
-    void UpdateKeyExchangeAlgorithmSettings(List<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings);
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
-    List<SchannelHashSettings> GetSchannelHashSettings();
+    void UpdateKeyExchangeAlgorithmSettings(IEnumerable<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings);
 
     [SupportedOSPlatform("windows")]
-    void UpdateSchannelHashSettings(List<SchannelHashSettings> schannelHashSettings);
+    void ResetKeyExchangeAlgorithmSettings();
 
     [SupportedOSPlatform("windows")]
-    List<SchannelCipherSettings> GetSchannelCipherSettings();
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<SchannelHashSettings> GetSchannelHashSettings();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
-    void UpdateSchannelCipherSettings(List<SchannelCipherSettings> schannelCipherSettings);
+    void UpdateSchannelHashSettings(IEnumerable<SchannelHashSettings> schannelHashSettings);
 
     [SupportedOSPlatform("windows")]
+    void ResetSchannelHashSettings();
+
+    [SupportedOSPlatform("windows")]
+#pragma warning disable CA1024 // Use properties where appropriate
+    FrozenSet<SchannelCipherSettings> GetSchannelCipherSettings();
+#pragma warning restore CA1024 // Use properties where appropriate
+
+    [SupportedOSPlatform("windows")]
+    void UpdateSchannelCipherSettings(IEnumerable<SchannelCipherSettings> schannelCipherSettings);
+
+    [SupportedOSPlatform("windows")]
+    void ResetSchannelCipherSettings();
+
+    [SupportedOSPlatform("windows")]
+#pragma warning disable CA1024 // Use properties where appropriate
     SchannelSettings GetSchannelSettings();
+#pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
-    void UpdateSchannelLogSettings(SchannelLogLevel schannelLogLevel);
+    void UpdateSchannelSettings(SchannelSettings schannelSettings);
+
+    [SupportedOSPlatform("windows")]
+    void ResetSchannelSettings();
 }

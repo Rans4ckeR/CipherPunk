@@ -21,19 +21,19 @@ namespace Windows.Win32
     {
         internal static Microsoft.Win32.SafeHandles.SafeFileHandle GetCurrentProcessToken()
         {
-            winmdroot.Foundation.HANDLE __result = new((IntPtr)(-4));
+            winmdroot.Foundation.HANDLE __result = (winmdroot.Foundation.HANDLE)(-4);
             return new Microsoft.Win32.SafeHandles.SafeFileHandle(__result, ownsHandle: false);
         }
 
         internal static Microsoft.Win32.SafeHandles.SafeFileHandle GetCurrentThreadToken()
         {
-            winmdroot.Foundation.HANDLE __result = new((IntPtr)(-5));
+            winmdroot.Foundation.HANDLE __result = (winmdroot.Foundation.HANDLE)(-5);
             return new Microsoft.Win32.SafeHandles.SafeFileHandle(__result, ownsHandle: false);
         }
 
         internal static Microsoft.Win32.SafeHandles.SafeFileHandle GetCurrentThreadEffectiveToken()
         {
-            winmdroot.Foundation.HANDLE __result = new((IntPtr)(-6));
+            winmdroot.Foundation.HANDLE __result = (winmdroot.Foundation.HANDLE)(-6);
             return new Microsoft.Win32.SafeHandles.SafeFileHandle(__result, ownsHandle: false);
         }
     }

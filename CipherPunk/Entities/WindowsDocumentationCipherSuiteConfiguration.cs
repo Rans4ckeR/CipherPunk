@@ -1,12 +1,13 @@
-﻿namespace CipherPunk;
+﻿using Windows.Win32;
 
-using Windows.Win32;
+namespace CipherPunk;
 
 public readonly record struct WindowsDocumentationCipherSuiteConfiguration(
+    ushort Priority,
     SslProviderCipherSuiteId CipherSuite,
     bool AllowedByUseStrongCryptographyFlag,
     bool EnabledByDefault,
-    SslProviderProtocolId[] Protocols,
+    ICollection<SslProviderProtocolId> Protocols,
     bool ExplicitApplicationRequestOnly = false,
     SslProviderKeyTypeId? PreWindows10EllipticCurve = null)
 {

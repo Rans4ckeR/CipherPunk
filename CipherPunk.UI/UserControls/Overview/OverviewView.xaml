@@ -21,19 +21,7 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="0" Grid.Column="0">
-            <Expander Header="Protocol Settings">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ui:NoScrollDataGrid Grid.Row="0" Grid.Column="0" ItemsSource="{Binding ProtocolSettings}"/>
-                </Grid>
-            </Expander>
-        </Border>
+        <ContentControl Content="{Binding SchannelProtocolSettingsViewModel}" Grid.Row="0" Grid.Column="0"/>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
             <Expander Header="Cipher Suites">
                 <Grid>
@@ -44,7 +32,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" Foreground="Orange" />
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyCipherSuiteMessage}" Foreground="Orange"/>
                     <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveCipherSuiteConfigurations}"/>
                 </Grid>
             </Expander>
@@ -59,7 +47,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" Foreground="Orange" />
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{Binding GroupPolicyEllipticCurveMessage}" Foreground="Orange"/>
                     <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding ActiveEllipticCurveConfigurations}"/>
                 </Grid>
             </Expander>
@@ -103,56 +91,6 @@
                 </Grid>
             </Expander>
         </Border>
-        <Border Style="{StaticResource BorderStyle}" Grid.Row="6" Grid.Column="0">
-            <Expander Header="Settings">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Label Grid.Row="0" Grid.Column="0" Content="CertificateMappingMethods"/>
-                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Settings.CertificateMappingMethods}" />
-                    <Label Grid.Row="1" Grid.Column="0" Content="ClientCacheTime"/>
-                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Settings.ClientCacheTime}" />
-                    <Label Grid.Row="2" Grid.Column="0" Content="EnableOcspStaplingForSni"/>
-                    <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Settings.EnableOcspStaplingForSni}" />
-                    <Label Grid.Row="3" Grid.Column="0" Content="FipsAlgorithmPolicy"/>
-                    <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Settings.FipsAlgorithmPolicy}" />
-                    <Label Grid.Row="4" Grid.Column="0" Content="IssuerCacheSize"/>
-                    <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Settings.IssuerCacheSize}" />
-                    <Label Grid.Row="5" Grid.Column="0" Content="IssuerCacheTime"/>
-                    <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Settings.IssuerCacheTime}" />
-                    <Label Grid.Row="6" Grid.Column="0" Content="LogLevel"/>
-                    <TextBlock Grid.Row="6" Grid.Column="1" Text="{Binding Settings.LogLevel}" />
-                    <Label Grid.Row="7" Grid.Column="0" Content="MaximumCacheSize"/>
-                    <TextBlock Grid.Row="7" Grid.Column="1" Text="{Binding Settings.MaximumCacheSize}" />
-                    <Label Grid.Row="8" Grid.Column="0" Content="MessageLimitClient"/>
-                    <TextBlock Grid.Row="8" Grid.Column="1" Text="{Binding Settings.MessageLimitClient}" />
-                    <Label Grid.Row="9" Grid.Column="0" Content="MessageLimitServer"/>
-                    <TextBlock Grid.Row="9" Grid.Column="1" Text="{Binding Settings.MessageLimitServer}" />
-                    <Label Grid.Row="10" Grid.Column="0" Content="MessageLimitServerClientAuth"/>
-                    <TextBlock Grid.Row="10" Grid.Column="1" Text="{Binding Settings.MessageLimitServerClientAuth}" />
-                    <Label Grid.Row="11" Grid.Column="0" Content="SendTrustedIssuerList"/>
-                    <TextBlock Grid.Row="11" Grid.Column="1" Text="{Binding Settings.SendTrustedIssuerList}" />
-                    <Label Grid.Row="12" Grid.Column="0" Content="ServerCacheTime"/>
-                    <TextBlock Grid.Row="12" Grid.Column="1" Text="{Binding Settings.ServerCacheTime}" />
-                </Grid>
-            </Expander>
-        </Border>
+        <ContentControl Content="{Binding SchannelSettingsViewModel}" Grid.Row="6" Grid.Column="0"/>
     </Grid>
 </UserControl>

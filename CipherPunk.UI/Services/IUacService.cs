@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.UI;
+﻿using System.Windows.Media.Imaging;
 
-using System.Windows.Media.Imaging;
+namespace CipherPunk.UI;
 
 internal interface IUacService
 {

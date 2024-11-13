@@ -1,6 +1,6 @@
 ﻿namespace CipherPunk;
 
-public sealed record AlertTlsRecord : TlsRecord
+internal sealed record AlertTlsRecord : TlsRecord
 {
     public AlertTlsRecord(ReadOnlySpan<byte> data)
         : base(data)
@@ -14,8 +14,6 @@ public sealed record AlertTlsRecord : TlsRecord
     public byte Level { get; }
 
     public byte Description { get; }
-
-    public static implicit operator TlsAlert(AlertTlsRecord alertTlsRecord) => new((TlsAlertLevel)alertTlsRecord.Level, (TlsAlertDescription)alertTlsRecord.Description);
 
     protected override byte[] GetRecordTypeBytes()
     {

@@ -1,16 +1,19 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public sealed record PaddingHandshakeExtension : HandshakeExtension
+internal sealed record PaddingHandshakeExtension : HandshakeExtension
 {
-    public PaddingHandshakeExtension(int paddingLength) => ExtensionTypePadding = new byte[paddingLength - ExtensionType.Length - 2]; // - 2 for ExtensionTypeLength
+    public PaddingHandshakeExtension(int paddingLength)
+        => ExtensionTypePadding = new byte[paddingLength - ExtensionType.Length - 2]; // - 2 for ExtensionTypeLength
 
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.padding));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.padding));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)ExtensionTypePadding.Length));
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)ExtensionTypePadding.Length));
 
     // must contain all zeros
     public byte[] ExtensionTypePadding { get; }

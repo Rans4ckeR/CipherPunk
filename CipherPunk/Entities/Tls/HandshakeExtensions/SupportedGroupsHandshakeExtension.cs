@@ -1,20 +1,23 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public sealed record SupportedGroupsHandshakeExtension : HandshakeExtension
+internal sealed record SupportedGroupsHandshakeExtension : HandshakeExtension
 {
-    public SupportedGroupsHandshakeExtension(TlsSupportedGroup[] tlsSupportedGroups)
+    public SupportedGroupsHandshakeExtension(IEnumerable<TlsSupportedGroup> tlsSupportedGroups)
         => ExtensionTypeSupportedGroups = tlsSupportedGroups.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q))).ToArray();
 
     // 2 bytes
-    public override byte[] ExtensionType => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.supported_groups));
+    public override byte[] ExtensionType
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsExtensionType.supported_groups));
 
     // 2 bytes
-    public override byte[] ExtensionTypeLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeSupportedGroupsLength.Length + ExtensionTypeSupportedGroups.Length)));
+    public override byte[] ExtensionTypeLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(ExtensionTypeSupportedGroupsLength.Length + ExtensionTypeSupportedGroups.Length)));
 
     // 2 bytes
-    public byte[] ExtensionTypeSupportedGroupsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)ExtensionTypeSupportedGroups.Length));
+    public byte[] ExtensionTypeSupportedGroupsLength
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)ExtensionTypeSupportedGroups.Length));
 
     // 2 bytes per item
     public byte[] ExtensionTypeSupportedGroups { get; }

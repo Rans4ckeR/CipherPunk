@@ -1,8 +1,10 @@
-﻿namespace CipherPunk;
+﻿using System.Collections.Frozen;
+
+namespace CipherPunk;
 
 public interface IEllipticCurveIdentifierService
 {
-    Dictionary<BCRYPT_ECC_CURVE, string?> GetEllipticCurveIdentifiers();
+    FrozenDictionary<BCRYPT_ECC_CURVE, string?> GetEllipticCurveIdentifiers();
 
     string? GetIdentifier(string code);
 

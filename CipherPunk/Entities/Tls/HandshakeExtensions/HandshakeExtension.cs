@@ -1,8 +1,9 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
+using System.Collections.Frozen;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public abstract record HandshakeExtension
+internal abstract record HandshakeExtension
 {
     public abstract byte[] ExtensionType { get; }
 
@@ -10,7 +11,7 @@ public abstract record HandshakeExtension
 
     public abstract byte[] GetBytes();
 
-    public static List<HandshakeExtension> GetExtensions(ReadOnlySpan<byte> data)
+    public static FrozenSet<HandshakeExtension> GetExtensions(ReadOnlySpan<byte> data)
     {
         var handshakeExtensions = new List<HandshakeExtension>();
         int index = 0;
@@ -58,6 +59,6 @@ public abstract record HandshakeExtension
             }
         }
 
-        return handshakeExtensions;
+        return handshakeExtensions.ToFrozenSet();
     }
 }

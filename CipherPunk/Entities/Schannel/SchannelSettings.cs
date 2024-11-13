@@ -1,11 +1,10 @@
 ﻿namespace CipherPunk;
 
 public readonly record struct SchannelSettings(
-    SchannelLogLevel? LogLevel,
+    SchannelEventLogging? EventLogging,
     SchannelCertificateMappingMethod? CertificateMappingMethods,
     int? ClientCacheTime,
     bool? EnableOcspStaplingForSni,
-    bool? FipsAlgorithmPolicy,
     int? IssuerCacheSize,
     int? IssuerCacheTime,
     int? MaximumCacheSize,

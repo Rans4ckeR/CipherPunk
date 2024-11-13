@@ -1,14 +1,17 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
-public sealed record Ssl2ServerHelloRecord
+internal sealed record Ssl2ServerHelloRecord
 {
     public Ssl2ServerHelloRecord(ReadOnlySpan<byte> data)
     {
         int index = 0;
 
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+        // ReSharper disable once UnusedVariable
         ushort messageLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
         MessageType = data.TakeByte(ref index);
         SessionIdHit = data.TakeByte(ref index);
         CertificateType = data.TakeByte(ref index);
@@ -22,7 +25,7 @@ public sealed record Ssl2ServerHelloRecord
     }
 
     // 2 bytes
-    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(1 + 1 + 1 + Version.Length + CertificateLength.Length + CipherSpecLength.Length + ConnectionIdLength.Length + Certificate.Length + CipherSpecs.Length + ConnectionId.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType, SessionIdHit, CertificateType
+    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + sizeof(byte) + sizeof(byte) + Version.Length + CertificateLength.Length + CipherSpecLength.Length + ConnectionIdLength.Length + Certificate.Length + CipherSpecs.Length + ConnectionId.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType, SessionIdHit, CertificateType
 
     public byte MessageType { get; }
 

@@ -1,9 +1,10 @@
-﻿namespace CipherPunk.UI;
-
-using System.Windows;
+﻿using System.Windows;
+using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
+
+namespace CipherPunk.UI;
 
 internal sealed class MainWindowViewModel : BaseViewModel
 {
@@ -12,15 +13,10 @@ internal sealed class MainWindowViewModel : BaseViewModel
     private const int ZIndexOverlay = 1;
     private const int ZIndexNoOverlay = -1;
 
-    private ObservableObject? activeView;
-    private string? userMessage;
-    private double mainContentOpacity = OpacityNoOverlay;
-    private bool mainContentIsHitTestVisible = true;
-    private int messageZIndex = ZIndexNoOverlay;
-
     public MainWindowViewModel(
         ILogger logger,
         IUacService uacService,
+        ICipherSuiteInfoApiService cipherSuiteInfoApiService,
         OverviewViewModel overviewViewModel,
         CipherSuitesViewModel cipherSuitesViewModel,
         CipherSuitesOsSettingsViewModel cipherSuitesOsSettingsViewModel,
@@ -30,10 +26,11 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel ellipticCurvesGroupPolicySettingsViewModel,
         RemoteServerTestViewModel remoteServerTestViewModel,
         LoggingViewModel loggingViewModel,
+        DefaultProtocolsViewModel defaultProtocolsViewModel,
         DefaultCipherSuitesViewModel defaultCipherSuitesViewModel,
         DefaultEllipticCurvesViewModel defaultEllipticCurvesViewModel,
         ElevationViewModel elevationViewModel)
-        : base(logger, uacService)
+        : base(logger, uacService, cipherSuiteInfoApiService)
     {
         IsActive = true;
         OverviewViewModel = overviewViewModel;
@@ -45,6 +42,7 @@ internal sealed class MainWindowViewModel : BaseViewModel
         EllipticCurvesGroupPolicySettingsViewModel = ellipticCurvesGroupPolicySettingsViewModel;
         RemoteServerTestViewModel = remoteServerTestViewModel;
         LoggingViewModel = loggingViewModel;
+        DefaultProtocolsViewModel = defaultProtocolsViewModel;
         DefaultCipherSuitesViewModel = defaultCipherSuitesViewModel;
         DefaultEllipticCurvesViewModel = defaultEllipticCurvesViewModel;
         ElevationViewModel = elevationViewModel;
@@ -80,33 +78,26 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public LoggingViewModel LoggingViewModel { get; }
 
+    public DefaultProtocolsViewModel DefaultProtocolsViewModel { get; }
+
     public DefaultCipherSuitesViewModel DefaultCipherSuitesViewModel { get; }
 
     public DefaultEllipticCurvesViewModel DefaultEllipticCurvesViewModel { get; }
 
     public ElevationViewModel ElevationViewModel { get; }
 
-    public double MainContentOpacity
-    {
-        get => mainContentOpacity; set => _ = SetProperty(ref mainContentOpacity, value);
-    }
+    public double MainContentOpacity { get; set => _ = SetProperty(ref field, value); } = OpacityNoOverlay;
 
-    public bool MainContentIsHitTestVisible
-    {
-        get => mainContentIsHitTestVisible; set => _ = SetProperty(ref mainContentIsHitTestVisible, value);
-    }
+    public bool MainContentIsHitTestVisible { get; set => _ = SetProperty(ref field, value); } = true;
 
-    public int MessageZIndex
-    {
-        get => messageZIndex; set => _ = SetProperty(ref messageZIndex, value);
-    }
+    public int MessageZIndex { get; set => _ = SetProperty(ref field, value); } = ZIndexNoOverlay;
 
     public string? UserMessage
     {
-        get => userMessage;
+        get;
         private set
         {
-            if (!SetProperty(ref userMessage, value))
+            if (!SetProperty(ref field, value))
                 return;
 
             if (value is null)
@@ -126,8 +117,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
 
     public ObservableObject? ActiveView
     {
-        get => activeView;
-        private set => _ = SetProperty(ref activeView, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
