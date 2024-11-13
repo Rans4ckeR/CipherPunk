@@ -1,9 +1,8 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
-using System.Collections.Generic;
+﻿using System.Collections.Frozen;
 using System.Runtime.Versioning;
 using Microsoft.Win32;
+
+namespace CipherPunk;
 
 internal sealed class SchannelService(IWindowsVersionService windowsVersionService, IWindowsDocumentationService windowsDocumentationService) : ISchannelService
 {
@@ -153,6 +152,8 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
                 "SHAKE256" => SchannelHash.SHAKE256,
                 "CSHAKE128" => SchannelHash.CSHAKE128,
                 "CSHAKE256" => SchannelHash.CSHAKE256,
+                "KMAC128" => SchannelHash.KMAC128,
+                "KMAC256" => SchannelHash.KMAC256,
                 _ => throw new ArgumentOutOfRangeException(nameof(subKeyName), subKeyName, null)
             };
 

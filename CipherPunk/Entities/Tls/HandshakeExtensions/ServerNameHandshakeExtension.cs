@@ -1,7 +1,7 @@
-﻿namespace CipherPunk;
-
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Text;
+
+namespace CipherPunk;
 
 internal sealed record ServerNameHandshakeExtension : HandshakeExtension
 {

@@ -1,7 +1,7 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using Windows.Win32;
+
+namespace CipherPunk;
 
 internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIdentifierService ellipticCurveIdentifierService) : IWindowsEllipticCurveDocumentationService
 {
@@ -62,7 +62,7 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
         [
             new(WindowsVersion.Windows10V1607OrServer2016, windows10V1607OrServer2016),
             new(WindowsVersion.Windows10V1507, windows10V1507),
-            new(WindowsVersion.WindowsVistaOrServer2008, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>.Empty)
+            new(WindowsVersion.WindowsVistaOrServer2008, [])
         ]);
     }
 }

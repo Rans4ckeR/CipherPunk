@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using Windows.Win32;
 
-using Windows.Win32;
+namespace CipherPunk;
 
 internal sealed class Windows81DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows81OrServer2012R2, windowsEllipticCurveDocumentationService)
 {

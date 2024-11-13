@@ -1,7 +1,7 @@
-﻿namespace CipherPunk;
-
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Security.Cryptography;
+
+namespace CipherPunk;
 
 internal sealed record Ssl2ClientHelloRecord
 {

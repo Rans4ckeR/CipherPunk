@@ -1,6 +1,4 @@
-﻿namespace CipherPunk;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using System.Runtime.Versioning;
 using System.Text;
@@ -12,6 +10,8 @@ using Windows.Win32.Foundation;
 using Windows.Win32.System.Com;
 using Windows.Win32.System.GroupPolicy;
 using Windows.Win32.System.Registry;
+
+namespace CipherPunk;
 
 internal sealed class GroupPolicyService : IGroupPolicyService
 {

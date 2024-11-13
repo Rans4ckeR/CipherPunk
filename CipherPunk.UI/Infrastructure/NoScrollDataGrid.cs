@@ -1,8 +1,8 @@
-﻿namespace CipherPunk.UI;
-
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+
+namespace CipherPunk.UI;
 
 internal sealed class NoScrollDataGrid : DataGrid
 {

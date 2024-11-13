@@ -1,12 +1,11 @@
-﻿namespace CipherPunk.UI;
-
-using CipherPunk.CipherSuiteInfoApi;
+﻿using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
+
+namespace CipherPunk.UI;
 
 internal sealed class SchannelSettingsViewModel : BaseViewModel
 {
     private readonly ISchannelService schannelService;
-    private UiSchannelSettings? schannelSettings;
 
     public SchannelSettingsViewModel(ISchannelService schannelService, ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -27,8 +26,8 @@ internal sealed class SchannelSettingsViewModel : BaseViewModel
 
     public UiSchannelSettings? SchannelSettings
     {
-        get => schannelSettings;
-        set => _ = SetProperty(ref schannelSettings, value);
+        get;
+        set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)

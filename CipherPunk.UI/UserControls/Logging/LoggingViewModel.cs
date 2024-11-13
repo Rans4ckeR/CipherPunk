@@ -1,12 +1,11 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
+
+namespace CipherPunk.UI;
 
 internal sealed class LoggingViewModel : BaseViewModel
 {
     private readonly ISchannelLogService schannelLogService;
-    private ObservableCollection<SchannelLog>? logs;
 
     public LoggingViewModel(ILogger logger, ISchannelLogService schannelLogService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -20,8 +19,8 @@ internal sealed class LoggingViewModel : BaseViewModel
 
     public ObservableCollection<SchannelLog>? Logs
     {
-        get => logs;
-        private set => _ = SetProperty(ref logs, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)

@@ -14,5 +14,7 @@ public enum SchannelHash
     SHAKE128,
     SHAKE256,
     CSHAKE128,
-    CSHAKE256
+    CSHAKE256,
+    KMAC128,
+    KMAC256
 }

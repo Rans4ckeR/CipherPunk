@@ -1,8 +1,8 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Runtime.Versioning;
 using Windows.Win32;
+
+namespace CipherPunk;
 
 public interface ICipherSuiteService
 {

@@ -1,13 +1,9 @@
-﻿namespace CipherPunk.UI;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using CommunityToolkit.Mvvm.ComponentModel;
+namespace CipherPunk.UI;
 
 internal sealed class UiSchannelProtocolSettings : ObservableObject
 {
-    private SchannelProtocol protocol;
-    private SchannelProtocolStatus clientStatus;
-    private SchannelProtocolStatus serverStatus;
-
     public UiSchannelProtocolSettings(SchannelProtocolSettings schannelProtocolSettings)
     {
         Protocol = schannelProtocolSettings.Protocol;
@@ -17,19 +13,19 @@ internal sealed class UiSchannelProtocolSettings : ObservableObject
 
     public SchannelProtocol Protocol
     {
-        get => protocol;
-        set => SetProperty(ref protocol, value);
+        get;
+        set => SetProperty(ref field, value);
     }
 
     public SchannelProtocolStatus ClientStatus
     {
-        get => clientStatus;
-        set => SetProperty(ref clientStatus, value);
+        get;
+        set => SetProperty(ref field, value);
     }
 
     public SchannelProtocolStatus ServerStatus
     {
-        get => serverStatus;
-        set => SetProperty(ref serverStatus, value);
+        get;
+        set => SetProperty(ref field, value);
     }
 }

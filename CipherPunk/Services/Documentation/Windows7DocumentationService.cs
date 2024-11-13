@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using Windows.Win32;
 
-using Windows.Win32;
+namespace CipherPunk;
 
 internal sealed class Windows7DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows7OrServer2008R2, windowsEllipticCurveDocumentationService)
 {

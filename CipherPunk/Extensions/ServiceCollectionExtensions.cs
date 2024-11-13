@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using Microsoft.Extensions.DependencyInjection;
 
-using Microsoft.Extensions.DependencyInjection;
+namespace CipherPunk;
 
 public static class ServiceCollectionExtensions
 {

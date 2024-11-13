@@ -1,7 +1,7 @@
-﻿namespace CipherPunk;
-
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Collections.Frozen;
+
+namespace CipherPunk;
 
 internal abstract record HandshakeExtension
 {

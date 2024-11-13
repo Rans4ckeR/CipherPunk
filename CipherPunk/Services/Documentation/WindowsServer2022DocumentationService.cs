@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using Windows.Win32;
 
-using Windows.Win32;
+namespace CipherPunk;
 
 internal sealed class WindowsServer2022DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.WindowsServer2022, windowsEllipticCurveDocumentationService)
 {

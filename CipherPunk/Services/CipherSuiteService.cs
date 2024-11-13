@@ -1,6 +1,4 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
@@ -8,6 +6,8 @@ using Microsoft.Win32;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
+
+namespace CipherPunk;
 
 internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDocumentationService, IWindowsVersionService windowsVersionService)
     : ICipherSuiteService

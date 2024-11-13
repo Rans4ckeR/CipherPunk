@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
 internal sealed record StatusRequestHandshakeExtension : HandshakeExtension
 {
@@ -16,11 +16,11 @@ internal sealed record StatusRequestHandshakeExtension : HandshakeExtension
         => 0x01; // 0x00: certificate status type OCSP
 
     // 2 bytes
-    public byte[] ExtensionTypeStatusRequestResponderIdLength
+    public static byte[] ExtensionTypeStatusRequestResponderIdLength
         => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0));
 
     // 2 bytes
-    public byte[] ExtensionTypeStatusRequestRequestExtensionLength
+    public static byte[] ExtensionTypeStatusRequestRequestExtensionLength
         => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)0));
 
     public override byte[] GetBytes()

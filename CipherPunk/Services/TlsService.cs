@@ -1,11 +1,11 @@
-﻿namespace CipherPunk;
-
-using System.Buffers;
+﻿using System.Buffers;
 using System.Buffers.Binary;
 using System.Collections.Frozen;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+
+namespace CipherPunk;
 
 internal sealed class TlsService : ITlsService
 {
@@ -138,6 +138,11 @@ internal sealed class TlsService : ITlsService
             return (sslProviderCipherSuiteId, false, ex.Message);
         }
 
+        return GetCipherSuiteResult(tlsVersion, sslProviderCipherSuiteId, tlsRecord);
+    }
+
+    private static (uint CipherSuiteId, bool Supported, string? ErrorReason) GetCipherSuiteResult(TlsVersion tlsVersion, uint sslProviderCipherSuiteId, TlsRecord tlsRecord)
+    {
         switch ((TlsContentType?)tlsRecord.TlsRecordHeader.TlsRecordContentType)
         {
             case TlsContentType.alert:

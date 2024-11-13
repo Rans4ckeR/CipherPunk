@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.UI;
+﻿using CipherPunk.CipherSuiteInfoApi;
 
-using CipherPunk.CipherSuiteInfoApi;
+namespace CipherPunk.UI;
 
 internal sealed class EllipticCurvesOsSettingsViewModel(ILogger logger, IUacService uacService, IEllipticCurveService ellipticCurveService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
     : BaseEllipticCurvesSettingsViewModel(logger, ellipticCurveService, uacService, cipherSuiteInfoApiService)

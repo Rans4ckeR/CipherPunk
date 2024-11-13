@@ -1,9 +1,9 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using Windows.Win32;
 
-internal sealed class Windows10V22H2DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows10V20H2, windowsEllipticCurveDocumentationService)
+namespace CipherPunk;
+
+internal sealed class Windows10V22H2DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows10OrServer2019V20H2, windowsEllipticCurveDocumentationService)
 {
     protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration()
         => FrozenSet.ToFrozenSet<WindowsDocumentationCipherSuiteConfiguration>(

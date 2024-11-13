@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.UI;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 
-using CommunityToolkit.Mvvm.ComponentModel;
+namespace CipherPunk.UI;
 
 internal sealed class UiMemberStatus<T>(T member, bool enabled) : ObservableObject
 {

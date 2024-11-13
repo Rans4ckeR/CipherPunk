@@ -1,8 +1,8 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using CipherPunk.CipherSuiteInfoApi;
 using Windows.Win32;
+
+namespace CipherPunk.UI;
 
 internal abstract class BaseCipherSuitesSettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
     : BaseSettingsViewModel<WindowsApiCipherSuiteConfiguration, UiWindowsApiCipherSuiteConfiguration, UiWindowsDocumentationCipherSuiteConfiguration, UiWindowsDocumentationCipherSuiteConfiguration>(logger, uacService, cipherSuiteInfoApiService)
@@ -52,9 +52,9 @@ internal abstract class BaseCipherSuitesSettingsViewModel(ILogger logger, ICiphe
             OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
             .OrderBy(q => q.Priority);
 
-        DefaultSettingConfigurations = new(defaultUiWindowsDocumentationCipherSuiteConfigurations);
-        ActiveSettingConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
-        ModifiedSettingConfigurations = new(ActiveSettingConfigurations);
+        DefaultSettingConfigurations = [.. defaultUiWindowsDocumentationCipherSuiteConfigurations];
+        ActiveSettingConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];
+        ModifiedSettingConfigurations = [.. ActiveSettingConfigurations];
     }
 
     protected override bool CompareSetting(UiWindowsApiCipherSuiteConfiguration uiApiSettingConfiguration, UiWindowsDocumentationCipherSuiteConfiguration uiDocumentationSettingConfiguration)

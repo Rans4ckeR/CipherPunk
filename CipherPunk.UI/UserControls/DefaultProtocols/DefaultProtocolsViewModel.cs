@@ -1,17 +1,14 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CipherPunk.CipherSuiteInfoApi;
+
+namespace CipherPunk.UI;
 
 internal sealed class DefaultProtocolsViewModel : BaseViewModel
 {
     private readonly IWindowsDocumentationService windowsDocumentationService;
     private readonly IWindowsVersionService windowsVersionService;
-    private ObservableCollection<WindowsVersion>? windowsVersions;
-    private WindowsVersion? windowsVersion;
-    private ObservableCollection<SchannelProtocolSettings>? defaultProtocols;
 
     public DefaultProtocolsViewModel(ILogger logger, IWindowsDocumentationService windowsDocumentationService, IUacService uacService, IWindowsVersionService windowsVersionService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -24,20 +21,20 @@ internal sealed class DefaultProtocolsViewModel : BaseViewModel
 
     public ObservableCollection<WindowsVersion>? WindowsVersions
     {
-        get => windowsVersions;
-        private set => _ = SetProperty(ref windowsVersions, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public WindowsVersion? WindowsVersion
     {
-        get => windowsVersion;
-        set => _ = SetProperty(ref windowsVersion, value);
+        get;
+        set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<SchannelProtocolSettings>? DefaultProtocols
     {
-        get => defaultProtocols;
-        private set => _ = SetProperty(ref defaultProtocols, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override void BaseViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -54,7 +51,7 @@ internal sealed class DefaultProtocolsViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        WindowsVersions ??= new(Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q));
+        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q)];
         WindowsVersion ??= windowsVersionService.WindowsVersion;
 
         return Task.CompletedTask;
@@ -66,7 +63,7 @@ internal sealed class DefaultProtocolsViewModel : BaseViewModel
         {
             FrozenSet<SchannelProtocolSettings> windowsDocumentationProtocolConfigurations = windowsDocumentationService.GetProtocolConfigurations(WindowsVersion!.Value);
 
-            DefaultProtocols = new(windowsDocumentationProtocolConfigurations);
+            DefaultProtocols = [.. windowsDocumentationProtocolConfigurations];
         }
         catch (Exception ex)
         {

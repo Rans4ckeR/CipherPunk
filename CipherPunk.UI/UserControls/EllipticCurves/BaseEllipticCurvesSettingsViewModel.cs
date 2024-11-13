@@ -1,18 +1,16 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
+
+namespace CipherPunk.UI;
 
 internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
     : BaseSettingsViewModel<WindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsApiEllipticCurveConfiguration, UiWindowsDocumentationEllipticCurveConfiguration>(logger, uacService, cipherSuiteInfoApiService)
 {
-    private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? availableSettingConfigurations;
-
     public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? AvailableSettingConfigurations
     {
-        get => availableSettingConfigurations;
-        private set => _ = SetProperty(ref availableSettingConfigurations, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected IEllipticCurveService EllipticCurveService { get; } = ellipticCurveService;
@@ -46,10 +44,10 @@ internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEll
             q.EnabledByDefault))
             .OrderBy(q => q.Priority);
 
-        DefaultSettingConfigurations = new(uiWindowsDocumentationEllipticCurveConfiguration);
-        AvailableSettingConfigurations = new(uiWindowsApiAvailableEllipticCurveConfigurations);
-        ActiveSettingConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
-        ModifiedSettingConfigurations = new(ActiveSettingConfigurations);
+        DefaultSettingConfigurations = [.. uiWindowsDocumentationEllipticCurveConfiguration];
+        AvailableSettingConfigurations = [.. uiWindowsApiAvailableEllipticCurveConfigurations];
+        ActiveSettingConfigurations = [.. uiWindowsApiEllipticCurveConfigurations];
+        ModifiedSettingConfigurations = [.. ActiveSettingConfigurations];
 
         return Task.CompletedTask;
     }

@@ -1,6 +1,4 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -12,6 +10,8 @@ using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
 using Windows.Win32.System.Registry;
+
+namespace CipherPunk;
 
 internal sealed class EllipticCurveService(IWindowsDocumentationService windowsDocumentationService, IWindowsVersionService windowsVersionService)
     : IEllipticCurveService
@@ -190,7 +190,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
                                     BigInteger seed = new(parameters[(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor)..(int)((cbFieldLength * 5) + cbSubgroupOrder + cbCofactor + cbSeed)], true, true);
 
                                     // todo search strings in certutil.exe: CurveType, EccCurveFlags
-                                    var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(++priority, null, eccCurveNameString, null, null, null, dwBitLength, null, null, FrozenSet<string>.Empty, null);
+                                    var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(++priority, null, eccCurveNameString, null, null, null, dwBitLength, null, null, [], null);
 
                                     curveConfigurations.Add(windowsEllipticCurveInfo);
                                 }

@@ -1,8 +1,8 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
-namespace CipherPunk;
-
 using Windows.Win32;
+
+namespace CipherPunk;
 
 [Flags]
 internal enum CRYPT_OID_INFO_KEY : uint

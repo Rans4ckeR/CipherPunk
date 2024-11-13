@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.UI;
+﻿using CipherPunk.CipherSuiteInfoApi;
 
-using CipherPunk.CipherSuiteInfoApi;
+namespace CipherPunk.UI;
 
 internal sealed class CipherSuitesOsSettingsViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
     : BaseCipherSuitesSettingsViewModel(logger, cipherSuiteService, uacService, cipherSuiteInfoApiService)

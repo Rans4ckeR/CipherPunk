@@ -1,6 +1,4 @@
-﻿namespace CipherPunk.UI;
-
-using System.Globalization;
+﻿using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Markup;
@@ -8,6 +6,8 @@ using System.Windows.Threading;
 using CipherPunk.CipherSuiteInfoApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+
+namespace CipherPunk.UI;
 
 internal sealed partial class App
 {

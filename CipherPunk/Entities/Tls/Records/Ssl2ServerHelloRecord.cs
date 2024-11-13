@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
 internal sealed record Ssl2ServerHelloRecord
 {
@@ -8,7 +8,10 @@ internal sealed record Ssl2ServerHelloRecord
     {
         int index = 0;
 
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+        // ReSharper disable once UnusedVariable
         ushort messageLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(data.TakeBytes(ref index, 2)));
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
         MessageType = data.TakeByte(ref index);
         SessionIdHit = data.TakeByte(ref index);
         CertificateType = data.TakeByte(ref index);

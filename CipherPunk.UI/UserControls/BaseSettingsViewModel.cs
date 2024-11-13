@@ -1,15 +1,11 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
 
+namespace CipherPunk.UI;
+
 internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailable, TDefault> : BaseViewModel
 {
-    private ObservableCollection<TUserInterface>? activeSettingConfigurations;
-    private ObservableCollection<TUserInterface>? modifiedSettingConfigurations;
-    private ObservableCollection<TDefault>? defaultSettingConfigurations;
-
     protected BaseSettingsViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
     {
@@ -40,20 +36,20 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
 
     public ObservableCollection<TUserInterface>? ModifiedSettingConfigurations
     {
-        get => modifiedSettingConfigurations;
-        protected set => _ = SetProperty(ref modifiedSettingConfigurations, value);
+        get;
+        protected set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<TDefault>? DefaultSettingConfigurations
     {
-        get => defaultSettingConfigurations;
-        protected set => _ = SetProperty(ref defaultSettingConfigurations, value);
+        get;
+        protected set => _ = SetProperty(ref field, value);
     }
 
     protected ObservableCollection<TUserInterface>? ActiveSettingConfigurations
     {
-        get => activeSettingConfigurations;
-        set => _ = SetProperty(ref activeSettingConfigurations, value);
+        get;
+        set => _ = SetProperty(ref field, value);
     }
 
     protected abstract IEnumerable<TActive> GetActiveSettingConfiguration();
@@ -76,10 +72,10 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
         => Elevated && userInterfaceSettingConfiguration is not null;
 
     private bool CanExecuteSaveSettingsCommand()
-        => Elevated && !(activeSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
+        => Elevated && !(ActiveSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
 
     private bool CanExecuteCancelSettingsCommand()
-        => Elevated && !(activeSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
+        => Elevated && !(ActiveSettingConfigurations?.SequenceEqual(ModifiedSettingConfigurations ?? []) ?? false);
 
     private bool CanExecuteAddSettingCommand(TAvailable? availableSettingConfiguration)
         => Elevated && availableSettingConfiguration is not null && ModifiedSettingConfigurations!.All(q => !CompareSetting(q, availableSettingConfiguration));
@@ -126,7 +122,7 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
 
     private void ExecuteCancelSettingsCommand()
     {
-        ModifiedSettingConfigurations = new(activeSettingConfigurations!);
+        ModifiedSettingConfigurations = [.. ActiveSettingConfigurations!];
 
         NotifyCanExecuteChanged();
     }

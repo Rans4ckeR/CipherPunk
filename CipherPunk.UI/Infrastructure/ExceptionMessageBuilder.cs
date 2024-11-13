@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.UI;
+﻿using System.Text;
 
-using System.Text;
+namespace CipherPunk.UI;
 
 internal static class ExceptionMessageBuilder
 {

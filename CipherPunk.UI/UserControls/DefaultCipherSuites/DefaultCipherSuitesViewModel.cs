@@ -1,18 +1,15 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CipherPunk.CipherSuiteInfoApi;
 using Windows.Win32;
 
+namespace CipherPunk.UI;
+
 internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
 {
     private readonly IWindowsDocumentationService windowsDocumentationService;
     private readonly IWindowsVersionService windowsVersionService;
-    private ObservableCollection<WindowsVersion>? windowsVersions;
-    private WindowsVersion? windowsVersion;
-    private ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? defaultCipherSuites;
 
     public DefaultCipherSuitesViewModel(ILogger logger, IWindowsDocumentationService windowsDocumentationService, IUacService uacService, IWindowsVersionService windowsVersionService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -25,20 +22,20 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
 
     public ObservableCollection<WindowsVersion>? WindowsVersions
     {
-        get => windowsVersions;
-        private set => _ = SetProperty(ref windowsVersions, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public WindowsVersion? WindowsVersion
     {
-        get => windowsVersion;
-        set => _ = SetProperty(ref windowsVersion, value);
+        get;
+        set => _ = SetProperty(ref field, value);
     }
 
     public ObservableCollection<UiWindowsDocumentationCipherSuiteConfiguration>? DefaultCipherSuites
     {
-        get => defaultCipherSuites;
-        private set => _ = SetProperty(ref defaultCipherSuites, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override void BaseViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -59,7 +56,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        WindowsVersions ??= new(Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q));
+        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q)];
         WindowsVersion ??= windowsVersionService.WindowsVersion;
 
         return Task.CompletedTask;
@@ -89,7 +86,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
                 OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
                 .OrderBy(q => q.Priority);
 
-            DefaultCipherSuites = new(uiWindowsDocumentationCipherSuiteConfigurations);
+            DefaultCipherSuites = [.. uiWindowsDocumentationCipherSuiteConfigurations];
         }
         catch (Exception ex)
         {

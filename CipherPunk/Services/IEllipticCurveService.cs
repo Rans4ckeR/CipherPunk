@@ -1,7 +1,7 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Runtime.Versioning;
+
+namespace CipherPunk;
 
 public interface IEllipticCurveService
 {

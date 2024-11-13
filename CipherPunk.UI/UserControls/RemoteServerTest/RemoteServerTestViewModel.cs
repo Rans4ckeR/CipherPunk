@@ -1,18 +1,14 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
 
+namespace CipherPunk.UI;
+
 internal sealed class RemoteServerTestViewModel : BaseViewModel
 {
     private readonly ITlsService tlsService;
-
-    private string? hostName;
-    private ushort? port;
-    private ObservableCollection<UiRemoteServerTestResult>? remoteServerTestResults;
 
     public RemoteServerTestViewModel(ILogger logger, ITlsService tlsService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -26,20 +22,20 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     public string? HostName
     {
-        get => hostName;
+        get;
         set
         {
-            if (SetProperty(ref hostName, value))
+            if (SetProperty(ref field, value))
                 RunTestCommand.NotifyCanExecuteChanged();
         }
     }
 
     public ushort? Port
     {
-        get => port;
+        get;
         set
         {
-            if (SetProperty(ref port, value))
+            if (SetProperty(ref field, value))
                 RunTestCommand.NotifyCanExecuteChanged();
         }
     }
@@ -48,8 +44,8 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     public ObservableCollection<UiRemoteServerTestResult>? RemoteServerTestResults
     {
-        get => remoteServerTestResults;
-        private set => _ = SetProperty(ref remoteServerTestResults, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken) => Task.CompletedTask;
@@ -81,7 +77,7 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
             .ThenByDescending(q => q.TlsVersion)
             .ThenBy(q => q.CipherSuiteId);
 
-        RemoteServerTestResults = new(uiRemoteServerTestResults);
+        RemoteServerTestResults = [.. uiRemoteServerTestResults];
     }
 
     private bool CanExecuteRunTestCommand() => !string.IsNullOrWhiteSpace(HostName) && Port.HasValue;

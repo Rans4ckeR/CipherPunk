@@ -1,8 +1,8 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
-namespace Windows.Win32;
+using System.Net.Security;
 
-using TlsCipherSuite = global::System.Net.Security.TlsCipherSuite;
+namespace Windows.Win32;
 
 #pragma warning disable CA1028 // Enum Storage should be Int32
 public enum SslProviderCipherSuiteId : uint

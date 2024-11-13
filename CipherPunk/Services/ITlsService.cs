@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Collections.Frozen;
 
-using System.Collections.Frozen;
+namespace CipherPunk;
 
 public interface ITlsService
 {

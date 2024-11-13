@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Buffers.Binary;
 
-using System.Buffers.Binary;
+namespace CipherPunk;
 
 internal sealed record EllipticCurvesPointFormatsHandshakeExtension : HandshakeExtension
 {

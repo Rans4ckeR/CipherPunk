@@ -1,7 +1,6 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Media.Imaging;
 using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,14 +8,12 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using CommunityToolkit.Mvvm.Messaging.Messages;
 
+namespace CipherPunk.UI;
+
 internal abstract class BaseViewModel : ObservableRecipient
 {
     private readonly ICipherSuiteInfoApiService cipherSuiteInfoApiService;
-    private bool defaultCommandActive;
-    private bool canExecuteDefaultCommand;
-    private BitmapSource? uacIcon;
     private bool? elevated;
-    private bool fetchOnlineInfo = true;
 
     protected BaseViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(StrongReferenceMessenger.Default)
@@ -35,21 +32,19 @@ internal abstract class BaseViewModel : ObservableRecipient
 
     public bool DefaultCommandActive
     {
-        get => defaultCommandActive;
+        get;
         set
         {
-            if (SetProperty(ref defaultCommandActive, value))
+            if (SetProperty(ref field, value))
                 DefaultCommand.NotifyCanExecuteChanged();
         }
     }
 
-    public BitmapSource UacIcon => uacIcon ??= UacService.GetShieldIcon();
+    [field: AllowNull]
+    [field: MaybeNull]
+    public BitmapSource UacIcon => field ??= UacService.GetShieldIcon();
 
-    public bool FetchOnlineInfo
-    {
-        get => fetchOnlineInfo;
-        set => _ = SetProperty(ref fetchOnlineInfo, value);
-    }
+    public bool FetchOnlineInfo { get; set => _ = SetProperty(ref field, value); } = true;
 
     protected bool Elevated => elevated ??= UacService.GetIntegrityLevel().Elevated;
 
@@ -61,10 +56,10 @@ internal abstract class BaseViewModel : ObservableRecipient
 
     protected bool CanExecuteDefaultCommand
     {
-        get => canExecuteDefaultCommand;
+        get;
         private set
         {
-            if (SetProperty(ref canExecuteDefaultCommand, value))
+            if (SetProperty(ref field, value))
                 DefaultCommand.NotifyCanExecuteChanged();
         }
     }

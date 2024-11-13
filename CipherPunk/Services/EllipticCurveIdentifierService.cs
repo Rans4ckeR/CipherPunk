@@ -1,7 +1,7 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using Windows.Win32;
+
+namespace CipherPunk;
 
 internal sealed class EllipticCurveIdentifierService : IEllipticCurveIdentifierService
 {

@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.CipherSuiteInfoApi;
+﻿using System.Collections.Frozen;
 
-using System.Collections.Frozen;
+namespace CipherPunk.CipherSuiteInfoApi;
 
 public interface ICipherSuiteInfoApiService
 {

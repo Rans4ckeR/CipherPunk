@@ -1,10 +1,10 @@
-﻿namespace CipherPunk.CipherSuiteInfoApi;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Net;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+
+namespace CipherPunk.CipherSuiteInfoApi;
 
 internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFactory)
     : ICipherSuiteInfoApiService

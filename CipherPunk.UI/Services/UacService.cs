@@ -1,6 +1,4 @@
-﻿namespace CipherPunk.UI;
-
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -12,6 +10,8 @@ using Windows.Win32.Foundation;
 using Windows.Win32.Security;
 using Windows.Win32.UI.Shell;
 
+namespace CipherPunk.UI;
+
 internal sealed class UacService : IUacService
 {
     public BitmapSource GetShieldIcon()
@@ -20,7 +20,7 @@ internal sealed class UacService : IUacService
         {
             cbSize = (uint)Marshal.SizeOf<SHSTOCKICONINFO>()
         };
-        BOOL destroyIconResult = default;
+        BOOL destroyIconResult;
         BitmapSource bitmapSource;
 
         try
@@ -34,8 +34,7 @@ internal sealed class UacService : IUacService
         }
         finally
         {
-            if (!psii.hIcon.IsNull)
-                destroyIconResult = PInvoke.DestroyIcon(psii.hIcon);
+            destroyIconResult = PInvoke.DestroyIcon(psii.hIcon);
         }
 
         return destroyIconResult.Value is 0 ? throw new Win32Exception(Marshal.GetLastWin32Error()) : bitmapSource;

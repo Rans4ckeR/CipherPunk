@@ -1,14 +1,13 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 using Windows.Win32;
 
+namespace CipherPunk.UI;
+
 internal sealed class CipherSuitesViewModel : BaseViewModel
 {
     private readonly ICipherSuiteService cipherSuiteService;
-    private ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? activeCipherSuiteConfigurations;
 
     public CipherSuitesViewModel(ILogger logger, ICipherSuiteService cipherSuiteService, ICipherSuiteInfoApiService cipherSuiteInfoApiService, IUacService uacService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -20,8 +19,8 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
 
     public ObservableCollection<UiWindowsApiCipherSuiteConfiguration>? ActiveCipherSuiteConfigurations
     {
-        get => activeCipherSuiteConfigurations;
-        private set => _ = SetProperty(ref activeCipherSuiteConfigurations, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
@@ -52,6 +51,6 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
             .OrderBy(q => q.Priority);
 
-        ActiveCipherSuiteConfigurations = new(uiWindowsApiCipherSuiteConfigurations);
+        ActiveCipherSuiteConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];
     }
 }

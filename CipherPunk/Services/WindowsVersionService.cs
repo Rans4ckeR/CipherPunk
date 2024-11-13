@@ -6,8 +6,16 @@ internal sealed class WindowsVersionService : IWindowsVersionService
 
     public WindowsVersion WindowsVersion => windowsVersion ??= GetWindowsVersion();
 
+#pragma warning disable CA1502 // Avoid excessive complexity
     private static WindowsVersion GetWindowsVersion()
+#pragma warning restore CA1502 // Avoid excessive complexity
     {
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 26100))
+            return WindowsVersion.Windows11V24H2OrServer2025;
+
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 25398))
+            return WindowsVersion.WindowsServer2022V23H2;
+
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 22631))
             return WindowsVersion.Windows11V23H2;
 
@@ -30,25 +38,25 @@ internal sealed class WindowsVersionService : IWindowsVersionService
             return WindowsVersion.Windows10V21H1;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19042))
-            return WindowsVersion.Windows10V20H2;
+            return WindowsVersion.Windows10OrServer2019V20H2;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 19041))
-            return WindowsVersion.Windows10V2004;
+            return WindowsVersion.Windows10OrServer2019V2004;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18363))
-            return WindowsVersion.Windows10V1909;
+            return WindowsVersion.Windows10OrServer2019V1909;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 18362))
-            return WindowsVersion.Windows10V1903;
+            return WindowsVersion.Windows10OrServer2019V1903;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17763))
             return WindowsVersion.Windows10V1809OrServer2019;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 17134))
-            return WindowsVersion.Windows10V1803;
+            return WindowsVersion.Windows10OrServer2016V1803;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 16299))
-            return WindowsVersion.Windows10V1709;
+            return WindowsVersion.Windows10OrServer2016V1709;
 
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 15063))
             return WindowsVersion.Windows10V1703;

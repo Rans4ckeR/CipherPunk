@@ -1,11 +1,11 @@
-﻿namespace CipherPunk;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Versioning;
 using Windows.Win32.Foundation;
+
+namespace CipherPunk;
 
 internal sealed class SchannelLogService : ISchannelLogService
 {

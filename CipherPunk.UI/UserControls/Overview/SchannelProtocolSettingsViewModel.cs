@@ -1,13 +1,12 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 using CommunityToolkit.Mvvm.Input;
+
+namespace CipherPunk.UI;
 
 internal sealed class SchannelProtocolSettingsViewModel : BaseViewModel
 {
     private readonly ISchannelService schannelService;
-    private ObservableCollection<UiSchannelProtocolSettings>? schannelProtocolSettings;
 
     public SchannelProtocolSettingsViewModel(ISchannelService schannelService, ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -28,13 +27,13 @@ internal sealed class SchannelProtocolSettingsViewModel : BaseViewModel
 
     public ObservableCollection<UiSchannelProtocolSettings>? SchannelProtocolSettings
     {
-        get => schannelProtocolSettings;
-        set => _ = SetProperty(ref schannelProtocolSettings, value);
+        get;
+        set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        SchannelProtocolSettings = new(schannelService.GetProtocolSettings().Select(q => new UiSchannelProtocolSettings(q)).OrderByDescending(q => q.Protocol));
+        SchannelProtocolSettings = [.. schannelService.GetProtocolSettings().Select(q => new UiSchannelProtocolSettings(q)).OrderByDescending(q => q.Protocol)];
 
         return Task.CompletedTask;
     }

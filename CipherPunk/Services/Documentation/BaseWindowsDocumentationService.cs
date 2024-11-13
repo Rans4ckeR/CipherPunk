@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Collections.Frozen;
 
-using System.Collections.Frozen;
+namespace CipherPunk;
 
 internal abstract class BaseWindowsDocumentationService(WindowsVersion windowsVersion, IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService)
 {

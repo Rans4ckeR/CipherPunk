@@ -1,8 +1,8 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
-namespace CipherPunk;
-
 using Windows.Win32;
+
+namespace CipherPunk;
 
 #pragma warning disable CA1028 // Enum Storage should be Int32
 [Flags]

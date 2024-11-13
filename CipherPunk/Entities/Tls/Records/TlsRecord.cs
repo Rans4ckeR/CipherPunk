@@ -1,8 +1,8 @@
-﻿namespace CipherPunk;
-
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.Collections.Frozen;
 using System.Security.Cryptography;
+
+namespace CipherPunk;
 
 internal abstract record TlsRecord
 {
@@ -19,17 +19,20 @@ internal abstract record TlsRecord
                 HandshakeClientVersion = [];
                 HandshakeClientRandom = [];
                 HandshakeSessionId = [];
-                HandshakeExtensions = FrozenSet<HandshakeExtension>.Empty;
+                HandshakeExtensions = [];
                 return;
         }
 
         TlsHandshakeHeaderMessageType = data.TakeByte(ref index);
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+        // ReSharper disable once UnusedVariable
         uint handshakeMessageLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt32(new byte[] { 0x00 }.Concat(data.TakeBytes(ref index, 3)).ToArray()));
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
         HandshakeClientVersion = data.TakeBytes(ref index, 2);
         HandshakeClientRandom = data.TakeBytes(ref index, 32);
         byte handshakeSessionIdLength = data.TakeByte(ref index);
         HandshakeSessionId = data.TakeBytes(ref index, handshakeSessionIdLength);
-        HandshakeExtensions = FrozenSet<HandshakeExtension>.Empty;
+        HandshakeExtensions = [];
     }
 
     protected TlsRecord(TlsVersion tlsVersion, TlsContentType tlsContentType, TlsHandshakeType tlsHandshakeType)
@@ -43,7 +46,7 @@ internal abstract record TlsRecord
         HandshakeClientVersion = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)tlsVersion));
         HandshakeClientRandom = RandomNumberGenerator.GetBytes(32);
         HandshakeSessionId = RandomNumberGenerator.GetBytes(32);
-        HandshakeExtensions = FrozenSet<HandshakeExtension>.Empty;
+        HandshakeExtensions = [];
     }
 
     public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength

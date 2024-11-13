@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Runtime.Versioning;
 
-using System.Runtime.Versioning;
+namespace CipherPunk;
 
 public interface IGroupPolicyService
 {

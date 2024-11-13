@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using Windows.Win32;
 
-using Windows.Win32;
+namespace CipherPunk;
 
 public readonly record struct WindowsApiCipherSuiteConfiguration(
     ushort Priority,

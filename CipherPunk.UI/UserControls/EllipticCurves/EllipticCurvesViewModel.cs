@@ -1,13 +1,12 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.Frozen;
+﻿using System.Collections.Frozen;
 using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
+
+namespace CipherPunk.UI;
 
 internal sealed class EllipticCurvesViewModel : BaseViewModel
 {
     private readonly IEllipticCurveService ellipticCurveService;
-    private ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? activeEllipticCurveConfigurations;
 
     public EllipticCurvesViewModel(ILogger logger, IEllipticCurveService ellipticCurveService, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
@@ -19,8 +18,8 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
 
     public ObservableCollection<UiWindowsApiEllipticCurveConfiguration>? ActiveEllipticCurveConfigurations
     {
-        get => activeEllipticCurveConfigurations;
-        private set => _ = SetProperty(ref activeEllipticCurveConfigurations, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
@@ -34,7 +33,7 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
             string.Join(',', q.CngAlgorithms)))
             .OrderBy(q => q.Priority);
 
-        ActiveEllipticCurveConfigurations = new(uiWindowsApiEllipticCurveConfigurations);
+        ActiveEllipticCurveConfigurations = [.. uiWindowsApiEllipticCurveConfigurations];
 
         return Task.CompletedTask;
     }

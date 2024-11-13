@@ -1,6 +1,6 @@
-﻿namespace CipherPunk.CipherSuiteInfoApi;
+﻿using System.Text.Json.Serialization;
 
-using System.Text.Json.Serialization;
+namespace CipherPunk.CipherSuiteInfoApi;
 
 public readonly record struct CipherSuite(
     [property: JsonPropertyName("iana_name")] string IanaName,

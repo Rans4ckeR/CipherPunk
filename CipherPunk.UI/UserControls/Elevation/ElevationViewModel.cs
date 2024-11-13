@@ -1,32 +1,29 @@
-﻿namespace CipherPunk.UI;
-
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
+
+namespace CipherPunk.UI;
 
 internal sealed class ElevationViewModel : BaseViewModel
 {
-    private ObservableCollection<MandatoryLevel>? mandatoryLevels;
-    private MandatoryLevel? mandatoryLevel;
-
     public ElevationViewModel(ILogger logger, IUacService uacService, ICipherSuiteInfoApiService cipherSuiteInfoApiService)
         : base(logger, uacService, cipherSuiteInfoApiService)
         => UpdateCanExecuteDefaultCommand();
 
     public ObservableCollection<MandatoryLevel>? MandatoryLevels
     {
-        get => mandatoryLevels;
-        private set => _ = SetProperty(ref mandatoryLevels, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     public MandatoryLevel? MandatoryLevel
     {
-        get => mandatoryLevel;
-        private set => _ = SetProperty(ref mandatoryLevel, value);
+        get;
+        private set => _ = SetProperty(ref field, value);
     }
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        MandatoryLevels ??= new(Enum.GetValues<MandatoryLevel>().OrderByDescending(q => (int)q));
+        MandatoryLevels ??= [.. Enum.GetValues<MandatoryLevel>().OrderByDescending(q => (int)q)];
         (MandatoryLevel, _) = UacService.GetIntegrityLevel();
 
         return Task.CompletedTask;

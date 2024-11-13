@@ -1,6 +1,6 @@
-﻿namespace CipherPunk;
+﻿using System.Collections.Frozen;
 
-using System.Collections.Frozen;
+namespace CipherPunk;
 
 public readonly record struct WindowsApiEllipticCurveConfiguration(
     ushort Priority,

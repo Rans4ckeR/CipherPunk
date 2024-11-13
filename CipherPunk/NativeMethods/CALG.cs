@@ -1,9 +1,9 @@
 ﻿// ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
+using Windows.Win32;
+
 #pragma warning disable CA1712 // Do not prefix enum values with type name
 namespace CipherPunk;
-
-using Windows.Win32;
 
 #pragma warning disable CA1028 // Enum Storage should be Int32
 public enum CALG : uint
