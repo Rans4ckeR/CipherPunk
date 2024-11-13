@@ -11,7 +11,7 @@ Features
 * Cipher Suite configuration
 * Elliptic Curve configuration
 * Schannel configuration
-* Windows 7 to 11 & Windows Server 2008 to 2022
+* Windows 7 to 11 & Windows Server 2008 to 2025
 * Configuration using local Group Policy (IISCrypto style)
 * Configuration using Schannel API
 
