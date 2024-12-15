@@ -412,6 +412,9 @@ dotnet_diagnostic.IDE0320.severity = warning
 
 # ReSharper properties
 resharper_braces_redundant = false
+dotnet_diagnostic.MVVMTK0042.severity = warning
+dotnet_diagnostic.MVVMTK0051.severity = warning
+dotnet_diagnostic.MVVMTK0056.severity = warning
 
 [*.{cs,vb}]
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
@@ -618,7 +621,7 @@ dotnet_diagnostic.MSTEST0016.severity = warning
 dotnet_diagnostic.CA1871.severity = warning
 dotnet_diagnostic.MSTEST0007.severity = warning
 dotnet_diagnostic.CA1872.severity = warning
-dotnet_diagnostic.MSTEST0019.severity = warning
+dotnet_diagnostic.MSTEST0019.severity = none
 dotnet_diagnostic.MSTEST0020.severity = warning
 dotnet_diagnostic.MSTEST0021.severity = warning
 dotnet_diagnostic.MSTEST0022.severity = warning

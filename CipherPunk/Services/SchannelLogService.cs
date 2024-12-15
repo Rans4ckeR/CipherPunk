@@ -35,14 +35,15 @@ internal sealed class SchannelLogService : ISchannelLogService
             string? processType = null;
             string? errorCode = null;
 
-            if (eventLogEntry.InstanceId is NoCommonCipherSuiteClientServerSchannelEventId)
+            switch (eventLogEntry.InstanceId)
             {
-                tlsVersion = eventLogEntry.ReplacementStrings[2];
-            }
-            else if (eventLogEntry.InstanceId is TlsConnectionSchannelEventId)
-            {
-                processType = eventLogEntry.ReplacementStrings[2];
-                errorCode = eventLogEntry.ReplacementStrings[3];
+                case NoCommonCipherSuiteClientServerSchannelEventId:
+                    tlsVersion = eventLogEntry.ReplacementStrings[2];
+                    break;
+                case TlsConnectionSchannelEventId:
+                    processType = eventLogEntry.ReplacementStrings[2];
+                    errorCode = eventLogEntry.ReplacementStrings[3];
+                    break;
             }
 
             schannelEventLogEntries.Add((new(message, timeGenerated, processId, processName, processType, tlsVersion, errorCode, null, null, null), processId));

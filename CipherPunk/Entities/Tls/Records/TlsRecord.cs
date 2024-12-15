@@ -56,7 +56,7 @@ internal abstract record TlsRecord
     public byte TlsHandshakeHeaderMessageType { get; }
 
     // 3 bytes
-    public byte[] HandshakeMessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(HandshakeMessageNumberOfBytes)).Skip(1).ToArray();
+    public byte[] HandshakeMessageLength => [.. BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness(HandshakeMessageNumberOfBytes)).Skip(1)];
 
     // 2 bytes
     public byte[] HandshakeClientVersion { get; }

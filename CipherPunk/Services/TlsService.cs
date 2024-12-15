@@ -54,8 +54,8 @@ internal sealed class TlsService : ITlsService
         byte[] clientPublicKey = RandomNumberGenerator.GetBytes(32);
         var keyShares = new KeyShare[] { new(TlsSupportedGroup.x25519, clientPublicKey) };
         uint[] sslProviderCipherSuiteIds = tlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION
-            ? Enum.GetValuesAsUnderlyingType<SslCipherSuite>().Cast<uint>().ToArray()
-            : Enum.GetValuesAsUnderlyingType<TlsCipherSuite>().Cast<ushort>().Select(Convert.ToUInt32).ToArray();
+            ? [.. Enum.GetValuesAsUnderlyingType<SslCipherSuite>().Cast<uint>()]
+            : [.. Enum.GetValuesAsUnderlyingType<TlsCipherSuite>().Cast<ushort>().Select(Convert.ToUInt32)];
 
         return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, tlsCertificateCompressionAlgorithms, q, cancellationToken).AsTask()))).ToFrozenSet();
     }

@@ -5,7 +5,7 @@ namespace CipherPunk;
 internal sealed record PreSharedKeysKeyExchangeModesExtension : HandshakeExtension
 {
     public PreSharedKeysKeyExchangeModesExtension(IEnumerable<TlsPreSharedKeysKeyExchangeMode> tlsPreSharedKeysKeyExchangeModes)
-        => PreSharedKeysKeyExchangeModes = tlsPreSharedKeysKeyExchangeModes.Cast<byte>().ToArray();
+        => PreSharedKeysKeyExchangeModes = [.. tlsPreSharedKeysKeyExchangeModes.Cast<byte>()];
 
     // 2 bytes
     public override byte[] ExtensionType

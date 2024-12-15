@@ -22,7 +22,7 @@ jobs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@main
       with:
-        versionSpec: '5.x'
+        versionSpec: '6.0.x'
     - name: Determine Version
       uses: gittools/actions/gitversion/execute@main
     - name: Publish
@@ -40,8 +40,8 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
     - name: Package
-      run: dotnet pack CipherPunk/CipherPunk.csproj --no-restore -p:PackageVersion=$env:GitVersion_NuGetVersionV2
+      run: dotnet pack CipherPunk/CipherPunk.csproj --no-restore -p:PackageVersion=$env:GitVersion_SemVer
     - name: NuGet Push
-      run: dotnet nuget push ${{ format('CipherPunk/bin/Release/CipherPunk.{0}.nupkg', env.GitVersion_NuGetVersionV2) }} --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+      run: dotnet nuget push ${{ format('CipherPunk/bin/Release/CipherPunk.{0}.nupkg', env.GitVersion_SemVer) }} --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
     - name: GitHub Push
-      run: dotnet nuget push ${{ format('CipherPunk/bin/Release/CipherPunk.{0}.nupkg', env.GitVersion_NuGetVersionV2) }} --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/Rans4ckeR/index.json
+      run: dotnet nuget push ${{ format('CipherPunk/bin/Release/CipherPunk.{0}.nupkg', env.GitVersion_SemVer) }} --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/Rans4ckeR/index.json

@@ -5,7 +5,7 @@ namespace CipherPunk;
 internal sealed record EllipticCurvesPointFormatsHandshakeExtension : HandshakeExtension
 {
     public EllipticCurvesPointFormatsHandshakeExtension(IEnumerable<TlsEllipticCurvesPointFormat> tlsEllipticCurvesPointFormats)
-        => ExtensionTypeEcPointFormats = tlsEllipticCurvesPointFormats.Cast<byte>().ToArray();
+        => ExtensionTypeEcPointFormats = [.. tlsEllipticCurvesPointFormats.Cast<byte>()];
 
     // 2 bytes
     public override byte[] ExtensionType

@@ -9,7 +9,7 @@ internal sealed record Ssl2ClientHelloRecord
     {
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));
-        CipherSpecs = sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((uint)q)).Skip(1)).ToArray();
+        CipherSpecs = [.. sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((uint)q)).Skip(1))];
         SessionId = [];
         Challenge = RandomNumberGenerator.GetBytes(16);
     }
@@ -18,7 +18,7 @@ internal sealed record Ssl2ClientHelloRecord
     /// This field is the length of the following data in bytes. The high bit MUST be 1 and is not part of the length.
     /// 2 bytes.
     /// </summary>
-    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + Version.Length + CipherSpecLength.Length + SessionIdLength.Length + ChallengeLength.Length + CipherSpecs.Length + SessionId.Length + Challenge.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType
+    public byte[] MessageLength => [.. BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + Version.Length + CipherSpecLength.Length + SessionIdLength.Length + ChallengeLength.Length + CipherSpecs.Length + SessionId.Length + Challenge.Length) | (1 << 15))).Skip(2)]; // + 1 for size of MessageType
 
     /// <summary>
     /// This field, in conjunction with the <see cref="Version"/> field, identifies a version 2 client hello message. The value should be <see cref="TlsHandshakeType.client_hello"/>.

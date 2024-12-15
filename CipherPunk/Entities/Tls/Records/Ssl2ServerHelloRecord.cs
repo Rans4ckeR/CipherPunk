@@ -25,7 +25,7 @@ internal sealed record Ssl2ServerHelloRecord
     }
 
     // 2 bytes
-    public byte[] MessageLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + sizeof(byte) + sizeof(byte) + Version.Length + CertificateLength.Length + CipherSpecLength.Length + ConnectionIdLength.Length + Certificate.Length + CipherSpecs.Length + ConnectionId.Length) | (1 << 15))).Skip(2).ToArray(); // + 1 for size of MessageType, SessionIdHit, CertificateType
+    public byte[] MessageLength => [.. BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(sizeof(byte) + sizeof(byte) + sizeof(byte) + Version.Length + CertificateLength.Length + CipherSpecLength.Length + ConnectionIdLength.Length + Certificate.Length + CipherSpecs.Length + ConnectionId.Length) | (1 << 15))).Skip(2)]; // + 1 for size of MessageType, SessionIdHit, CertificateType
 
     public byte MessageType { get; }
 

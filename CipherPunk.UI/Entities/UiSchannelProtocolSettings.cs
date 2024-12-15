@@ -2,30 +2,14 @@
 
 namespace CipherPunk.UI;
 
-internal sealed class UiSchannelProtocolSettings : ObservableObject
+internal sealed partial class UiSchannelProtocolSettings(SchannelProtocolSettings schannelProtocolSettings) : ObservableObject
 {
-    public UiSchannelProtocolSettings(SchannelProtocolSettings schannelProtocolSettings)
-    {
-        Protocol = schannelProtocolSettings.Protocol;
-        ClientStatus = schannelProtocolSettings.ClientStatus;
-        ServerStatus = schannelProtocolSettings.ServerStatus;
-    }
+    [ObservableProperty]
+    public partial SchannelProtocol Protocol { get; set; } = schannelProtocolSettings.Protocol;
 
-    public SchannelProtocol Protocol
-    {
-        get;
-        set => SetProperty(ref field, value);
-    }
+    [ObservableProperty]
+    public partial SchannelProtocolStatus ClientStatus { get; set; } = schannelProtocolSettings.ClientStatus;
 
-    public SchannelProtocolStatus ClientStatus
-    {
-        get;
-        set => SetProperty(ref field, value);
-    }
-
-    public SchannelProtocolStatus ServerStatus
-    {
-        get;
-        set => SetProperty(ref field, value);
-    }
+    [ObservableProperty]
+    public partial SchannelProtocolStatus ServerStatus { get; set; } = schannelProtocolSettings.ServerStatus;
 }
