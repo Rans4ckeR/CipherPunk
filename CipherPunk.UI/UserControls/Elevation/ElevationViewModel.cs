@@ -23,7 +23,7 @@ internal sealed class ElevationViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        MandatoryLevels ??= [.. Enum.GetValues<MandatoryLevel>().OrderByDescending(q => (int)q)];
+        MandatoryLevels ??= [.. Enum.GetValues<MandatoryLevel>().OrderByDescending(static q => (int)q)];
         (MandatoryLevel, _) = UacService.GetIntegrityLevel();
 
         return Task.CompletedTask;

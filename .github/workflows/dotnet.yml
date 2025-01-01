@@ -9,7 +9,7 @@ permissions:
 jobs:
   build:
     if: github.repository == 'Rans4ckeR/CipherPunk'
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
     - name: Checkout
       uses: actions/checkout@main

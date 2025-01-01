@@ -116,18 +116,18 @@ internal sealed class OverviewViewModel : BaseViewModel
             q.CipherLength,
             q.Cipher,
             OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
-            .OrderBy(q => q.Priority);
+            .OrderBy(static q => q.Priority);
 
         ActiveCipherSuiteConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];
 
         FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-        IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+        IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(static q => new UiWindowsApiEllipticCurveConfiguration(
             q.Priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
             string.Join(',', q.CngAlgorithms)))
-            .OrderBy(q => q.Priority);
+            .OrderBy(static q => q.Priority);
 
         ActiveEllipticCurveConfigurations = [.. uiWindowsApiEllipticCurveConfigurations];
 

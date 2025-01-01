@@ -36,7 +36,7 @@ internal sealed record ClientHelloTlsRecord : TlsRecord
         IReadOnlyCollection<TlsCertificateCompressionAlgorithm>? tlsCertificateCompressionAlgorithms)
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
-        HandshakeCipherSuites = sslProviderCipherSuiteIds?.Count > 0 ? [.. sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))] : [];
+        HandshakeCipherSuites = sslProviderCipherSuiteIds?.Count > 0 ? [.. sslProviderCipherSuiteIds.SelectMany(static q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))] : [];
 
         HandshakeCompressionMethods = tlsCompressionMethodIdentifiers?.Count > 0 ? [.. tlsCompressionMethodIdentifiers.Cast<byte>()] : [];
 

@@ -15,13 +15,13 @@ public static class ServiceCollectionExtensions
         _ = services
             .AddSingleton<ICipherSuiteInfoApiService, CipherSuiteInfoApiService>()
             .AddHttpClient(ICipherSuiteInfoApiService.HttpClientName)
-            .ConfigureHttpClient((_, httpClient) =>
+            .ConfigureHttpClient(static (_, httpClient) =>
             {
                 httpClient.BaseAddress = new(FormattableString.Invariant($"{Uri.UriSchemeHttps}{Uri.SchemeDelimiter}ciphersuite.info/api/"));
                 httpClient.Timeout = TimeSpan.FromSeconds(10);
                 httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
             })
-            .ConfigurePrimaryHttpMessageHandler(_ => new HttpClientHandler
+            .ConfigurePrimaryHttpMessageHandler(static _ => new HttpClientHandler
             {
                 AutomaticDecompression = DecompressionMethods.All
             });

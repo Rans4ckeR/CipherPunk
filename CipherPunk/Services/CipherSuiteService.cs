@@ -16,6 +16,9 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     private const string NcryptSchannelInterfaceSslKey = @"SYSTEM\CurrentControlSet\Control\Cryptography\Configuration\Local\SSL\00010002";
     private const string SslCipherSuiteOrderValueName = "Functions";
 
+    private readonly IWindowsDocumentationService windowsDocumentationService = windowsDocumentationService;
+    private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
+
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public IEnumerable<string> GetLocalCngConfigurationContextIdentifiers()
@@ -266,7 +269,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
             }
         }
 
-        return cipherSuiteConfigurations.Select(q => q!.Value).ToFrozenSet();
+        return cipherSuiteConfigurations.Select(static q => q!.Value).ToFrozenSet();
     }
 
     /// <inheritdoc cref="ICipherSuiteService"/>
@@ -275,11 +278,11 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     {
         FrozenSet<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
         IEnumerable<string> defaultCipherSuites = GetOperatingSystemDocumentationDefaultCipherSuiteList()
-            .Where(q => q.EnabledByDefault)
-            .OrderBy(q => q.Priority)
-            .Select(q => q.CipherSuite.ToString());
+            .Where(static q => q.EnabledByDefault)
+            .OrderBy(static q => q.Priority)
+            .Select(static q => q.CipherSuite.ToString());
 
-        foreach (string cipher in activeCipherSuites.Select(q => q.CipherSuiteName))
+        foreach (string cipher in activeCipherSuites.Select(static q => q.CipherSuiteName))
         {
             RemoveCipherSuite(cipher);
         }
@@ -331,7 +334,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     {
         FrozenSet<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
 
-        foreach (string cipher in activeCipherSuites.Select(q => q.CipherSuiteName))
+        foreach (string cipher in activeCipherSuites.Select(static q => q.CipherSuiteName))
         {
             RemoveCipherSuite(cipher);
         }
@@ -345,5 +348,5 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(IEnumerable<SslProviderCipherSuiteId> cipherSuites)
-        => UpdateCipherSuiteOrder(cipherSuites.Select(q => q.ToString()));
+        => UpdateCipherSuiteOrder(cipherSuites.Select(static q => q.ToString()));
 }

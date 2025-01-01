@@ -5,7 +5,7 @@ namespace CipherPunk;
 internal sealed record SupportedVersionsExtension : HandshakeExtension
 {
     public SupportedVersionsExtension(IEnumerable<TlsVersion> tlsVersions)
-        => SupportedVersions = [.. tlsVersions.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))];
+        => SupportedVersions = [.. tlsVersions.SelectMany(static q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))];
 
     // 2 bytes
     public override byte[] ExtensionType

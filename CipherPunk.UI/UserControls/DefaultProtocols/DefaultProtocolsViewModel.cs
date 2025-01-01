@@ -51,7 +51,7 @@ internal sealed class DefaultProtocolsViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q)];
+        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(static q => (int)q)];
         WindowsVersion ??= windowsVersionService.WindowsVersion;
 
         return Task.CompletedTask;

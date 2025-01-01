@@ -25,13 +25,13 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
         FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
-        IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+        IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(static q => new UiWindowsApiEllipticCurveConfiguration(
             q.Priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
             string.Join(',', q.CngAlgorithms)))
-            .OrderBy(q => q.Priority);
+            .OrderBy(static q => q.Priority);
 
         ActiveEllipticCurveConfigurations = [.. uiWindowsApiEllipticCurveConfigurations];
 

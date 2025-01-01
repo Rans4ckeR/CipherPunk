@@ -32,6 +32,9 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
     private const string SendTrustedIssuerList = "SendTrustedIssuerList";
     private const string ServerCacheTime = "ServerCacheTime";
 
+    private readonly IWindowsDocumentationService windowsDocumentationService = windowsDocumentationService;
+    private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
+
     [SupportedOSPlatform("windows")]
     public FrozenSet<SchannelProtocolSettings> GetProtocolSettings()
     {

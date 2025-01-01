@@ -43,8 +43,8 @@ internal sealed class SchannelSettingsViewModel : BaseViewModel
     private async Task DoExecuteSaveSettingsCommand()
     {
         schannelService.UpdateSchannelSettings(new(
-            (SchannelEventLogging)SchannelSettings!.EventLogging!.Where(q => q.Enabled).Sum(q => (int)q.Member),
-            (SchannelCertificateMappingMethod)SchannelSettings!.CertificateMappingMethods!.Where(q => q.Enabled).Sum(q => (int)q.Member),
+            (SchannelEventLogging)SchannelSettings!.EventLogging!.Where(static q => q.Enabled).Sum(static q => (int)q.Member),
+            (SchannelCertificateMappingMethod)SchannelSettings!.CertificateMappingMethods!.Where(static q => q.Enabled).Sum(static q => (int)q.Member),
             SchannelSettings!.ClientCacheTime,
             SchannelSettings!.EnableOcspStaplingForSni,
             SchannelSettings!.IssuerCacheSize,

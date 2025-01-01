@@ -56,7 +56,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q)];
+        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(static q => (int)q)];
         WindowsVersion ??= windowsVersionService.WindowsVersion;
 
         return Task.CompletedTask;
@@ -84,7 +84,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
                 q.ExplicitApplicationRequestOnly,
                 q.PreWindows10EllipticCurve,
                 OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
-                .OrderBy(q => q.Priority);
+                .OrderBy(static q => q.Priority);
 
             DefaultCipherSuites = [.. uiWindowsDocumentationCipherSuiteConfigurations];
         }

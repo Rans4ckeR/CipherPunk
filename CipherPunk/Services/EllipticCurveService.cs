@@ -21,6 +21,9 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     private const string CurveOrderValueName = "EccCurves";
     private const ushort ListMaximumCharacters = 1023;
 
+    private readonly IWindowsDocumentationService windowsDocumentationService = windowsDocumentationService;
+    private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
+
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
@@ -299,9 +302,9 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     public void ResetEllipticCurveListToOperatingSystemDefault()
     {
         IEnumerable<string> defaultEllipticCurveNames = GetOperatingSystemDefaultEllipticCurveList()
-            .Where(q => q.EnabledByDefault)
-            .OrderBy(q => q.Priority)
-            .Select(q => q.Name);
+            .Where(static q => q.EnabledByDefault)
+            .OrderBy(static q => q.Priority)
+            .Select(static q => q.Name);
 
         UpdateEllipticCurveOrder(defaultEllipticCurveNames);
     }
@@ -340,5 +343,5 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEllipticCurveOrder(IEnumerable<BCRYPT_ECC_CURVE> ellipticCurves)
-        => UpdateEllipticCurveOrder(ellipticCurves.Select(q => q.ToString()));
+        => UpdateEllipticCurveOrder(ellipticCurves.Select(static q => q.ToString()));
 }

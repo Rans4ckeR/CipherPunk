@@ -68,14 +68,14 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
     {
         FrozenSet<(TlsVersion TlsVersion, FrozenSet<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites =
             await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
-        IOrderedEnumerable<UiRemoteServerTestResult> uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(q => q.Results!.Select(r => new UiRemoteServerTestResult(
+        IOrderedEnumerable<UiRemoteServerTestResult> uiRemoteServerTestResults = remoteServerCipherSuites.SelectMany(static q => q.Results!.Select(r => new UiRemoteServerTestResult(
             q.TlsVersion,
             q.TlsVersion is TlsVersion.SSL2_PROTOCOL_VERSION ? ((SslCipherSuite)r.CipherSuiteId).ToString() : ((TlsCipherSuite)r.CipherSuiteId).ToString(),
             r.Supported,
             r.ErrorReason)))
-            .OrderByDescending(q => q.Supported)
-            .ThenByDescending(q => q.TlsVersion)
-            .ThenBy(q => q.CipherSuiteId);
+            .OrderByDescending(static q => q.Supported)
+            .ThenByDescending(static q => q.TlsVersion)
+            .ThenBy(static q => q.CipherSuiteId);
 
         RemoteServerTestResults = [.. uiRemoteServerTestResults];
     }

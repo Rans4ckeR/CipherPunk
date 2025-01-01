@@ -5,7 +5,7 @@ namespace CipherPunk;
 internal sealed record SignatureAlgorithmsHandshakeExtension : HandshakeExtension
 {
     public SignatureAlgorithmsHandshakeExtension(IEnumerable<TlsSignatureScheme> tlsSignatureSchemes)
-        => ExtensionTypeSignatureAlgorithms = [.. tlsSignatureSchemes.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))];
+        => ExtensionTypeSignatureAlgorithms = [.. tlsSignatureSchemes.SelectMany(static q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))];
 
     // 2 bytes
     public override byte[] ExtensionType

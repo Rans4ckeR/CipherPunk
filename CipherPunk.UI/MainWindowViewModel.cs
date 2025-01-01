@@ -49,8 +49,8 @@ internal sealed class MainWindowViewModel : BaseViewModel
         CopyMessageCommand = new RelayCommand(ExecuteCopyMessageCommand);
         CloseMessageCommand = new RelayCommand(ExecuteCloseMessageCommand);
 
-        StrongReferenceMessenger.Default.Register<UserMessageValueChangedMessage>(this, (r, m) => ((MainWindowViewModel)r).UserMessage = m.Value.Message);
-        StrongReferenceMessenger.Default.Register<ActiveViewValueChangedMessage>(this, (r, m) => ((MainWindowViewModel)r).ActiveView = m.Value);
+        StrongReferenceMessenger.Default.Register<UserMessageValueChangedMessage>(this, static (r, m) => ((MainWindowViewModel)r).UserMessage = m.Value.Message);
+        StrongReferenceMessenger.Default.Register<ActiveViewValueChangedMessage>(this, static (r, m) => ((MainWindowViewModel)r).ActiveView = m.Value);
         UpdateCanExecuteDefaultCommand();
     }
 

@@ -33,7 +33,7 @@ internal sealed class SchannelProtocolSettingsViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        SchannelProtocolSettings = [.. schannelService.GetProtocolSettings().Select(q => new UiSchannelProtocolSettings(q)).OrderByDescending(q => q.Protocol)];
+        SchannelProtocolSettings = [.. schannelService.GetProtocolSettings().Select(static q => new UiSchannelProtocolSettings(q)).OrderByDescending(static q => q.Protocol)];
 
         return Task.CompletedTask;
     }
@@ -43,7 +43,7 @@ internal sealed class SchannelProtocolSettingsViewModel : BaseViewModel
 
     private async Task DoExecuteSaveSettingsCommand()
     {
-        schannelService.UpdateProtocolSettings(SchannelProtocolSettings!.Select(q => new SchannelProtocolSettings(q.Protocol, q.ClientStatus, q.ServerStatus)));
+        schannelService.UpdateProtocolSettings(SchannelProtocolSettings!.Select(static q => new SchannelProtocolSettings(q.Protocol, q.ClientStatus, q.ServerStatus)));
         await DoExecuteDefaultCommandAsync(CancellationToken.None);
         NotifyCanExecuteChanged();
     }

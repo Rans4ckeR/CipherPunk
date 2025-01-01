@@ -40,7 +40,7 @@ internal sealed class TlsService : ITlsService
     {
         IPAddress[] ipAddresses = await Dns.GetHostAddressesAsync(hostName, cancellationToken);
 
-        return new(ipAddresses.First(q => (Socket.OSSupportsIPv6 && q.AddressFamily is AddressFamily.InterNetworkV6) || q.AddressFamily is AddressFamily.InterNetwork), 443);
+        return new(ipAddresses.First(static q => (Socket.OSSupportsIPv6 && q.AddressFamily is AddressFamily.InterNetworkV6) || q.AddressFamily is AddressFamily.InterNetwork), 443);
     }
 
     private static async ValueTask<FrozenSet<(uint CipherSuiteId, bool Supported, string? ErrorReason)>> GetRemoteServerCipherSuitesAsync(EndPoint endpoint, string hostName, TlsVersion tlsVersion, CancellationToken cancellationToken)

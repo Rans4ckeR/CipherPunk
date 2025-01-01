@@ -49,7 +49,7 @@ internal abstract record TlsRecord
         HandshakeExtensions = [];
     }
 
-    public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
+    public int HandshakeMessageNumberOfBytes => HandshakeClientVersion.Length + HandshakeClientRandom.Length + sizeof(byte) + HandshakeSessionId.Length + GetRecordTypeBytes().Length + HandshakeExtensionsLength.Length + HandshakeExtensions.Sum(static q => q.GetBytes().Length); // + 1 for HandshakeSessionIdLength
 
     public TlsRecordHeader TlsRecordHeader { get; }
 
@@ -70,7 +70,7 @@ internal abstract record TlsRecord
     public byte[] HandshakeSessionId { get; }
 
     // 2 bytes
-    public byte[] HandshakeExtensionsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)HandshakeExtensions.Sum(q => q.GetBytes().Length)));
+    public byte[] HandshakeExtensionsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)HandshakeExtensions.Sum(static q => q.GetBytes().Length)));
 
     public FrozenSet<HandshakeExtension> HandshakeExtensions { get; protected init; }
 

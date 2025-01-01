@@ -4,9 +4,11 @@ namespace CipherPunk;
 
 internal abstract class BaseWindowsDocumentationService(WindowsVersion windowsVersion, IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService)
 {
+    private readonly IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService = windowsEllipticCurveDocumentationService;
+
     private KeyValuePair<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
 
-    public WindowsVersion WindowsVersion => windowsVersion;
+    public WindowsVersion WindowsVersion { get; } = windowsVersion;
 
     public KeyValuePair<WindowsVersion, FrozenSet<SchannelProtocolSettings>> GetProtocolConfiguration()
         => new(WindowsVersion, GetProtocolDefaultConfiguration().ToFrozenSet());

@@ -49,7 +49,7 @@ internal sealed class CipherSuitesViewModel : BaseViewModel
             q.CipherLength,
             q.Cipher,
             OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
-            .OrderBy(q => q.Priority);
+            .OrderBy(static q => q.Priority);
 
         ActiveCipherSuiteConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];
     }

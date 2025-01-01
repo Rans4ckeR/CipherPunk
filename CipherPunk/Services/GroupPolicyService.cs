@@ -37,8 +37,8 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             .Elements(ns + "policyDefinitionResources").Single()
             .Elements(ns + "resources").Single()
             .Elements(ns + "presentationTable").Single()
-            .Elements(ns + "presentation").Single(q => "SSLCipherSuiteOrder".Equals(q.Attribute("id")!.Value, StringComparison.OrdinalIgnoreCase))
-            .Elements(ns + "textBox").Single(q => "Pol_SSLCipherSuiteOrder".Equals(q.Attribute("refId")!.Value, StringComparison.OrdinalIgnoreCase))
+            .Elements(ns + "presentation").Single(static q => "SSLCipherSuiteOrder".Equals(q.Attribute("id")!.Value, StringComparison.OrdinalIgnoreCase))
+            .Elements(ns + "textBox").Single(static q => "Pol_SSLCipherSuiteOrder".Equals(q.Attribute("refId")!.Value, StringComparison.OrdinalIgnoreCase))
             .Elements(ns + "defaultValue").Single().Value;
 
         return sslCipherSuiteOrderPolicyWindowsDefaults.Split(',');
@@ -57,7 +57,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             .Elements(ns + "policyDefinitionResources").Single()
             .Elements(ns + "resources").Single()
             .Elements(ns + "stringTable").Single()
-            .Elements(ns + "string").Single(q => "SSLCurveOrder_Help".Equals(q.Attribute("id")!.Value, StringComparison.OrdinalIgnoreCase)).Value;
+            .Elements(ns + "string").Single(static q => "SSLCurveOrder_Help".Equals(q.Attribute("id")!.Value, StringComparison.OrdinalIgnoreCase)).Value;
         int sslCurveOrderStartIndex = sslCurveOrderPolicyHelpText.IndexOf("============\n", StringComparison.OrdinalIgnoreCase) + "============\n".Length;
         string sslCurveOrderData = sslCurveOrderPolicyHelpText[sslCurveOrderStartIndex..];
 

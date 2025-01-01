@@ -5,10 +5,12 @@ namespace CipherPunk;
 
 internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIdentifierService ellipticCurveIdentifierService) : IWindowsEllipticCurveDocumentationService
 {
+    private readonly IEllipticCurveIdentifierService ellipticCurveIdentifierService = ellipticCurveIdentifierService;
+
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>>? windowsDocumentationEllipticCurveConfigurations;
 
     public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion)
-        => (windowsDocumentationEllipticCurveConfigurations ??= BuildWindowsDocumentationEllipticCurveConfigurations()).Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
+        => (windowsDocumentationEllipticCurveConfigurations ??= BuildWindowsDocumentationEllipticCurveConfigurations()).Where(q => q.Key <= windowsVersion).MaxBy(static q => q.Key).Value;
 
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
     {

@@ -4,28 +4,30 @@ namespace CipherPunk;
 
 internal sealed class WindowsDocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : IWindowsDocumentationService
 {
+    private readonly IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService = windowsEllipticCurveDocumentationService;
+
     private FrozenSet<BaseWindowsDocumentationService>? windowsDocumentationServices;
     private FrozenDictionary<WindowsVersion, FrozenSet<SchannelProtocolSettings>>? windowsDocumentationProtocolConfigurations;
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>>? windowsDocumentationCipherSuiteConfigurations;
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>>? windowsDocumentationEllipticCurveConfigurations;
 
     public FrozenDictionary<WindowsVersion, FrozenSet<SchannelProtocolSettings>> GetProtocolConfigurations()
-        => windowsDocumentationProtocolConfigurations ??= GetWindowsDocumentationServices().Select(q => q.GetProtocolConfiguration()).ToFrozenDictionary();
+        => windowsDocumentationProtocolConfigurations ??= GetWindowsDocumentationServices().Select(static q => q.GetProtocolConfiguration()).ToFrozenDictionary();
 
     public FrozenSet<SchannelProtocolSettings> GetProtocolConfigurations(WindowsVersion windowsVersion)
-        => GetProtocolConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
+        => GetProtocolConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(static q => q.Key).Value;
 
     public FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>> GetCipherSuiteConfigurations()
-        => windowsDocumentationCipherSuiteConfigurations ??= GetWindowsDocumentationServices().Select(q => q.GetCipherSuiteConfiguration()).ToFrozenDictionary();
+        => windowsDocumentationCipherSuiteConfigurations ??= GetWindowsDocumentationServices().Select(static q => q.GetCipherSuiteConfiguration()).ToFrozenDictionary();
 
     public FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteConfigurations(WindowsVersion windowsVersion)
-        => GetCipherSuiteConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
+        => GetCipherSuiteConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(static q => q.Key).Value;
 
     public FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> GetEllipticCurveConfigurations()
-        => windowsDocumentationEllipticCurveConfigurations ??= GetWindowsDocumentationServices().Select(q => q.GetEllipticCurveConfiguration()).ToFrozenDictionary();
+        => windowsDocumentationEllipticCurveConfigurations ??= GetWindowsDocumentationServices().Select(static q => q.GetEllipticCurveConfiguration()).ToFrozenDictionary();
 
     public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetEllipticCurveConfigurations(WindowsVersion windowsVersion)
-        => GetEllipticCurveConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(q => q.Key).Value;
+        => GetEllipticCurveConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(static q => q.Key).Value;
 
     private IEnumerable<BaseWindowsDocumentationService> GetWindowsDocumentationServices() => windowsDocumentationServices ??= BuildWindowsDocumentationServices();
 

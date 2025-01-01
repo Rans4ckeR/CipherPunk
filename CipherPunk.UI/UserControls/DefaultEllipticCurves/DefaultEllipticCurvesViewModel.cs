@@ -51,7 +51,7 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(q => (int)q)];
+        WindowsVersions ??= [.. Enum.GetValues<WindowsVersion>().OrderByDescending(static q => (int)q)];
         WindowsVersion ??= windowsVersionService.WindowsVersion;
 
         return Task.CompletedTask;
@@ -62,7 +62,7 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
         try
         {
             FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfigurations = windowsDocumentationService.GetEllipticCurveConfigurations(WindowsVersion!.Value);
-            IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationEllipticCurveConfigurations.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
+            IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationEllipticCurveConfigurations.Select(static q => new UiWindowsDocumentationEllipticCurveConfiguration(
                 q.Priority,
                 q.Name,
                 q.Identifier,
@@ -70,7 +70,7 @@ internal sealed class DefaultEllipticCurvesViewModel : BaseViewModel
                 q.TlsSupportedGroup,
                 q.AllowedByUseStrongCryptographyFlag,
                 q.EnabledByDefault))
-                .OrderBy(q => q.Priority);
+                .OrderBy(static q => q.Priority);
 
             DefaultEllipticCurves = [.. uiWindowsDocumentationCipherSuiteConfigurations];
         }

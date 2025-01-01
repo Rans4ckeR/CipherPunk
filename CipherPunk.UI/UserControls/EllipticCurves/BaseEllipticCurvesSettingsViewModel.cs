@@ -20,21 +20,21 @@ internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEll
         IEnumerable<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = GetActiveSettingConfiguration();
         FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiAvailableEllipticCurveConfigurations = EllipticCurveService.GetOperatingSystemAvailableEllipticCurveList();
         FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windowsDocumentationEllipticCurveConfiguration = EllipticCurveService.GetOperatingSystemDefaultEllipticCurveList();
-        IEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+        IEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(static q => new UiWindowsApiEllipticCurveConfiguration(
             q.Priority,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
             string.Join(',', q.CngAlgorithms)));
-        IEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiAvailableEllipticCurveConfigurations = windowsApiAvailableEllipticCurveConfigurations.Select(q => new UiWindowsApiEllipticCurveConfiguration(
+        IEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiAvailableEllipticCurveConfigurations = windowsApiAvailableEllipticCurveConfigurations.Select(static q => new UiWindowsApiEllipticCurveConfiguration(
             ushort.MinValue,
             q.pszOid,
             q.pwszName,
             q.dwBitLength,
             string.Join(',', q.CngAlgorithms)))
-            .OrderBy(q => q.Id)
-            .ThenBy(q => q.Name);
-        IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationEllipticCurveConfiguration = windowsDocumentationEllipticCurveConfiguration.Select(q => new UiWindowsDocumentationEllipticCurveConfiguration(
+            .OrderBy(static q => q.Id)
+            .ThenBy(static q => q.Name);
+        IOrderedEnumerable<UiWindowsDocumentationEllipticCurveConfiguration> uiWindowsDocumentationEllipticCurveConfiguration = windowsDocumentationEllipticCurveConfiguration.Select(static q => new UiWindowsDocumentationEllipticCurveConfiguration(
             q.Priority,
             q.Name,
             q.Identifier,
@@ -42,7 +42,7 @@ internal abstract class BaseEllipticCurvesSettingsViewModel(ILogger logger, IEll
             q.TlsSupportedGroup,
             q.AllowedByUseStrongCryptographyFlag,
             q.EnabledByDefault))
-            .OrderBy(q => q.Priority);
+            .OrderBy(static q => q.Priority);
 
         DefaultSettingConfigurations = [.. uiWindowsDocumentationEllipticCurveConfiguration];
         AvailableSettingConfigurations = [.. uiWindowsApiAvailableEllipticCurveConfigurations];

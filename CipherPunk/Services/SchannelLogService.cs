@@ -17,7 +17,7 @@ internal sealed class SchannelLogService : ISchannelLogService
     {
         // https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/dn786445(v=ws.11)
         var result = new List<SchannelLog>();
-        EventLogEntryCollection systemEventLogEntries = EventLog.GetEventLogs().Single(q => "System".Equals(q.LogDisplayName, StringComparison.OrdinalIgnoreCase)).Entries;
+        EventLogEntryCollection systemEventLogEntries = EventLog.GetEventLogs().Single(static q => "System".Equals(q.LogDisplayName, StringComparison.OrdinalIgnoreCase)).Entries;
         var schannelEventLogEntries = new List<(SchannelLog SchannelLog, int ProcessId)>();
 
         for (int i = systemEventLogEntries.Count - 1; i > -1; i--)
@@ -49,7 +49,7 @@ internal sealed class SchannelLogService : ISchannelLogService
             schannelEventLogEntries.Add((new(message, timeGenerated, processId, processName, processType, tlsVersion, errorCode, null, null, null), processId));
         }
 
-        foreach (int processId in schannelEventLogEntries.Select(q => q.ProcessId).Distinct())
+        foreach (int processId in schannelEventLogEntries.Select(static q => q.ProcessId).Distinct())
         {
             Process? process = null;
 
@@ -88,6 +88,6 @@ internal sealed class SchannelLogService : ISchannelLogService
             }
         }
 
-        return schannelEventLogEntries.Where(q => !result.Select(r => r.ProcessId).Contains(q.ProcessId)).Select(q => q.SchannelLog).Concat(result).ToFrozenSet();
+        return schannelEventLogEntries.Where(q => !result.Select(static r => r.ProcessId).Contains(q.ProcessId)).Select(static q => q.SchannelLog).Concat(result).ToFrozenSet();
     }
 }

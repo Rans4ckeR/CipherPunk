@@ -10,11 +10,11 @@ internal sealed record KeyShareExtension(KeyShare[] KeyShares) : HandshakeExtens
 
     // 2 bytes
     public override byte[] ExtensionTypeLength
-        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(KeyShareLength.Length + KeyShares.SelectMany(q => q.GetBytes()).Count())));
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)(KeyShareLength.Length + KeyShares.SelectMany(static q => q.GetBytes()).Count())));
 
     // 2 bytes
     public byte[] KeyShareLength
-        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)KeyShares.SelectMany(q => q.GetBytes()).Count()));
+        => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)KeyShares.SelectMany(static q => q.GetBytes()).Count()));
 
     public override byte[] GetBytes()
     {
@@ -23,7 +23,7 @@ internal sealed record KeyShareExtension(KeyShare[] KeyShares) : HandshakeExtens
         result.AddRange(ExtensionType);
         result.AddRange(ExtensionTypeLength);
         result.AddRange(KeyShareLength);
-        result.AddRange(KeyShares.SelectMany(q => q.GetBytes()));
+        result.AddRange(KeyShares.SelectMany(static q => q.GetBytes()));
 
         return [.. result];
     }

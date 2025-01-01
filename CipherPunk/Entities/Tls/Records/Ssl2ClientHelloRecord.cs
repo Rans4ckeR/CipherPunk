@@ -9,7 +9,7 @@ internal sealed record Ssl2ClientHelloRecord
     {
         MessageType = (byte)TlsHandshakeType.client_hello;
         Version = BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)TlsVersion.SSL2_PROTOCOL_VERSION));
-        CipherSpecs = [.. sslProviderCipherSuiteIds.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((uint)q)).Skip(1))];
+        CipherSpecs = [.. sslProviderCipherSuiteIds.SelectMany(static q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((uint)q)).Skip(1))];
         SessionId = [];
         Challenge = RandomNumberGenerator.GetBytes(16);
     }

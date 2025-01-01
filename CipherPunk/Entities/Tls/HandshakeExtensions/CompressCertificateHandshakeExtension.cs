@@ -5,7 +5,7 @@ namespace CipherPunk;
 internal sealed record CompressCertificateHandshakeExtension : HandshakeExtension
 {
     public CompressCertificateHandshakeExtension(IEnumerable<TlsCertificateCompressionAlgorithm> tlsCertificateCompressionAlgorithms)
-        => CertificateCompressionAlgorithms = [.. tlsCertificateCompressionAlgorithms.SelectMany(q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))];
+        => CertificateCompressionAlgorithms = [.. tlsCertificateCompressionAlgorithms.SelectMany(static q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))];
 
     // 2 bytes
     public override byte[] ExtensionType

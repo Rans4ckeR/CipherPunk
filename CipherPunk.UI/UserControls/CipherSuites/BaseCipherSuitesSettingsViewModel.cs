@@ -50,7 +50,7 @@ internal abstract class BaseCipherSuitesSettingsViewModel(ILogger logger, ICiphe
             q.ExplicitApplicationRequestOnly,
             q.PreWindows10EllipticCurve,
             OnlineCipherSuiteInfos.TryGetValue(q.CipherSuite.ToString(), out CipherSuite cipherSuite) ? cipherSuite.Security : null))
-            .OrderBy(q => q.Priority);
+            .OrderBy(static q => q.Priority);
 
         DefaultSettingConfigurations = [.. defaultUiWindowsDocumentationCipherSuiteConfigurations];
         ActiveSettingConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];

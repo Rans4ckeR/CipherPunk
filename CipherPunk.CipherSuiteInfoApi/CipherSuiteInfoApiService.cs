@@ -14,6 +14,8 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
         Converters = { new JsonStringEnumConverter() }
     };
 
+    private readonly IHttpClientFactory httpClientFactory = httpClientFactory;
+
     private FrozenDictionary<string, CipherSuite> cipherSuites = FrozenDictionary<string, CipherSuite>.Empty;
 
     public async ValueTask<CipherSuite?> GetCipherSuiteAsync(string cipherSuiteName, bool useCache = true, CancellationToken cancellationToken = default)
@@ -70,7 +72,7 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
         JsonArray cipherSuiteObjectsArray = cipherSuitesResponseNode!["ciphersuites"]!.AsArray();
         var resultArray = new JsonArray();
 
-        foreach (KeyValuePair<string, JsonNode?> cipherSuiteObject in cipherSuiteObjectsArray.SelectMany(q => q!.AsObject()))
+        foreach (KeyValuePair<string, JsonNode?> cipherSuiteObject in cipherSuiteObjectsArray.SelectMany(static q => q!.AsObject()))
         {
             JsonArray tlsVersions = cipherSuiteObject.Value!["tls_version"]!.AsArray();
             var newTlsVersions = new JsonArray();
@@ -97,7 +99,7 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
 
         stream.Position = 0L;
 
-        cipherSuites = (await JsonSerializer.DeserializeAsync<IEnumerable<CipherSuite>>(stream, JsonSerializerOptions, cancellationToken))!.ToFrozenDictionary(q => q.IanaName);
+        cipherSuites = (await JsonSerializer.DeserializeAsync<IEnumerable<CipherSuite>>(stream, JsonSerializerOptions, cancellationToken))!.ToFrozenDictionary(static q => q.IanaName);
 
         return cipherSuites;
     }
