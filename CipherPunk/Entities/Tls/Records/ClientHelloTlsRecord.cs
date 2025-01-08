@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.Collections.Frozen;
 
 namespace CipherPunk;
 
@@ -37,7 +36,6 @@ internal sealed record ClientHelloTlsRecord : TlsRecord
         : base(tlsVersion, TlsContentType.handshake, TlsHandshakeType.client_hello)
     {
         HandshakeCipherSuites = sslProviderCipherSuiteIds?.Count > 0 ? [.. sslProviderCipherSuiteIds.SelectMany(static q => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)q)))] : [];
-
         HandshakeCompressionMethods = tlsCompressionMethodIdentifiers?.Count > 0 ? [.. tlsCompressionMethodIdentifiers.Cast<byte>()] : [];
 
         List<HandshakeExtension> handshakeExtensions =
@@ -81,7 +79,7 @@ internal sealed record ClientHelloTlsRecord : TlsRecord
 
         handshakeExtensions.Add(padding);
 
-        HandshakeExtensions = handshakeExtensions.ToFrozenSet();
+        HandshakeExtensions = [.. handshakeExtensions];
     }
 
     // 2 bytes

@@ -11,19 +11,19 @@ internal abstract class BaseWindowsDocumentationService(WindowsVersion windowsVe
     public WindowsVersion WindowsVersion { get; } = windowsVersion;
 
     public KeyValuePair<WindowsVersion, FrozenSet<SchannelProtocolSettings>> GetProtocolConfiguration()
-        => new(WindowsVersion, GetProtocolDefaultConfiguration().ToFrozenSet());
+        => new(WindowsVersion, [.. GetProtocolDefaultConfiguration()]);
 
     public KeyValuePair<WindowsVersion, FrozenSet<WindowsDocumentationCipherSuiteConfiguration>> GetCipherSuiteConfiguration()
-        => windowsDocumentationCipherSuiteConfigurations ??= new(WindowsVersion, FrozenSet.ToFrozenSet([.. GetCipherSuiteDefaultEnabledConfiguration(), .. GetCipherSuiteDefaultDisabledConfiguration(), .. GetCipherSuitePreSharedKeyConfiguration()]));
+        => windowsDocumentationCipherSuiteConfigurations ??= new(WindowsVersion, [.. GetCipherSuiteDefaultEnabledConfiguration(), .. GetCipherSuiteDefaultDisabledConfiguration(), .. GetCipherSuitePreSharedKeyConfiguration()]);
 
     public KeyValuePair<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> GetEllipticCurveConfiguration()
         => new(WindowsVersion, windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion));
 
-    protected abstract IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration();
+    protected abstract FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration();
 
-    protected abstract IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration();
+    protected abstract FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration();
 
-    protected virtual IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuitePreSharedKeyConfiguration() => [];
+    protected virtual FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuitePreSharedKeyConfiguration() => [];
 
     private IEnumerable<SchannelProtocolSettings> GetProtocolDefaultConfiguration() =>
         Enum.GetValues<SchannelProtocol>().Select<SchannelProtocol, SchannelProtocolSettings>(schannelProtocol => schannelProtocol switch

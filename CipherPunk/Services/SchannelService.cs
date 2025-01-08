@@ -57,7 +57,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
             result.Add(new(schannelProtocol, clientStatus, serverStatus));
         }
 
-        return result.ToFrozenSet();
+        return [.. result];
     }
 
     [SupportedOSPlatform("windows")]
@@ -121,7 +121,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
             result.Add(new(schannelKeyExchangeAlgorithm, clientMinKeyBitLength, clientMaxKeyBitLength, serverMinKeyBitLength, enabled is null ? null : enabled is not 0));
         }
 
-        return result.ToFrozenSet();
+        return [.. result];
     }
 
     [SupportedOSPlatform("windows")]
@@ -163,7 +163,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
             result.Add(new(schannelHash, enabled is null ? null : enabled is not 0));
         }
 
-        return result.ToFrozenSet();
+        return [.. result];
     }
 
     [SupportedOSPlatform("windows")]
@@ -203,7 +203,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
             result.Add(new(schannelCipher, enabled is null ? null : enabled is not 0));
         }
 
-        return result.ToFrozenSet();
+        return [.. result];
     }
 
     [SupportedOSPlatform("windows")]

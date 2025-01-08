@@ -26,7 +26,7 @@ internal abstract record TlsRecord
         TlsHandshakeHeaderMessageType = data.TakeByte(ref index);
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
         // ReSharper disable once UnusedVariable
-        uint handshakeMessageLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt32(new byte[] { 0x00 }.Concat(data.TakeBytes(ref index, 3)).ToArray()));
+        uint handshakeMessageLength = BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt32([0x00, .. data.TakeBytes(ref index, 3)]));
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
         HandshakeClientVersion = data.TakeBytes(ref index, 2);
         HandshakeClientRandom = data.TakeBytes(ref index, 32);

@@ -88,6 +88,6 @@ internal sealed class SchannelLogService : ISchannelLogService
             }
         }
 
-        return schannelEventLogEntries.Where(q => !result.Select(static r => r.ProcessId).Contains(q.ProcessId)).Select(static q => q.SchannelLog).Concat(result).ToFrozenSet();
+        return [.. schannelEventLogEntries.Where(q => !result.Select(static r => r.ProcessId).Contains(q.ProcessId)).Select(static q => q.SchannelLog).Concat(result)];
     }
 }

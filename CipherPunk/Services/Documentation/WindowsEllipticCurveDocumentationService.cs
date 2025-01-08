@@ -14,7 +14,7 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
 
     private FrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> BuildWindowsDocumentationEllipticCurveConfigurations()
     {
-        var windows10V1607OrServer2016 = FrozenSet.ToFrozenSet<WindowsDocumentationEllipticCurveConfiguration>(
+        FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windows10V1607OrServer2016 =
         [
             new(1, PInvoke.BCRYPT_ECC_CURVE_25519, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_25519), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_25519, TlsSupportedGroup.x25519, false, true),
             new(2, PInvoke.BCRYPT_ECC_CURVE_NISTP256, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP256), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP256, TlsSupportedGroup.secp256r1, true, true),
@@ -36,8 +36,8 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
             new(18, PInvoke.BCRYPT_ECC_CURVE_SECP256R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP256R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP256R1, TlsSupportedGroup.secp256r1, false, false),
             new(19, PInvoke.BCRYPT_ECC_CURVE_SECP384R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP384R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP384R1, TlsSupportedGroup.secp384r1, false, false),
             new(20, PInvoke.BCRYPT_ECC_CURVE_SECP521R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP521R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP521R1, TlsSupportedGroup.secp521r1, false, false)
-        ]);
-        var windows10V1507 = FrozenSet.ToFrozenSet<WindowsDocumentationEllipticCurveConfiguration>(
+        ];
+        FrozenSet<WindowsDocumentationEllipticCurveConfiguration> windows10V1507 =
         [
             new(1, PInvoke.BCRYPT_ECC_CURVE_NISTP256, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP256), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP256, TlsSupportedGroup.secp256r1, true, true),
             new(2, PInvoke.BCRYPT_ECC_CURVE_NISTP384, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP384), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_NISTP384, TlsSupportedGroup.secp384r1, true, true),
@@ -58,7 +58,7 @@ internal sealed class WindowsEllipticCurveDocumentationService(IEllipticCurveIde
             new(17, PInvoke.BCRYPT_ECC_CURVE_SECP256R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP256R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP256R1, TlsSupportedGroup.secp256r1, false, false),
             new(18, PInvoke.BCRYPT_ECC_CURVE_SECP384R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP384R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP384R1, TlsSupportedGroup.secp384r1, false, false),
             new(19, PInvoke.BCRYPT_ECC_CURVE_SECP521R1, ellipticCurveIdentifierService.GetIdentifier(BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP521R1), BCRYPT_ECC_CURVE.BCRYPT_ECC_CURVE_SECP521R1, TlsSupportedGroup.secp521r1, false, false)
-        ]);
+        ];
 
         return FrozenDictionary.ToFrozenDictionary<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>>(
         [

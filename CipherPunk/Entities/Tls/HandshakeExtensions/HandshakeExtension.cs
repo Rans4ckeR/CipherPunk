@@ -59,6 +59,6 @@ internal abstract record HandshakeExtension
             }
         }
 
-        return handshakeExtensions.ToFrozenSet();
+        return [.. handshakeExtensions];
     }
 }

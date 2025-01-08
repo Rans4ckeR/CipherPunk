@@ -29,24 +29,23 @@ internal sealed class WindowsDocumentationService(IWindowsEllipticCurveDocumenta
     public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetEllipticCurveConfigurations(WindowsVersion windowsVersion)
         => GetEllipticCurveConfigurations().Where(q => q.Key <= windowsVersion).MaxBy(static q => q.Key).Value;
 
-    private IEnumerable<BaseWindowsDocumentationService> GetWindowsDocumentationServices() => windowsDocumentationServices ??= BuildWindowsDocumentationServices();
+    private FrozenSet<BaseWindowsDocumentationService> GetWindowsDocumentationServices() => windowsDocumentationServices ??= BuildWindowsDocumentationServices();
 
-    private FrozenSet<BaseWindowsDocumentationService> BuildWindowsDocumentationServices()
-        => FrozenSet.ToFrozenSet<BaseWindowsDocumentationService>(
-        [
-            new Windows11V22H2DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows11V21H2DocumentationService(windowsEllipticCurveDocumentationService),
-            new WindowsServer2022DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V22H2DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V1903DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V1709DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V1703DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V1607DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V1511DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows10V1507DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows81DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows8DocumentationService(windowsEllipticCurveDocumentationService),
-            new Windows7DocumentationService(windowsEllipticCurveDocumentationService),
-            new WindowsVistaDocumentationService(windowsEllipticCurveDocumentationService)
-        ]);
+    private FrozenSet<BaseWindowsDocumentationService> BuildWindowsDocumentationServices() =>
+    [
+        new Windows11V22H2DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows11V21H2DocumentationService(windowsEllipticCurveDocumentationService),
+        new WindowsServer2022DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V22H2DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V1903DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V1709DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V1703DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V1607DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V1511DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows10V1507DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows81DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows8DocumentationService(windowsEllipticCurveDocumentationService),
+        new Windows7DocumentationService(windowsEllipticCurveDocumentationService),
+        new WindowsVistaDocumentationService(windowsEllipticCurveDocumentationService)
+    ];
 }

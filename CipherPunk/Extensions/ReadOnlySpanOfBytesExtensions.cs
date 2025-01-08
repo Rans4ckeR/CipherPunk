@@ -10,6 +10,6 @@ internal static class ReadOnlySpanOfBytesExtensions
 
         index += size;
 
-        return bytes.ToArray();
+        return [.. bytes];
     }
 }

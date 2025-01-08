@@ -2,7 +2,7 @@
 
 namespace CipherPunk;
 
-internal interface IWindowsEllipticCurveDocumentationService
+public interface IWindowsEllipticCurveDocumentationService
 {
     FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion windowsVersion);
 }

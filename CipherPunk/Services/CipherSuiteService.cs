@@ -71,7 +71,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         FrozenSet<WindowsApiCipherSuiteConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemDefaultCipherSuiteList();
         ushort priority = ushort.MinValue;
 
-        return configuredCipherSuites.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.CipherSuite.ToString().Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority }).ToFrozenSet();
+        return [.. configuredCipherSuites.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.CipherSuite.ToString().Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
     /// <inheritdoc cref="ICipherSuiteService"/>
@@ -110,7 +110,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
                         cipherSuiteConfigurations.Add(cipherSuite);
                 }
 
-                return cipherSuiteConfigurations.ToFrozenSet();
+                return [.. cipherSuiteConfigurations];
             }
             finally
             {
@@ -269,7 +269,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
             }
         }
 
-        return cipherSuiteConfigurations.Select(static q => q!.Value).ToFrozenSet();
+        return [.. cipherSuiteConfigurations.Select(static q => q!.Value)];
     }
 
     /// <inheritdoc cref="ICipherSuiteService"/>

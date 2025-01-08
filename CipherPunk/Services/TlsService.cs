@@ -33,7 +33,7 @@ internal sealed class TlsService : ITlsService
             result.Add((sslProviderProtocolId, sslProviderProtocolIdResult));
         }
 
-        return result.ToFrozenSet();
+        return [.. result];
     }
 
     private static async ValueTask<IPEndPoint> GetIpEndPointAsync(string hostName, CancellationToken cancellationToken)
@@ -57,7 +57,7 @@ internal sealed class TlsService : ITlsService
             ? [.. Enum.GetValuesAsUnderlyingType<SslCipherSuite>().Cast<uint>()]
             : [.. Enum.GetValuesAsUnderlyingType<TlsCipherSuite>().Cast<ushort>().Select(Convert.ToUInt32)];
 
-        return (await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, tlsCertificateCompressionAlgorithms, q, cancellationToken).AsTask()))).ToFrozenSet();
+        return [.. await Task.WhenAll(sslProviderCipherSuiteIds.Select(q => SendClientHelloAsync(endpoint, hostName, tlsVersion, tlsCompressionMethodIdentifiers, tlsEllipticCurvesPointFormats, tlsSignatureSchemes, tlsSupportedGroups, tlsPreSharedKeysKeyExchangeModes, keyShares, tlsCertificateCompressionAlgorithms, q, cancellationToken).AsTask()))];
     }
 
     private static async ValueTask<(uint CipherSuiteId, bool Supported, string? ErrorReason)> SendClientHelloAsync(
@@ -161,7 +161,7 @@ internal sealed class TlsService : ITlsService
 
                     while (index < supportedVersions.Length)
                     {
-                        tlsVersions.Add((TlsVersion)BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16(supportedVersions.Skip(index).Take(2).ToArray())));
+                        tlsVersions.Add((TlsVersion)BinaryPrimitives.ReverseEndianness(BitConverter.ToUInt16([.. supportedVersions.Skip(index).Take(2)])));
 
                         index += 2;
                     }

@@ -238,7 +238,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
                                 if (string.IsNullOrWhiteSpace(pwszCNGExtraAlgid))
                                     pwszCNGExtraAlgid = null;
 
-                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(++priority, pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, FrozenSet.ToFrozenSet([pwszCNGAlgid!]), pwszCNGExtraAlgid);
+                                var windowsEllipticCurveInfo = new WindowsApiEllipticCurveConfiguration(++priority, pszOid, pwszName, dwGroupId, dwMagic, algId, dwBitLength, bcryptMagic, flags, [pwszCNGAlgid!], pwszCNGExtraAlgid);
 
                                 curveConfigurations.Add(windowsEllipticCurveInfo);
                             }
@@ -257,7 +257,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
             }
         }
 
-        return curveConfigurations.ToFrozenSet();
+        return [.. curveConfigurations];
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
@@ -282,7 +282,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
 
         ushort priority = ushort.MinValue;
 
-        return activeEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority }).ToFrozenSet();
+        return [.. activeEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
@@ -294,7 +294,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         FrozenSet<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
         ushort priority = ushort.MinValue;
 
-        return configuredEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority }).ToFrozenSet();
+        return [.. configuredEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
     /// <inheritdoc cref="IEllipticCurveService"/>
