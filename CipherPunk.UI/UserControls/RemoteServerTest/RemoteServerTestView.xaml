@@ -12,6 +12,9 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -36,6 +39,51 @@
             </Expander>
         </Border>
         <Border Style="{StaticResource BorderStyle}" Grid.Row="1" Grid.Column="0">
+            <Expander Header="Matching Active Cipher Suites">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="This device can currently connect to the remote device with:"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding MatchingActiveCipherSuites}"/>
+                </Grid>
+            </Expander>
+        </Border>
+        <Border Style="{StaticResource BorderStyle}" Grid.Row="2" Grid.Column="0">
+            <Expander Header="Matching Inactive Cipher Suites">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="This device can, after enabling, connect to the remote device with:"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding MatchingInactiveCipherSuites}"/>
+                </Grid>
+            </Expander>
+        </Border>
+        <Border Style="{StaticResource BorderStyle}" Grid.Row="3" Grid.Column="0">
+            <Expander Header="Not Supported Cipher Suites">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Supported by the remote device but not by this device:"/>
+                    <ui:NoScrollDataGrid Grid.Row="1" Grid.Column="0" ItemsSource="{Binding NotSupportedCipherSuites}"/>
+                </Grid>
+            </Expander>
+        </Border>
+        <Border Style="{StaticResource BorderStyle}" Grid.Row="4" Grid.Column="0">
             <Expander Header="Remote Server Test Results">
                 <Grid>
                     <Grid.RowDefinitions>

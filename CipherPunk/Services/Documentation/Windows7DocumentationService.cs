@@ -1,11 +1,10 @@
-﻿using System.Collections.Frozen;
-using Windows.Win32;
+﻿using Windows.Win32;
 
 namespace CipherPunk;
 
 internal sealed class Windows7DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows7OrServer2008R2, windowsEllipticCurveDocumentationService)
 {
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration() =>
     [
         new(1, SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], false, SslProviderKeyTypeId.TLS_ECC_P256_CURVE_KEY_TYPE),
         new(2, SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], false, SslProviderKeyTypeId.TLS_ECC_P384_CURVE_KEY_TYPE),
@@ -49,7 +48,7 @@ internal sealed class Windows7DocumentationService(IWindowsEllipticCurveDocument
         new(40, SslProviderCipherSuiteId.SSL_CK_DES_192_EDE3_CBC_WITH_MD5, true, true, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION], true)
     ];
 
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration() =>
     [
         new(41, SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], false, SslProviderKeyTypeId.TLS_ECC_P521_CURVE_KEY_TYPE),
         new(42, SslProviderCipherSuiteId.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], false, SslProviderKeyTypeId.TLS_ECC_P521_CURVE_KEY_TYPE),

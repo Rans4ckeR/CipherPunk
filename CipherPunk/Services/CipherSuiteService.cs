@@ -19,7 +19,6 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     private readonly IWindowsDocumentationService windowsDocumentationService = windowsDocumentationService;
     private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public IEnumerable<string> GetLocalCngConfigurationContextIdentifiers()
     {
@@ -57,12 +56,10 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         return contexts;
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetOperatingSystemDocumentationDefaultCipherSuiteList()
         => windowsDocumentationService.GetCipherSuiteConfigurations(windowsVersionService.WindowsVersion);
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList()
     {
@@ -74,7 +71,6 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         return [.. configuredCipherSuites.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.CipherSuite.ToString().Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList()
     {
@@ -120,7 +116,6 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         }
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
     {
@@ -272,7 +267,6 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         return [.. cipherSuiteConfigurations.Select(static q => q!.Value)];
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetCipherSuiteListToOperatingSystemDefault()
     {
@@ -293,7 +287,6 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         }
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void RemoveCipherSuite(string cipherSuite)
     {
@@ -306,11 +299,9 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
             throw new Win32Exception(status);
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void RemoveCipherSuite(SslProviderCipherSuiteId cipherSuite) => RemoveCipherSuite(cipherSuite.ToString());
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void AddCipherSuite(string cipherSuite, bool top = true)
     {
@@ -324,11 +315,9 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
             throw new Win32Exception(status);
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void AddCipherSuite(SslProviderCipherSuiteId cipherSuite) => AddCipherSuite(cipherSuite.ToString());
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(IEnumerable<string> cipherSuites)
     {
@@ -345,7 +334,6 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         }
     }
 
-    /// <inheritdoc cref="ICipherSuiteService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(IEnumerable<SslProviderCipherSuiteId> cipherSuites)
         => UpdateCipherSuiteOrder(cipherSuites.Select(static q => q.ToString()));

@@ -24,7 +24,6 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     private readonly IWindowsDocumentationService windowsDocumentationService = windowsDocumentationService;
     private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
     {
@@ -260,12 +259,10 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         return [.. curveConfigurations];
     }
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsDocumentationEllipticCurveConfiguration> GetOperatingSystemDefaultEllipticCurveList()
         => windowsDocumentationService.GetEllipticCurveConfigurations(windowsVersionService.WindowsVersion);
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
@@ -285,7 +282,6 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         return [.. activeEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList()
     {
@@ -297,7 +293,6 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         return [.. configuredEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetEllipticCurveListToOperatingSystemDefault()
     {
@@ -309,7 +304,6 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         UpdateEllipticCurveOrder(defaultEllipticCurveNames);
     }
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEllipticCurveOrder(IEnumerable<string> ellipticCurves)
     {
@@ -340,7 +334,6 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         }
     }
 
-    /// <inheritdoc cref="IEllipticCurveService"/>
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEllipticCurveOrder(IEnumerable<BCRYPT_ECC_CURVE> ellipticCurves)
         => UpdateEllipticCurveOrder(ellipticCurves.Select(static q => q.ToString()));

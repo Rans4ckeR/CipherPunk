@@ -1,11 +1,10 @@
-﻿using System.Collections.Frozen;
-using Windows.Win32;
+﻿using Windows.Win32;
 
 namespace CipherPunk;
 
 internal sealed class WindowsVistaDocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.WindowsVistaOrServer2008, windowsEllipticCurveDocumentationService)
 {
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration() =>
     [
         new(1, SslProviderCipherSuiteId.TLS_RSA_WITH_AES_128_CBC_SHA, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION]),
         new(2, SslProviderCipherSuiteId.TLS_RSA_WITH_AES_256_CBC_SHA, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION]),
@@ -31,7 +30,7 @@ internal sealed class WindowsVistaDocumentationService(IWindowsEllipticCurveDocu
         new(22, SslProviderCipherSuiteId.SSL_CK_DES_192_EDE3_CBC_WITH_MD5, false, true, [SslProviderProtocolId.SSL2_PROTOCOL_VERSION])
     ];
 
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration() =>
     [
         new(23, SslProviderCipherSuiteId.TLS_RSA_EXPORT_WITH_RC4_40_MD5, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),
         new(24, SslProviderCipherSuiteId.TLS_RSA_EXPORT1024_WITH_RC4_56_SHA, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION]),

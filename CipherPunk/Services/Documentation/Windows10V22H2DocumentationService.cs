@@ -1,11 +1,10 @@
-﻿using System.Collections.Frozen;
-using Windows.Win32;
+﻿using Windows.Win32;
 
 namespace CipherPunk;
 
 internal sealed class Windows10V22H2DocumentationService(IWindowsEllipticCurveDocumentationService windowsEllipticCurveDocumentationService) : BaseWindowsDocumentationService(WindowsVersion.Windows10OrServer2019V20H2, windowsEllipticCurveDocumentationService)
 {
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration() =>
     [
         new(1, SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
         new(2, SslProviderCipherSuiteId.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, true, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
@@ -29,7 +28,7 @@ internal sealed class Windows10V22H2DocumentationService(IWindowsEllipticCurveDo
         new(20, SslProviderCipherSuiteId.TLS_RSA_WITH_NULL_SHA, false, true, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION], true)
     ];
 
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration() =>
     [
         new(21, SslProviderCipherSuiteId.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
         new(22, SslProviderCipherSuiteId.TLS_DHE_RSA_WITH_AES_128_GCM_SHA256, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION]),
@@ -52,7 +51,7 @@ internal sealed class Windows10V22H2DocumentationService(IWindowsEllipticCurveDo
         new(39, SslProviderCipherSuiteId.TLS_RSA_EXPORT1024_WITH_DES_CBC_SHA, false, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_1_PROTOCOL_VERSION, SslProviderProtocolId.TLS1_0_PROTOCOL_VERSION, SslProviderProtocolId.SSL3_PROTOCOL_VERSION])
     ];
 
-    protected override FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuitePreSharedKeyConfiguration() =>
+    protected override IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuitePreSharedKeyConfiguration() =>
     [
         new(40, SslProviderCipherSuiteId.TLS_PSK_WITH_AES_256_GCM_SHA384, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),
         new(41, SslProviderCipherSuiteId.TLS_PSK_WITH_AES_128_GCM_SHA256, true, false, [SslProviderProtocolId.TLS1_2_PROTOCOL_VERSION], true),

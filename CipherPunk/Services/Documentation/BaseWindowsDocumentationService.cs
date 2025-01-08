@@ -19,11 +19,11 @@ internal abstract class BaseWindowsDocumentationService(WindowsVersion windowsVe
     public KeyValuePair<WindowsVersion, FrozenSet<WindowsDocumentationEllipticCurveConfiguration>> GetEllipticCurveConfiguration()
         => new(WindowsVersion, windowsEllipticCurveDocumentationService.GetWindowsDocumentationEllipticCurveConfigurations(WindowsVersion));
 
-    protected abstract FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration();
+    protected abstract IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultEnabledConfiguration();
 
-    protected abstract FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration();
+    protected abstract IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuiteDefaultDisabledConfiguration();
 
-    protected virtual FrozenSet<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuitePreSharedKeyConfiguration() => [];
+    protected virtual IEnumerable<WindowsDocumentationCipherSuiteConfiguration> GetCipherSuitePreSharedKeyConfiguration() => [];
 
     private IEnumerable<SchannelProtocolSettings> GetProtocolDefaultConfiguration() =>
         Enum.GetValues<SchannelProtocol>().Select<SchannelProtocol, SchannelProtocolSettings>(schannelProtocol => schannelProtocol switch
