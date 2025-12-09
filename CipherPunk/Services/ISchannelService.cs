@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 
 namespace CipherPunk;
 
@@ -7,7 +6,7 @@ public interface ISchannelService
 {
     [SupportedOSPlatform("windows")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<SchannelProtocolSettings> GetProtocolSettings();
+    IReadOnlyCollection<SchannelProtocolSettings> GetProtocolSettings();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
@@ -18,7 +17,7 @@ public interface ISchannelService
 
     [SupportedOSPlatform("windows")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings();
+    IReadOnlyCollection<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
@@ -29,7 +28,7 @@ public interface ISchannelService
 
     [SupportedOSPlatform("windows")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<SchannelHashSettings> GetSchannelHashSettings();
+    IReadOnlyCollection<SchannelHashSettings> GetSchannelHashSettings();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]
@@ -40,7 +39,7 @@ public interface ISchannelService
 
     [SupportedOSPlatform("windows")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<SchannelCipherSettings> GetSchannelCipherSettings();
+    IReadOnlyCollection<SchannelCipherSettings> GetSchannelCipherSettings();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     [SupportedOSPlatform("windows")]

@@ -30,7 +30,7 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
 
         try
         {
-            cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync(FormattableString.Invariant($"cs/{cipherSuiteName}"), cancellationToken);
+            cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync(new Uri(FormattableString.Invariant($"cs/{cipherSuiteName}"), UriKind.Relative), cancellationToken);
         }
         catch (HttpRequestException e) when (e.StatusCode is HttpStatusCode.NotFound)
         {
@@ -67,7 +67,7 @@ internal sealed class CipherSuiteInfoApiService(IHttpClientFactory httpClientFac
         if (cipherSuites.Count is not 0 && useCache)
             return cipherSuites;
 
-        string cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync("cs", cancellationToken);
+        string cipherSuiteResponseJson = await httpClientFactory.CreateClient(ICipherSuiteInfoApiService.HttpClientName).GetStringAsync(new Uri("cs", UriKind.Relative), cancellationToken);
         var cipherSuitesResponseNode = JsonNode.Parse(cipherSuiteResponseJson);
         JsonArray cipherSuiteObjectsArray = cipherSuitesResponseNode!["ciphersuites"]!.AsArray();
         var resultArray = new JsonArray();

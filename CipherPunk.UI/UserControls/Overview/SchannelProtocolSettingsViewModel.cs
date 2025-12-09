@@ -44,20 +44,20 @@ internal sealed class SchannelProtocolSettingsViewModel : BaseViewModel
     private async Task DoExecuteSaveSettingsCommand()
     {
         schannelService.UpdateProtocolSettings(SchannelProtocolSettings!.Select(static q => new SchannelProtocolSettings(q.Protocol, q.ClientStatus, q.ServerStatus)));
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(true);
         NotifyCanExecuteChanged();
     }
 
     private async Task DoExecuteResetSettingsCommand()
     {
         schannelService.ResetProtocolSettings();
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(true);
         NotifyCanExecuteChanged();
     }
 
     private async Task DoExecuteCancelSettingsCommand()
     {
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(true);
         NotifyCanExecuteChanged();
     }
 

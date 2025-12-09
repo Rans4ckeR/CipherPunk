@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Runtime.Versioning;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
@@ -14,6 +15,7 @@ namespace CipherPunk.UI;
 
 internal sealed class UacService : IUacService
 {
+    [SupportedOSPlatform("windows6.0.6000")]
     public BitmapSource GetShieldIcon()
     {
         var psii = new SHSTOCKICONINFO
@@ -40,16 +42,11 @@ internal sealed class UacService : IUacService
         return destroyIconResult.Value is 0 ? throw new Win32Exception(Marshal.GetLastWin32Error()) : bitmapSource;
     }
 
+    [SupportedOSPlatform("windows5.1.2600")]
     public (MandatoryLevel MandatoryLevel, bool Elevated) GetIntegrityLevel()
     {
-        BOOL getTokenInformationResult;
-        uint tokenInformationLength = 0U;
         using SafeFileHandle processTokenHandle = PInvoke.GetCurrentProcessToken();
-
-        unsafe
-        {
-            getTokenInformationResult = PInvoke.GetTokenInformation(processTokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, null, tokenInformationLength, out tokenInformationLength);
-        }
+        BOOL getTokenInformationResult = PInvoke.GetTokenInformation(processTokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, null, out uint tokenInformationLength);
 
         if (!getTokenInformationResult)
         {
@@ -61,20 +58,15 @@ internal sealed class UacService : IUacService
 
         ref uint integrityLevel = ref Unsafe.NullRef<uint>();
         Span<byte> tokenInformationBuffer = new byte[tokenInformationLength];
-        ref TOKEN_MANDATORY_LABEL tokenMandatoryLabel = ref Unsafe.NullRef<TOKEN_MANDATORY_LABEL>();
 
         unsafe
         {
-            fixed (void* tokenInformation = tokenInformationBuffer)
-            {
-                getTokenInformationResult = PInvoke.GetTokenInformation(processTokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, tokenInformation, tokenInformationLength, out _);
+            getTokenInformationResult = PInvoke.GetTokenInformation(processTokenHandle, TOKEN_INFORMATION_CLASS.TokenIntegrityLevel, tokenInformationBuffer, out tokenInformationLength);
 
-                if (!getTokenInformationResult)
-                    throw new Win32Exception(Marshal.GetLastWin32Error());
+            if (!getTokenInformationResult)
+                throw new Win32Exception(Marshal.GetLastWin32Error());
 
-                tokenMandatoryLabel = ref Unsafe.AsRef<TOKEN_MANDATORY_LABEL>(tokenInformation);
-            }
-
+            TOKEN_MANDATORY_LABEL tokenMandatoryLabel = MemoryMarshal.AsRef<TOKEN_MANDATORY_LABEL>(tokenInformationBuffer);
             PSID sid = tokenMandatoryLabel.Label.Sid;
             byte* sidSubAuthorityCountPtr = PInvoke.GetSidSubAuthorityCount(sid);
             ref byte sidSubAuthorityCount = ref Unsafe.AsRef<byte>(sidSubAuthorityCountPtr);

@@ -50,5 +50,7 @@ public enum WindowsVersion
 
     WindowsServer2022V23H2,
 
-    Windows11V24H2OrServer2025
+    Windows11V24H2OrServer2025,
+
+    Windows11V25H2
 }

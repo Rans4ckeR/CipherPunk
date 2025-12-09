@@ -91,7 +91,7 @@ internal abstract class BaseViewModel : ObservableRecipient
         if (!FetchOnlineInfo)
             return;
 
-        OnlineCipherSuiteInfos = await cipherSuiteInfoApiService.GetAllCipherSuitesAsync(true, cancellationToken);
+        OnlineCipherSuiteInfos = await cipherSuiteInfoApiService.GetAllCipherSuitesAsync(true, cancellationToken).ConfigureAwait(true);
     }
 
     private async Task ExecuteDefaultCommandAsync(bool? showView, CancellationToken cancellationToken)
@@ -100,7 +100,7 @@ internal abstract class BaseViewModel : ObservableRecipient
         {
             DefaultCommandActive = true;
 
-            await DoExecuteDefaultCommandAsync(cancellationToken);
+            await DoExecuteDefaultCommandAsync(cancellationToken).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
 
             if (showView ?? true)
                 _ = StrongReferenceMessenger.Default.Send(new ActiveViewValueChangedMessage(this));

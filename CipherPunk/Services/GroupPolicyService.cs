@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text;
 using System.Xml;
@@ -113,33 +114,27 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             ppv.GetRegistryKey(GPO_SECTION.GPO_SECTION_MACHINE, ref machineKey);
 
             using var hKey = new SafeRegistryHandle(machineKey, true);
+            WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SslConfigurationPolicyKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult);
 
-            unsafe
+            using (phkResult)
             {
-                WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, SslConfigurationPolicyKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
+                if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                    throw new Win32Exception((int)regCreateKeyExResult);
 
-                using (phkResult)
+                if (!string.IsNullOrWhiteSpace(valueData.Replace("\0", null, StringComparison.OrdinalIgnoreCase)))
                 {
-                    if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
-                        throw new Win32Exception((int)regCreateKeyExResult);
+                    ReadOnlySpan<byte> valueDataBytes = MemoryMarshal.Cast<char, byte>(valueData);
+                    WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, valueName, (uint)valueType, valueDataBytes);
 
-                    if (!string.IsNullOrWhiteSpace(valueData.Replace("\0", null, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        fixed (char* lpData = valueData)
-                        {
-                            WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, valueName, (uint)valueType, lpData, (uint)(sizeof(char) * valueData.Length));
+                    if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                        throw new Win32Exception((int)regSetKeyValueResult);
+                }
+                else
+                {
+                    WIN32_ERROR regDeleteValueResult = PInvoke.RegDeleteValue(phkResult, valueName);
 
-                            if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
-                                throw new Win32Exception((int)regSetKeyValueResult);
-                        }
-                    }
-                    else
-                    {
-                        WIN32_ERROR regDeleteValueResult = PInvoke.RegDeleteValue(phkResult, valueName);
-
-                        if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
-                            throw new Win32Exception((int)regDeleteValueResult);
-                    }
+                    if (regDeleteValueResult is not WIN32_ERROR.ERROR_SUCCESS and not WIN32_ERROR.ERROR_FILE_NOT_FOUND)
+                        throw new Win32Exception((int)regDeleteValueResult);
                 }
             }
 
@@ -178,7 +173,7 @@ internal sealed class GroupPolicyService : IGroupPolicyService
             using var hKey = new SafeRegistryHandle(machineKey, true);
             WIN32_ERROR regOpenKeyExResult = PInvoke.RegOpenKeyEx(hKey, SslConfigurationPolicyKey, 0U, REG_SAM_FLAGS.KEY_QUERY_VALUE, out SafeRegistryHandle phkResult);
             uint pcbData;
-            char[] buffer;
+            Span<byte> buffer;
             WIN32_ERROR regGetValueResult;
 
             using (phkResult)
@@ -190,22 +185,17 @@ internal sealed class GroupPolicyService : IGroupPolicyService
                     throw new Win32Exception((int)regOpenKeyExResult);
 
                 pcbData = ListMaximumCharacters * sizeof(char);
-                buffer = new char[pcbData];
-
-                unsafe
-                {
-                    fixed (char* pvData = buffer)
-                    {
-                        regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, null, pvData, &pcbData);
-                    }
-                }
+                buffer = new byte[pcbData];
+                regGetValueResult = PInvoke.RegGetValue(phkResult, null, valueName, valueType, out REG_VALUE_TYPE _, buffer, ref pcbData);
             }
+
+            ReadOnlySpan<char> bufferChars = MemoryMarshal.Cast<byte, char>(buffer);
 
             return regGetValueResult switch
             {
                 WIN32_ERROR.ERROR_FILE_NOT_FOUND => null,
                 not WIN32_ERROR.ERROR_SUCCESS => throw new Win32Exception((int)regGetValueResult),
-                _ => new(buffer[..(int)(pcbData / sizeof(char))])
+                _ => new(bufferChars[..(int)(pcbData / sizeof(char))])
             };
         }
         finally

@@ -24,7 +24,7 @@ public interface ICipherSuiteService
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
+    IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
@@ -32,7 +32,7 @@ public interface ICipherSuiteService
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
+    IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
@@ -40,7 +40,7 @@ public interface ICipherSuiteService
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
+    IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>

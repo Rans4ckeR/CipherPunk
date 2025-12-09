@@ -35,6 +35,7 @@ internal sealed class WindowsDocumentationService(IWindowsEllipticCurveDocumenta
     [
         new Windows11V22H2DocumentationService(windowsEllipticCurveDocumentationService),
         new Windows11V21H2DocumentationService(windowsEllipticCurveDocumentationService),
+        new WindowsServer2022V23H2DocumentationService(windowsEllipticCurveDocumentationService),
         new WindowsServer2022DocumentationService(windowsEllipticCurveDocumentationService),
         new Windows10V22H2DocumentationService(windowsEllipticCurveDocumentationService),
         new Windows10V1903DocumentationService(windowsEllipticCurveDocumentationService),

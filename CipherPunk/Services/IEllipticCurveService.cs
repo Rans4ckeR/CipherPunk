@@ -18,7 +18,7 @@ public interface IEllipticCurveService
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
+    IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
@@ -26,7 +26,7 @@ public interface IEllipticCurveService
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList();
+    IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
@@ -34,7 +34,7 @@ public interface IEllipticCurveService
     /// </summary>
     [SupportedOSPlatform("windows6.0.6000")]
 #pragma warning disable CA1024 // Use properties where appropriate
-    FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList();
+    IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList();
 #pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>

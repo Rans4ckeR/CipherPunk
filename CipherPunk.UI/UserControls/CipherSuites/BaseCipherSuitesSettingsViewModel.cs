@@ -14,7 +14,7 @@ internal abstract class BaseCipherSuitesSettingsViewModel(ILogger logger, ICiphe
         FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = CipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
         IEnumerable<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = GetActiveSettingConfiguration();
 
-        await FetchOnlineCipherSuiteInfoAsync(cancellationToken);
+        await FetchOnlineCipherSuiteInfoAsync(cancellationToken).ConfigureAwait(true);
 
         IEnumerable<UiWindowsApiCipherSuiteConfiguration> uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             q.Priority,

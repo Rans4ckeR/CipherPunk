@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.Versioning;
@@ -13,7 +12,7 @@ internal sealed class SchannelLogService : ISchannelLogService
     private const long NoCommonCipherSuiteClientServerSchannelEventId = 36874L;
 
     [SupportedOSPlatform("windows")]
-    public FrozenSet<SchannelLog> GetSchannelLogs()
+    public IReadOnlyCollection<SchannelLog> GetSchannelLogs()
     {
         // https://learn.microsoft.com/en-us/previous-versions/windows/it-pro/windows-server-2012-r2-and-2012/dn786445(v=ws.11)
         var result = new List<SchannelLog>();

@@ -68,7 +68,7 @@ internal sealed class DefaultCipherSuitesViewModel : BaseViewModel
         {
             FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = windowsDocumentationService.GetCipherSuiteConfigurations(WindowsVersion!.Value);
 
-            await FetchOnlineCipherSuiteInfoAsync(CancellationToken.None);
+            await FetchOnlineCipherSuiteInfoAsync(CancellationToken.None).ConfigureAwait(true);
 
             IOrderedEnumerable<UiWindowsDocumentationCipherSuiteConfiguration> uiWindowsDocumentationCipherSuiteConfigurations = windowsDocumentationCipherSuiteConfigurations.Select(q => new UiWindowsDocumentationCipherSuiteConfiguration(
                 q.Priority,

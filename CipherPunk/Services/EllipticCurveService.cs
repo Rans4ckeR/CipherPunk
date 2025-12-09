@@ -25,7 +25,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
+    public IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> GetOperatingSystemAvailableEllipticCurveList()
     {
         var curveConfigurations = new List<WindowsApiEllipticCurveConfiguration>();
 
@@ -59,7 +59,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
 
                     try
                     {
-                        NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, &ppBuffer);
+                        NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(null, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, pszName, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, 0U, ref pcbBuffer, out ppBuffer);
 
                         if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                             throw new Win32Exception(bCryptResolveProvidersStatus);
@@ -92,7 +92,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
                         if (bCryptOpenAlgorithmProviderStatus.SeverityCode is not NTSTATUS.Severity.Success)
                             throw new Win32Exception(bCryptOpenAlgorithmProviderStatus);
 
-                        var hObject = new BCRYPT_HANDLE(phAlgorithm);
+                        var hObject = (BCRYPT_HANDLE)phAlgorithm;
                         NTSTATUS bCryptGetPropertyStatus = PInvoke.BCryptGetProperty(hObject, CngPropertyIdentifiers.BCRYPT_ECC_CURVE_NAME_LIST, null, out uint pcbResult, 0U);
 
                         if (bCryptGetPropertyStatus.SeverityCode is not NTSTATUS.Severity.Success)
@@ -123,7 +123,7 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
                                         throw new Win32Exception(bCryptGenerateKeyPairResult);
 
                                     nint stringPointer = Marshal.StringToHGlobalUni(eccCurveNameString);
-                                    var hObjectKey = new BCRYPT_HANDLE((void*)phKey.DangerousGetHandle());
+                                    var hObjectKey = (BCRYPT_HANDLE)phKey.DangerousGetHandle();
                                     NTSTATUS bCryptSetPropertyResult;
 
                                     try
@@ -264,11 +264,11 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
         => windowsDocumentationService.GetEllipticCurveConfigurations(windowsVersionService.WindowsVersion);
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
+    public IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> GetOperatingSystemActiveEllipticCurveList()
     {
         using RegistryKey? policyRegistryKey = Registry.LocalMachine.OpenSubKey(SslConfigurationPolicyKey);
         string[] activeEllipticCurves = (string[]?)policyRegistryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
-        FrozenSet<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
+        IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
 
         if (activeEllipticCurves.Length is 0)
         {
@@ -283,11 +283,11 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public FrozenSet<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList()
+    public IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> GetOperatingSystemConfiguredEllipticCurveList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
         string[] configuredEllipticCurves = (string[]?)registryKey?.GetValue(CurveOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
-        FrozenSet<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
+        IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemAvailableEllipticCurveList();
         ushort priority = ushort.MinValue;
 
         return [.. configuredEllipticCurves.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.pwszName.Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
@@ -307,30 +307,23 @@ internal sealed class EllipticCurveService(IWindowsDocumentationService windowsD
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateEllipticCurveOrder(IEnumerable<string> ellipticCurves)
     {
-        string ellipticCurvesString = FormattableString.Invariant($"{string.Join('\0', ellipticCurves)}\0\0");
+        ReadOnlySpan<byte> ellipticCurvesString = MemoryMarshal.Cast<char, byte>(FormattableString.Invariant($"{string.Join('\0', ellipticCurves)}\0\0"));
 
         if (ellipticCurvesString.Length > ListMaximumCharacters)
             throw new GroupPolicyServiceException(FormattableString.Invariant($"Maximum list length exceeded ({ellipticCurvesString.Length}), the maximum is {ListMaximumCharacters}."));
 
         using var hKey = new SafeRegistryHandle(HKEY.HKEY_LOCAL_MACHINE, true);
+        WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, NcryptSchannelInterfaceSslKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult);
 
-        unsafe
+        using (phkResult)
         {
-            WIN32_ERROR regCreateKeyExResult = PInvoke.RegCreateKeyEx(hKey, NcryptSchannelInterfaceSslKey, null, REG_OPEN_CREATE_OPTIONS.REG_OPTION_NON_VOLATILE, REG_SAM_FLAGS.KEY_SET_VALUE | REG_SAM_FLAGS.KEY_QUERY_VALUE, null, out SafeRegistryHandle phkResult, null);
+            if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
+                throw new Win32Exception((int)regCreateKeyExResult);
 
-            using (phkResult)
-            {
-                if (regCreateKeyExResult is not WIN32_ERROR.ERROR_SUCCESS)
-                    throw new Win32Exception((int)regCreateKeyExResult);
+            WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, CurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, ellipticCurvesString);
 
-                fixed (char* lpData = ellipticCurvesString)
-                {
-                    WIN32_ERROR regSetKeyValueResult = PInvoke.RegSetKeyValue(phkResult, null, CurveOrderValueName, (uint)REG_VALUE_TYPE.REG_MULTI_SZ, lpData, (uint)(sizeof(char) * ellipticCurvesString.Length));
-
-                    if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
-                        throw new Win32Exception((int)regSetKeyValueResult);
-                }
-            }
+            if (regSetKeyValueResult is not WIN32_ERROR.ERROR_SUCCESS)
+                throw new Win32Exception((int)regSetKeyValueResult);
         }
     }
 

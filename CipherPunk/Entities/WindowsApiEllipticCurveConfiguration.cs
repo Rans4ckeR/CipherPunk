@@ -1,6 +1,4 @@
-﻿using System.Collections.Frozen;
-
-namespace CipherPunk;
+﻿namespace CipherPunk;
 
 public readonly record struct WindowsApiEllipticCurveConfiguration(
     ushort Priority,
@@ -12,5 +10,5 @@ public readonly record struct WindowsApiEllipticCurveConfiguration(
     uint? dwBitLength,
     BCRYPT_MAGIC? bcryptMagic,
     CRYPT_OID_FLAG? flags,
-    FrozenSet<string> CngAlgorithms,
+    IReadOnlyCollection<string> CngAlgorithms,
     string? pwszCNGExtraAlgid);

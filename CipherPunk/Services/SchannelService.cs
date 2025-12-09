@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Runtime.Versioning;
+﻿using System.Runtime.Versioning;
 using Microsoft.Win32;
 
 namespace CipherPunk;
@@ -36,7 +35,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
     private readonly IWindowsVersionService windowsVersionService = windowsVersionService;
 
     [SupportedOSPlatform("windows")]
-    public FrozenSet<SchannelProtocolSettings> GetProtocolSettings()
+    public IReadOnlyCollection<SchannelProtocolSettings> GetProtocolSettings()
     {
         var result = new List<SchannelProtocolSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelProtocolsPath);
@@ -63,7 +62,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
     [SupportedOSPlatform("windows")]
     public void UpdateProtocolSettings(IEnumerable<SchannelProtocolSettings> schannelProtocolSettings)
     {
-        FrozenSet<SchannelProtocolSettings> currentProtocolSettings = GetProtocolSettings();
+        IReadOnlyCollection<SchannelProtocolSettings> currentProtocolSettings = GetProtocolSettings();
         using RegistryKey key = Registry.LocalMachine.CreateSubKey(SchannelProtocolsPath);
 
         foreach (SchannelProtocolSettings schannelProtocolSetting in schannelProtocolSettings)
@@ -91,7 +90,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
     public void ResetProtocolSettings() => UpdateProtocolSettings(windowsDocumentationService.GetProtocolConfigurations(windowsVersionService.WindowsVersion));
 
     [SupportedOSPlatform("windows")]
-    public FrozenSet<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
+    public IReadOnlyCollection<SchannelKeyExchangeAlgorithmSettings> GetKeyExchangeAlgorithmSettings()
     {
         var result = new List<SchannelKeyExchangeAlgorithmSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelKeyExchangeAlgorithmsPath);
@@ -131,7 +130,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
     public void ResetKeyExchangeAlgorithmSettings() => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
-    public FrozenSet<SchannelHashSettings> GetSchannelHashSettings()
+    public IReadOnlyCollection<SchannelHashSettings> GetSchannelHashSettings()
     {
         var result = new List<SchannelHashSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelHashesPath);
@@ -173,7 +172,7 @@ internal sealed class SchannelService(IWindowsVersionService windowsVersionServi
     public void ResetSchannelHashSettings() => throw new NotImplementedException();
 
     [SupportedOSPlatform("windows")]
-    public FrozenSet<SchannelCipherSettings> GetSchannelCipherSettings()
+    public IReadOnlyCollection<SchannelCipherSettings> GetSchannelCipherSettings()
     {
         var result = new List<SchannelCipherSettings>();
         using RegistryKey? key = Registry.LocalMachine.OpenSubKey(SchannelCiphersPath);

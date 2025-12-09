@@ -1,5 +1,4 @@
 ﻿using System.Buffers.Binary;
-using System.Collections.Frozen;
 using System.Security.Cryptography;
 
 namespace CipherPunk;
@@ -72,7 +71,7 @@ internal abstract record TlsRecord
     // 2 bytes
     public byte[] HandshakeExtensionsLength => BitConverter.GetBytes(BinaryPrimitives.ReverseEndianness((ushort)HandshakeExtensions.Sum(static q => q.GetBytes().Length)));
 
-    public FrozenSet<HandshakeExtension> HandshakeExtensions { get; protected init; }
+    public IReadOnlyCollection<HandshakeExtension> HandshakeExtensions { get; protected init; }
 
     public static TlsRecord Parse(ReadOnlySpan<byte> data)
     {

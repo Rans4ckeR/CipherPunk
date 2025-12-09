@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 
 namespace CipherPunk.UI;
@@ -24,7 +23,7 @@ internal sealed class EllipticCurvesViewModel : BaseViewModel
 
     protected override Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
+        IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
         IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(static q => new UiWindowsApiEllipticCurveConfiguration(
             q.Priority,
             q.pszOid,

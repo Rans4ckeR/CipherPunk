@@ -55,20 +55,20 @@ internal sealed class SchannelSettingsViewModel : BaseViewModel
             SchannelSettings!.MessageLimitClient,
             SchannelSettings!.MessageLimitServer,
             SchannelSettings!.MessageLimitServerClientAuth));
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
         NotifyCanExecuteChanged();
     }
 
     private async Task DoExecuteResetSettingsCommand()
     {
         schannelService.ResetSchannelSettings();
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
         NotifyCanExecuteChanged();
     }
 
     private async Task DoExecuteCancelSettingsCommand()
     {
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
         NotifyCanExecuteChanged();
     }
 

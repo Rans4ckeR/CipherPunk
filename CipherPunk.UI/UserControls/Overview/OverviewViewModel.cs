@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using CipherPunk.CipherSuiteInfoApi;
 using Windows.Win32;
 
@@ -82,19 +81,19 @@ internal sealed class OverviewViewModel : BaseViewModel
 
     protected override async Task DoExecuteDefaultCommandAsync(CancellationToken cancellationToken)
     {
-        FrozenSet<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings = schannelService.GetKeyExchangeAlgorithmSettings();
-        FrozenSet<SchannelCipherSettings> schannelCipherSettings = schannelService.GetSchannelCipherSettings();
-        FrozenSet<SchannelHashSettings> schannelHashSettings = schannelService.GetSchannelHashSettings();
+        IReadOnlyCollection<SchannelKeyExchangeAlgorithmSettings> schannelKeyExchangeAlgorithmSettings = schannelService.GetKeyExchangeAlgorithmSettings();
+        IReadOnlyCollection<SchannelCipherSettings> schannelCipherSettings = schannelService.GetSchannelCipherSettings();
+        IReadOnlyCollection<SchannelHashSettings> schannelHashSettings = schannelService.GetSchannelHashSettings();
 
         KeyExchangeAlgorithmSettings = [.. schannelKeyExchangeAlgorithmSettings];
         CipherSettings = [.. schannelCipherSettings];
         HashSettings = [.. schannelHashSettings];
-        await SchannelProtocolSettingsViewModel.DefaultCommand.ExecuteAsync(null);
-        await SchannelSettingsViewModel.DefaultCommand.ExecuteAsync(null);
+        await SchannelProtocolSettingsViewModel.DefaultCommand.ExecuteAsync(null).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
+        await SchannelSettingsViewModel.DefaultCommand.ExecuteAsync(null).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
 
-        FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
+        IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
 
-        await FetchOnlineCipherSuiteInfoAsync(cancellationToken);
+        await FetchOnlineCipherSuiteInfoAsync(cancellationToken).ConfigureAwait(true);
 
         IOrderedEnumerable<UiWindowsApiCipherSuiteConfiguration> uiWindowsApiCipherSuiteConfigurations = windowsApiActiveCipherSuiteConfigurations.Select(q => new UiWindowsApiCipherSuiteConfiguration(
             q.Priority,
@@ -120,7 +119,7 @@ internal sealed class OverviewViewModel : BaseViewModel
 
         ActiveCipherSuiteConfigurations = [.. uiWindowsApiCipherSuiteConfigurations];
 
-        FrozenSet<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
+        IReadOnlyCollection<WindowsApiEllipticCurveConfiguration> windowsApiActiveEllipticCurveConfigurations = ellipticCurveService.GetOperatingSystemActiveEllipticCurveList();
         IOrderedEnumerable<UiWindowsApiEllipticCurveConfiguration> uiWindowsApiEllipticCurveConfigurations = windowsApiActiveEllipticCurveConfigurations.Select(static q => new UiWindowsApiEllipticCurveConfiguration(
             q.Priority,
             q.pszOid,

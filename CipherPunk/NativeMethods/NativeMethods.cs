@@ -8,13 +8,17 @@
 // ------------------------------------------------------------------------------
 
 #nullable enable
-#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981
-namespace Windows.Win32;
-
-using global::System.Runtime.InteropServices;
-using global::System.Runtime.Versioning;
+#pragma warning disable CS1591,CS1573,CS0465,CS0649,CS8019,CS1570,CS1584,CS1658,CS0436,CS8981,SYSLIB1092
 using Windows.Win32.Foundation;
 using Windows.Win32.Security.Cryptography;
+using global::System;
+using global::System.Diagnostics;
+using global::System.Diagnostics.CodeAnalysis;
+using global::System.Runtime.CompilerServices;
+using global::System.Runtime.InteropServices;
+using global::System.Runtime.Versioning;
+using winmdroot = global::Windows.Win32;
+namespace Windows.Win32;
 
 internal static partial class PInvoke
 {
@@ -22,6 +26,16 @@ internal static partial class PInvoke
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
     internal static extern unsafe HRESULT SslFreeBuffer(void* pvInput);
+
+
+    [OverloadResolutionPriority(1)]
+    internal static unsafe HRESULT SslFreeBuffer(Span<byte> pvInput)
+    {
+        fixed (byte* pvInputLocal = pvInput)
+        {
+            return SslFreeBuffer((void*)pvInputLocal);
+        }
+    }
 
     [DllImport("ncrypt.dll", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
@@ -31,13 +45,14 @@ internal static partial class PInvoke
     [DllImport("ncrypt.dll", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
-    internal static extern unsafe HRESULT SslEnumCipherSuites(NCRYPT_PROV_HANDLE hProvider, [Optional] NCRYPT_KEY_HANDLE hPrivateKey, NCRYPT_SSL_CIPHER_SUITE** ppCipherSuite, void** ppEnumState, uint dwFlags = 0U);
+    internal static extern unsafe HRESULT SslEnumCipherSuites(NCRYPT_PROV_HANDLE hProvider, [Optional] NCRYPT_KEY_HANDLE hPrivateKey, winmdroot.NCRYPT_SSL_CIPHER_SUITE** ppCipherSuite, void** ppEnumState, uint dwFlags = 0U);
 
     [DllImport("ncrypt.dll", ExactSpelling = true)]
     [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
     [SupportedOSPlatform("windows6.0.6000")]
     internal static extern unsafe HRESULT SslEnumProtocolProviders(uint* pdwProviderCount, NCryptProviderName** ppProviderList, uint dwFlags = 0U);
 
+    [OverloadResolutionPriority(1)]
     internal static unsafe HRESULT SslEnumProtocolProviders(out uint pdwProviderCount, out NCryptProviderName* ppProviderList, uint dwFlags = 0U)
     {
         fixed (NCryptProviderName** ppProviderListLocal = &ppProviderList)
@@ -50,25 +65,27 @@ internal static partial class PInvoke
         }
     }
 
-    internal static unsafe HRESULT SslOpenProvider(out NCryptFreeObjectSafeHandle phSslProvider, string pszProviderName, uint dwFlags = 0U)
+    [OverloadResolutionPriority(1)]
+    internal static unsafe HRESULT SslOpenProvider(out winmdroot.NCryptFreeObjectSafeHandle phSslProvider, string pszProviderName, uint dwFlags = 0U)
     {
         fixed (char* pszProviderNameLocal = pszProviderName)
         {
             NCRYPT_PROV_HANDLE phSslProviderLocal;
             HRESULT __result = PInvoke.SslOpenProvider(&phSslProviderLocal, pszProviderNameLocal, dwFlags);
-            phSslProvider = new NCryptFreeObjectSafeHandle(checked((nint)(nuint)phSslProviderLocal), ownsHandle: true);
+            phSslProvider = new winmdroot.NCryptFreeObjectSafeHandle(checked((nint)(nuint)phSslProviderLocal), ownsHandle: true);
             return __result;
         }
     }
 
-    internal static unsafe HRESULT SslEnumCipherSuites(SafeHandle hSslProvider, SafeHandle? hPrivateKey, out NCRYPT_SSL_CIPHER_SUITE* ppCipherSuite, ref void* ppEnumState, uint dwFlags = 0U)
+    [OverloadResolutionPriority(1)]
+    internal static unsafe HRESULT SslEnumCipherSuites(SafeHandle hSslProvider, SafeHandle? hPrivateKey, out winmdroot.NCRYPT_SSL_CIPHER_SUITE* ppCipherSuite, ref void* ppEnumState, uint dwFlags = 0U)
     {
         bool hSslProviderAddRef = false;
         bool hPrivateKeyAddRef = false;
 
         try
         {
-            fixed (NCRYPT_SSL_CIPHER_SUITE** ppCipherSuiteLocal = &ppCipherSuite)
+            fixed (winmdroot.NCRYPT_SSL_CIPHER_SUITE** ppCipherSuiteLocal = &ppCipherSuite)
             {
                 fixed (void** ppEnumStateLocal = &ppEnumState)
                 {

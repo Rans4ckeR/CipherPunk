@@ -10,6 +10,9 @@ internal sealed class WindowsVersionService : IWindowsVersionService
     private static WindowsVersion GetWindowsVersion()
 #pragma warning restore CA1502 // Avoid excessive complexity
     {
+        if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 26200))
+            return WindowsVersion.Windows11V25H2;
+
         if (OperatingSystem.IsWindowsVersionAtLeast(10, 0, 26100))
             return WindowsVersion.Windows11V24H2OrServer2025;
 

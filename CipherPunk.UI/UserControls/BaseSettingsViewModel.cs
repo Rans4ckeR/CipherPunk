@@ -116,7 +116,7 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
     private async Task ExecuteSaveSettingsCommandAsync()
     {
         DoExecuteSaveSettingsCommand();
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
         NotifyCanExecuteChanged();
     }
 
@@ -130,7 +130,7 @@ internal abstract class BaseSettingsViewModel<TActive, TUserInterface, TAvailabl
     private async Task ExecuteResetSettingsCommandAsync()
     {
         DoExecuteResetSettingsCommand();
-        await DoExecuteDefaultCommandAsync(CancellationToken.None);
+        await DoExecuteDefaultCommandAsync(CancellationToken.None).ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext);
         NotifyCanExecuteChanged();
     }
 

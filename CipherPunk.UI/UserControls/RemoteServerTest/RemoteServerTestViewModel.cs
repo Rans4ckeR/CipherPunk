@@ -86,9 +86,9 @@ internal sealed class RemoteServerTestViewModel : BaseViewModel
 
     private async Task ExecuteRunTestCommandAsync(CancellationToken cancellationToken)
     {
-        FrozenSet<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
+        IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> windowsApiActiveCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemActiveCipherSuiteList();
         FrozenSet<WindowsDocumentationCipherSuiteConfiguration> windowsDocumentationCipherSuiteConfigurations = cipherSuiteService.GetOperatingSystemDocumentationDefaultCipherSuiteList();
-        FrozenSet<(TlsVersion TlsVersion, FrozenSet<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken);
+        IReadOnlyCollection<(TlsVersion TlsVersion, IReadOnlyCollection<(uint CipherSuiteId, bool Supported, string? ErrorReason)>? Results)> remoteServerCipherSuites = await tlsService.GetRemoteServerCipherSuitesAsync(HostName!, Port!.Value, cancellationToken).ConfigureAwait(true);
         List<UiRemoteServerTestResult> remoteActiveCipherSuiteConfigurations =
         [
             ..remoteServerCipherSuites

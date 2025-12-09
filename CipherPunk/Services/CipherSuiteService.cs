@@ -31,7 +31,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
 
             try
             {
-                NTSTATUS status = PInvoke.BCryptEnumContexts(BCRYPT_TABLE.CRYPT_LOCAL, ref pcbBuffer, &ppBuffer);
+                NTSTATUS status = PInvoke.BCryptEnumContexts(BCRYPT_TABLE.CRYPT_LOCAL, ref pcbBuffer, out ppBuffer);
 
                 if (status.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(status);
@@ -61,18 +61,18 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
         => windowsDocumentationService.GetCipherSuiteConfigurations(windowsVersionService.WindowsVersion);
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList()
+    public IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> GetOperatingSystemConfiguredCipherSuiteList()
     {
         using RegistryKey? registryKey = Registry.LocalMachine.OpenSubKey(NcryptSchannelInterfaceSslKey);
         string[] configuredCipherSuites = (string[]?)registryKey?.GetValue(SslCipherSuiteOrderValueName, null, RegistryValueOptions.DoNotExpandEnvironmentNames) ?? [];
-        FrozenSet<WindowsApiCipherSuiteConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+        IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> availableWindowsApiActiveEllipticCurveConfigurations = GetOperatingSystemDefaultCipherSuiteList();
         ushort priority = ushort.MinValue;
 
         return [.. configuredCipherSuites.Select(q => availableWindowsApiActiveEllipticCurveConfigurations.Single(r => r.CipherSuite.ToString().Equals(q, StringComparison.OrdinalIgnoreCase))).Select(q => q with { Priority = ++priority })];
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList()
+    public IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> GetOperatingSystemActiveCipherSuiteList()
     {
         uint pcbBuffer = 0U;
         IEnumerable<string> contexts = GetLocalCngConfigurationContextIdentifiers();
@@ -86,12 +86,12 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
 
             try
             {
-                NTSTATUS bCryptEnumContextFunctionsStatus = PInvoke.BCryptEnumContextFunctions(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, ref pcbBuffer, &ppBuffer);
+                NTSTATUS bCryptEnumContextFunctionsStatus = PInvoke.BCryptEnumContextFunctions(BCRYPT_TABLE.CRYPT_LOCAL, LocalCngSslContextName, BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, ref pcbBuffer, out ppBuffer);
 
                 if (bCryptEnumContextFunctionsStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptEnumContextFunctionsStatus);
 
-                FrozenSet<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
+                IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> defaultCipherSuiteConfigurations = GetOperatingSystemDefaultCipherSuiteList();
                 var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration>();
                 ref CRYPT_CONTEXT_FUNCTIONS cryptContextFunctions = ref Unsafe.AsRef<CRYPT_CONTEXT_FUNCTIONS>(ppBuffer);
 
@@ -117,7 +117,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     }
 
     [SupportedOSPlatform("windows6.0.6000")]
-    public FrozenSet<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
+    public IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> GetOperatingSystemDefaultCipherSuiteList()
     {
         var cipherSuiteConfigurations = new List<WindowsApiCipherSuiteConfiguration?>();
 
@@ -130,7 +130,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
 
             try
             {
-                NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(LocalCngSslContextName, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, null, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, BCRYPT_RESOLVE_PROVIDERS_FLAGS.CRYPT_ALL_PROVIDERS, ref pcbBuffer, &ppBuffer);
+                NTSTATUS bCryptResolveProvidersStatus = PInvoke.BCryptResolveProviders(LocalCngSslContextName, (uint)BCRYPT_INTERFACE.NCRYPT_SCHANNEL_INTERFACE, null, null, BCRYPT_QUERY_PROVIDER_MODE.CRYPT_UM, BCRYPT_RESOLVE_PROVIDERS_FLAGS.CRYPT_ALL_PROVIDERS, ref pcbBuffer, out ppBuffer);
 
                 if (bCryptResolveProvidersStatus.SeverityCode is not NTSTATUS.Severity.Success)
                     throw new Win32Exception(bCryptResolveProvidersStatus);
@@ -270,7 +270,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     [SupportedOSPlatform("windows6.0.6000")]
     public void ResetCipherSuiteListToOperatingSystemDefault()
     {
-        FrozenSet<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
+        IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
         IEnumerable<string> defaultCipherSuites = GetOperatingSystemDocumentationDefaultCipherSuiteList()
             .Where(static q => q.EnabledByDefault)
             .OrderBy(static q => q.Priority)
@@ -321,7 +321,7 @@ internal sealed class CipherSuiteService(IWindowsDocumentationService windowsDoc
     [SupportedOSPlatform("windows6.0.6000")]
     public void UpdateCipherSuiteOrder(IEnumerable<string> cipherSuites)
     {
-        FrozenSet<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
+        IReadOnlyCollection<WindowsApiCipherSuiteConfiguration> activeCipherSuites = GetOperatingSystemActiveCipherSuiteList();
 
         foreach (string cipher in activeCipherSuites.Select(static q => q.CipherSuiteName))
         {
