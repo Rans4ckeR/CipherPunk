@@ -8,6 +8,8 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".github/workflows/dotnet.yml" />
+    <File Path="GitVersion.yml" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="CipherPunk.CipherSuiteInfoApi/CipherPunk.CipherSuiteInfoApi.csproj" />
   <Project Path="CipherPunk.UI/CipherPunk.UI.csproj">
